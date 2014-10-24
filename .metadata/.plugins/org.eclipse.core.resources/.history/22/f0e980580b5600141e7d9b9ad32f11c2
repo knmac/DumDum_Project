@@ -1,8 +1,0 @@
-package fr.eurecom.utility;
-package fr.eurecom.dumdumgame;
-
-public class DataReader {
-	static public void ReadData() {
-		App
-	}
-}
