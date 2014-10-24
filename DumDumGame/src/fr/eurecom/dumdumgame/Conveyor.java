@@ -41,7 +41,7 @@ public class Conveyor extends DynamicBitmap{
                 conveyorType = ConveyorType.BOTTOM_UP;
                 increment.y -= Parameters.dConveyorSpeed;
                 
-                //them cai nay nha :v
+                //them cai nay nha :vasdsadsadsadsasdsds
             }
             width = Parameters.dConveyorWidth;
             height = (int)s.getLength();
