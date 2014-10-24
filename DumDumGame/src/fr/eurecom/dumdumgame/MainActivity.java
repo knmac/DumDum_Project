@@ -41,6 +41,8 @@ public class MainActivity extends ActionBarActivity {
 	private int timeInterval = 40; // what is that, check later
 	private boolean timerOn;
 
+	//code moi ne!!
+	
 	// --------------------------------------------------------------------------
 	// Game variables
 	private MainMenu mainMenu;
@@ -53,13 +55,13 @@ public class MainActivity extends ActionBarActivity {
 
 	private LinkedList<User> userList = new LinkedList<User>();
 
-	private MssgBox mssgBox;
-	private CongratBox congratBox;
-
 	private MediaPlayer spMenu;
 	private MediaPlayer spBackground;
 	private MediaPlayer spVictory;
 	private boolean soundOn = true;
+	
+	private MssgBox mssgBox;
+	private CongratBox congratBox;
 
 	private String currentUserName;
 	private int chosenLevel;
