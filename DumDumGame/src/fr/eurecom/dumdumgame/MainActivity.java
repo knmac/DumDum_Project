@@ -40,8 +40,6 @@ public class MainActivity extends ActionBarActivity {
 	private MyView mainView;
 	private int timeInterval = 40; // what is that, check later
 	private boolean timerOn;
-
-	//code moi ne!!
 	
 	// --------------------------------------------------------------------------
 	// Game variables
