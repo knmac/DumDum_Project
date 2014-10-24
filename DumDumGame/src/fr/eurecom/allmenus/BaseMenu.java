@@ -1,5 +1,6 @@
 package fr.eurecom.allmenus;
 
+//
 import java.util.LinkedList;
 
 import fr.eurecom.dumdumgame.Button;
