@@ -1,0 +1,52 @@
+package fr.eurecom.utility;
+
+import android.content.Context;
+import fr.eurecom.dumdumgame.App;
+
+public class DataWriter {
+	
+	private static Context context;
+
+	public DataWriter() {
+		// TODO Auto-generated constructor stub
+		context = App.getMyContext();
+	}
+	
+	static public void WriteData(LinkedList<User> userList, String dataPath, String currentUser) {
+		String newLine = System.getProperty("line.separator");
+		
+		try {
+			FileOutputStream fos = activity.openFileOutput(dataPath, Context.MODE_PRIVATE);
+			
+			fos.write((userList.size() + "").getBytes());
+			fos.write(newLine.getBytes());
+
+			fos.write(currentUser.getBytes());
+			fos.write(newLine.getBytes());
+
+			for (int i = 0; i < userList.size(); ++i) // for each user
+			{
+				User user = userList.get(i);
+				
+				fos.write(user.getName().getBytes());
+				fos.write(newLine.getBytes());
+				
+				fos.write((user.getCurrentLevel() + " "
+						+ user.getCurrentScore() + " " + user.getCurrentPos().x
+						+ " " + user.getCurrentPos().y + " "
+						+ user.getUnlockedLevel()).getBytes());
+				fos.write(newLine.getBytes());
+				
+				for (int j = 0; j < 10; ++j)
+					fos.write((user.getLevelScore().get(j) + " ").getBytes());
+				fos.write(newLine.getBytes());
+			}
+			fos.close();
+		} catch (FileNotFoundException e) {
+			Log.e("Data Writer", e.getMessage());
+		} catch (IOException e) {
+			Log.e("Data Writer", e.getMessage());
+		}
+	}
+	
+}

@@ -1,0 +1,20 @@
+package fr.eurecom.utility;
+
+import java.io.FileNotFoundException;
+
+import android.content.Context;
+import android.content.ContextWrapper;
+
+public class DataReader {
+	static void ReadData() {
+		ContextWrapper cWrapper = new ContextWrapper(null);
+		
+		try {
+			cWrapper.openFileOutput("abc.txt", Context.MODE_WORLD_WRITEABLE);
+			cWrap
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}

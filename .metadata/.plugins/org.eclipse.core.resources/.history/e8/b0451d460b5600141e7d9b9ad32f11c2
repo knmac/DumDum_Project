@@ -1,0 +1,7 @@
+package fr.eurecom.utility;
+
+public class DataReader {
+	static public ReadData() {
+		
+	}
+}

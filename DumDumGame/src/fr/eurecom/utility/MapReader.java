@@ -1,0 +1,398 @@
+package fr.eurecom.utility;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+
+import fr.eurecom.engine.Polygon;
+import fr.eurecom.engine.Segment;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
+import android.util.Log;
+
+public class MapReader {
+	private LinkedList<Segment> reflectorList = new LinkedList<Segment>();
+    private LinkedList<Segment> conveyorList = new LinkedList<Segment>();
+    private LinkedList<Point> teleporterList = new LinkedList<Point>();
+    private LinkedList<Polygon> wallList = new LinkedList<Polygon>();
+    private LinkedList<Polygon> internalWallList = new LinkedList<Polygon>();
+    private LinkedList<Polygon> grassList = new LinkedList<Polygon>();
+    private LinkedList<Polygon> sandList = new LinkedList<Polygon>();
+    private LinkedList<Polygon> waterList = new LinkedList<Polygon>();
+    private boolean rain = false;
+    private Point startPos = new Point(0, 0);
+    private Point holePos = new Point(0, 0);
+    
+	public void setReflectorList(LinkedList<Segment> reflectorList) {
+		this.reflectorList = reflectorList;
+	}
+	public LinkedList<Segment> getReflectorList() {
+		return reflectorList;
+	}
+	public void setConveyorList(LinkedList<Segment> conveyorList) {
+		this.conveyorList = conveyorList;
+	}
+	public LinkedList<Segment> getConveyorList() {
+		return conveyorList;
+	}
+	public void setTeleporterList(LinkedList<Point> teleporterList) {
+		this.teleporterList = teleporterList;
+	}
+	public LinkedList<Point> getTeleporterList() {
+		return teleporterList;
+	}
+	public void setWallList(LinkedList<Polygon> wallList) {
+		this.wallList = wallList;
+	}
+	public LinkedList<Polygon> getWallList() {
+		return wallList;
+	}
+	public void setInternalWallList(LinkedList<Polygon> internalWallList) {
+		this.internalWallList = internalWallList;
+	}
+	public LinkedList<Polygon> getInternalWallList() {
+		return internalWallList;
+	}
+	public void setGrassList(LinkedList<Polygon> grassList) {
+		this.grassList = grassList;
+	}
+	public LinkedList<Polygon> getGrassList() {
+		return grassList;
+	}
+	public void setSandList(LinkedList<Polygon> sandList) {
+		this.sandList = sandList;
+	}
+	public LinkedList<Polygon> getSandList() {
+		return sandList;
+	}
+	public void setWaterList(LinkedList<Polygon> waterList) {
+		this.waterList = waterList;
+	}
+	public LinkedList<Polygon> getWaterList() {
+		return waterList;
+	}
+	public void setRain(boolean rain) {
+		this.rain = rain;
+	}
+	public boolean isRain() {
+		return rain;
+	}
+	public void setStartPos(Point startPos) {
+		this.startPos = startPos;
+	}
+	public Point getStartPos() {
+		return startPos;
+	}
+	public void setHolePos(Point holePos) {
+		this.holePos = holePos;
+	}
+	public Point getHolePos() {
+		return holePos;
+	}
+
+
+    private Point ZoomPoint(Point p, int zoomParam)
+    {
+        return new Point(p.x * zoomParam, p.y * zoomParam);
+    }
+
+    private void ZoomAll(int zoomParam)
+    {
+        startPos = ZoomPoint(startPos, zoomParam);
+        holePos = ZoomPoint(holePos, zoomParam);
+
+        for (int i = 0; i < reflectorList.size(); ++i)
+        {
+            reflectorList.get(i).setFirstPoint(ZoomPoint(reflectorList.get(i).getFirstPoint(), zoomParam));
+            reflectorList.get(i).setSecondPoint(ZoomPoint(reflectorList.get(i).getSecondPoint(), zoomParam));
+        }
+
+        for (int i = 0; i < conveyorList.size(); ++i)
+        {            
+            conveyorList.get(i).setFirstPoint(ZoomPoint(conveyorList.get(i).getFirstPoint(), zoomParam));
+            conveyorList.get(i).setSecondPoint(ZoomPoint(conveyorList.get(i).getSecondPoint(), zoomParam));
+        }
+
+        for (int i = 0; i < teleporterList.size(); ++i)
+        {
+        	Point point = ZoomPoint(teleporterList.get(i), zoomParam);
+            teleporterList.get(i).set(point.x, point.y);
+        }
+
+        for (int i = 0; i < wallList.size(); ++i)
+        {
+            for (int j = 0; j < wallList.get(i).getPoints().size(); ++j) {
+            	Point point = ZoomPoint(wallList.get(i).getPoints().get(j), zoomParam);
+                wallList.get(i).getPoints().get(j).set(point.x, point.y);
+            }
+        }
+
+        for (int i = 0; i < internalWallList.size(); ++i)
+        {
+            for (int j = 0; j < internalWallList.get(i).getPoints().size(); ++j) {
+                Point point = ZoomPoint(internalWallList.get(i).getPoints().get(j), zoomParam);
+                internalWallList.get(i).getPoints().get(j).set(point.x, point.y);
+            }
+        }
+
+        for (int i = 0; i < grassList.size(); ++i)
+        {
+            for (int j = 0; j < grassList.get(i).getPoints().size(); ++j) {
+                Point point = ZoomPoint(grassList.get(i).getPoints().get(j), zoomParam);
+                grassList.get(i).getPoints().get(j).set(point.x, point.y);
+            }
+        }
+
+        for (int i = 0; i < sandList.size(); ++i)
+        {
+            for (int j = 0; j < sandList.get(i).getPoints().size(); ++j) {
+                Point point = ZoomPoint(sandList.get(i).getPoints().get(j), zoomParam);
+                sandList.get(i).getPoints().get(j).set(point.x, point.y);
+            }
+        }
+
+        for (int i = 0; i < waterList.size(); ++i)
+        {
+            for (int j = 0; j < waterList.get(i).getPoints().size(); ++j) {
+                Point point = ZoomPoint(waterList.get(i).getPoints().get(j), zoomParam);
+                waterList.get(i).getPoints().get(j).set(point.x, point.y);
+            }
+        }
+    }
+
+    private Point ShiftPoint(Point p, int shiftParam)
+    {
+        return new Point(p.x + shiftParam, p.y + shiftParam);
+    }
+
+    private void ShiftAll(int shiftParam)
+    {
+        startPos = ShiftPoint(startPos, shiftParam);
+        holePos = ShiftPoint(holePos, shiftParam);
+
+        for (int i = 0; i < reflectorList.size(); ++i)
+        {
+            reflectorList.get(i).setFirstPoint(ShiftPoint(reflectorList.get(i).getFirstPoint(), shiftParam));
+            reflectorList.get(i).setSecondPoint(ShiftPoint(reflectorList.get(i).getSecondPoint(), shiftParam));
+        }
+
+        for (int i = 0; i < conveyorList.size(); ++i)
+        {
+            conveyorList.get(i).setFirstPoint(ShiftPoint(conveyorList.get(i).getFirstPoint(), shiftParam));
+            conveyorList.get(i).setSecondPoint(ShiftPoint(conveyorList.get(i).getSecondPoint(), shiftParam));
+        }
+
+        for (int i = 0; i < teleporterList.size(); ++i)
+        {
+        	Point point = ShiftPoint(teleporterList.get(i), shiftParam);
+            teleporterList.get(i).set(point.x, point.y);
+        }
+
+        for (int i = 0; i < wallList.size(); ++i)
+        {
+            for (int j = 0; j < wallList.get(i).getPoints().size(); ++j) {
+            	Point point = ShiftPoint(wallList.get(i).getPoints().get(j), shiftParam);
+                wallList.get(i).getPoints().get(j).set(point.x, point.y);
+            }
+        }
+
+        for (int i = 0; i < internalWallList.size(); ++i)
+        {
+            for (int j = 0; j < internalWallList.get(i).getPoints().size(); ++j) {
+            	Point point = ShiftPoint(internalWallList.get(i).getPoints().get(j), shiftParam);
+                internalWallList.get(i).getPoints().get(j).set(point.x, point.y);
+            }
+        }
+
+        for (int i = 0; i < grassList.size(); ++i)
+        {
+            for (int j = 0; j < grassList.get(i).getPoints().size(); ++j) {
+            	Point point = ShiftPoint(grassList.get(i).getPoints().get(j), shiftParam);
+                grassList.get(i).getPoints().get(j).set(point.x, point.y);
+            }
+        }
+
+        for (int i = 0; i < sandList.size(); ++i)
+        {
+            for (int j = 0; j < sandList.get(i).getPoints().size(); ++j) {
+            	Point point = ShiftPoint(sandList.get(i).getPoints().get(j), shiftParam);
+                sandList.get(i).getPoints().get(j).set(point.x, point.y);
+            }
+        }
+
+        for (int i = 0; i < waterList.size(); ++i)
+        {
+            for (int j = 0; j < waterList.get(i).getPoints().size(); ++j) {
+                Point point = ShiftPoint(waterList.get(i).getPoints().get(j), shiftParam);
+                waterList.get(i).getPoints().get(j).set(point.x, point.y);
+            }
+        }
+    }
+
+    private Segment ReadSegment(BufferedReader reader) throws IOException
+    {
+    	String[] arr;
+        arr = reader.readLine().split(" ");
+        Point firstPoint = new Point(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
+        Point secondPoint = new Point(Integer.parseInt(arr[2]), Integer.parseInt(arr[3]));
+        return new Segment(firstPoint, secondPoint);
+    }
+
+    private Polygon ReadPolygon(BufferedReader reader) throws IOException
+    {
+    	String[] arr;
+        arr = reader.readLine().split(" ");
+        Polygon myPolygon = new Polygon();
+        for (int j = 0; j < arr.length; j += 2)
+            myPolygon.getPoints().add(new Point(Integer.parseInt(arr[j]), Integer.parseInt(arr[j + 1])));
+        return myPolygon;
+    }
+
+    public MapReader(int fileID)
+    {
+        try
+        {
+            String[] arr;
+            InputStream inputStream = Parameters.resource.openRawResource(fileID);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            int n;
+
+            // read rain status            
+            if (Integer.parseInt(reader.readLine()) == 1)
+                rain = true;
+            else
+                rain = false;
+
+            // read start pos
+            arr = reader.readLine().split(" ");
+            startPos = new Point(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
+
+            // read hole pos
+            arr = reader.readLine().split(" ");
+            holePos = new Point(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
+
+            /*************for engine***************/
+            // read reflector pos
+            n = Integer.parseInt(reader.readLine());
+            for (int i = 0; i < n; ++i)
+            {
+                reflectorList.add(ReadSegment(reader));
+            }
+
+            // read conveyor pos
+            n = Integer.parseInt(reader.readLine());
+            for (int i = 0; i < n; ++i)
+            {
+                conveyorList.add(ReadSegment(reader));
+            }
+
+            // read teleporter pos
+            n = Integer.parseInt(reader.readLine());
+            for (int i = 0; i < n; ++i)
+            {
+                arr = reader.readLine().split(" ");
+                teleporterList.add(new Point(Integer.parseInt(arr[0]), Integer.parseInt(arr[1])));
+            }
+
+            /*************for graphic***************/
+            // read wall pos
+            n = Integer.parseInt(reader.readLine());
+            for (int i = 0; i < n; ++i)
+            {
+                wallList.add(ReadPolygon(reader));
+            }
+
+            // read internal wall pos
+            n = Integer.parseInt(reader.readLine());
+            for (int i = 0; i < n; ++i)
+            {
+                internalWallList.add(ReadPolygon(reader));
+            }
+
+            // read grass pos
+            n = Integer.parseInt(reader.readLine());
+            for (int i = 0; i < n; ++i)
+            {
+                grassList.add(ReadPolygon(reader));
+            }
+
+            // read sand pos
+            n = Integer.parseInt(reader.readLine());
+            for (int i = 0; i < n; ++i)
+            {
+                sandList.add(ReadPolygon(reader));
+            }
+
+            // read water pos
+            n = Integer.parseInt(reader.readLine());
+            for (int i = 0; i < n; ++i)
+            {
+                waterList.add(ReadPolygon(reader));
+            }
+
+            // Shift map downward 1 to nullify negative number
+            ShiftAll(1);
+
+            // zoom
+            ZoomAll(Parameters.dZoomParam);
+
+            // Shift map downward to move the map to the center
+            ShiftAll(Parameters.dShiftParam);
+
+            reader.close();
+        }
+        catch (Exception ex)
+        {
+            Log.e("Map Reader", ex.getMessage());
+        }
+    }
+
+    public void Show(Canvas canvas)
+    {
+        // Show outer walls
+        for (int i = 0; i < this.wallList.size(); ++i)
+        {
+            this.wallList.get(i).Fill(Parameters.bmpTextureWall, canvas);
+        }
+        // Show grass
+        for (int i = 0; i < this.grassList.size(); ++i)
+        {
+            this.grassList.get(i).Fill(Parameters.bmpTextureGrass, canvas);
+        }
+        // Show inner walls
+        for (int i = 0; i < this.internalWallList.size(); ++i)
+        {
+            this.internalWallList.get(i).Fill(Parameters.bmpTextureWall, canvas);
+        }
+        // Show sand
+        for (int i = 0; i < this.sandList.size(); ++i)
+        {
+            this.sandList.get(i).FillWithImage(Parameters.bmpSand, canvas);
+        }
+        // Show water
+        for (int i = 0; i < this.waterList.size(); ++i)
+        {
+            this.waterList.get(i).FillWithImage(Parameters.bmpWater, canvas);
+        }
+        // Show reflective surfaces
+        for (int i = 0; i < this.reflectorList.size(); ++i)
+        {
+            Point first = this.reflectorList.get(i).getFirstPoint();
+            Point second = this.reflectorList.get(i).getSecondPoint();
+            Paint paint = new Paint();
+            paint.setColor(Color.BLACK);
+            paint.setStrokeWidth(3);
+            canvas.drawLine(first.x, first.y, second.x, second.y, paint);
+        }
+        // Show target hole
+        Point hole = this.holePos;
+        int holeRadius = Parameters.dBallRadius;
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        canvas.drawCircle(hole.x, hole.y, holeRadius, new Paint());
+    }
+}

@@ -1,0 +1,190 @@
+package fr.eurecom.dumdumgame;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Point;
+import android.view.MotionEvent;
+import android.view.View;
+import fr.eurecom.engine.Game;
+import fr.eurecom.utility.Helper;
+import fr.eurecom.utility.Parameters;
+
+public class MyView extends View {
+	public MyView(Context context) {
+		super(context);
+	}
+
+	@Override
+	protected void onDraw(Canvas canvas) {
+
+		Canvas myCanvas = canvas;
+
+		switch (MainActivity.getState()) {
+		case MAIN_MENU:
+			mainMenu.Show(myCanvas, currentUserName, getCurrentUser()
+					.getCurrentLevel());
+			break;
+		case USER_MENU:
+			userMenu.Show(myCanvas);
+			break;
+		case HIGH_SCORE_MENU:
+			highScoreMenu.Show(myCanvas);
+			break;
+		case HELP_MENU:
+			helpMenu.Show(myCanvas);
+			break;
+		case START_MENU:
+			startMenu.Show(myCanvas);
+			break;
+		case LOAD_MENU:
+			loadMenu.Show(myCanvas);
+			break;
+		case GAME:
+			try {
+				game.Show(myCanvas);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			break;
+		case PAUSE_MENU:
+			if (screenShot != null) {
+				canvas.drawBitmap(screenShot, 0, 0, new Paint());
+				canvas.drawARGB(80, 0, 0, 0);
+			}
+			pauseMenu.Show(myCanvas);
+			break;
+		case MSSG_BOX:
+			if (screenShot != null) {
+				canvas.drawBitmap(screenShot, 0, 0, new Paint());
+				canvas.drawARGB(80, 0, 0, 0);
+			}
+			mssgBox.Show(myCanvas);
+			break;
+		case CONGRAT_BOX:
+			congratBox.Show(myCanvas);
+			break;
+		}
+
+		if (!soundOn) {
+			if (spBackground.isPlaying())
+				spBackground = Helper.stopMediaPlayer(spBackground,
+						Parameters.dBackgroundSoundtrack);
+			if (spVictory.isPlaying())
+				spVictory = Helper.stopMediaPlayer(spVictory,
+						Parameters.dVictorySoundtrack);
+			if (spMenu.isPlaying())
+				spMenu = Helper.stopMediaPlayer(spMenu,
+						Parameters.dMenuSoundtrack);
+		} else {
+			switch (state) {
+			case MAIN_MENU:
+			case USER_MENU:
+			case HIGH_SCORE_MENU:
+			case HELP_MENU:
+			case START_MENU:
+			case LOAD_MENU:
+				if (spBackground.isPlaying())
+					spBackground = Helper.stopMediaPlayer(spBackground,
+							Parameters.dBackgroundSoundtrack);
+				if (spVictory.isPlaying())
+					spVictory = Helper.stopMediaPlayer(spVictory,
+							Parameters.dVictorySoundtrack);
+				if (!spMenu.isPlaying())
+					spMenu.start();
+				break;
+			case PAUSE_MENU:
+			case GAME:
+				if (spVictory.isPlaying())
+					spVictory = Helper.stopMediaPlayer(spVictory,
+							Parameters.dVictorySoundtrack);
+				if (spMenu.isPlaying())
+					spMenu = Helper.stopMediaPlayer(spMenu,
+							Parameters.dMenuSoundtrack);
+				if (!spBackground.isPlaying())
+					spBackground.start();
+				break;
+			case MSSG_BOX:
+				break;
+			case CONGRAT_BOX:
+				if (spBackground.isPlaying())
+					spBackground = Helper.stopMediaPlayer(spBackground,
+							Parameters.dBackgroundSoundtrack);
+				if (spMenu.isPlaying())
+					spMenu = Helper.stopMediaPlayer(spMenu,
+							Parameters.dMenuSoundtrack);
+				if (!spVictory.isPlaying())
+					spVictory.start();
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+
+		// Depend on current state, the mouse position invokes different
+		// actions
+		Point mousePos = new Point((int) event.getX(), (int) event.getY());
+
+		switch (event.getAction()) {
+		case MotionEvent.ACTION_UP:
+			switch (state) {
+			case MAIN_MENU:
+				mainMenu.Action(mousePos, gameActivity);
+				break;
+			case USER_MENU:
+				userMenu.Action(mousePos, gameActivity);
+				break;
+			case HIGH_SCORE_MENU:
+				highScoreMenu.Action(mousePos, gameActivity);
+				break;
+			case HELP_MENU:
+				helpMenu.Action(mousePos, gameActivity);
+				break;
+			case START_MENU:
+				startMenu.Action(mousePos, gameActivity);
+				break;
+			case LOAD_MENU:
+				loadMenu.Action(mousePos, gameActivity);
+				break;
+			case GAME:
+				game.Action(mousePos, gameActivity,
+						Game.MouseState.MOUSE_UP);
+				break;
+			case PAUSE_MENU:
+				pauseMenu.Action(mousePos, gameActivity);
+				break;
+			case MSSG_BOX:
+				mssgBox.Action(mousePos, gameActivity);
+				break;
+			case CONGRAT_BOX:
+				congratBox.Action(mousePos, gameActivity);
+				break;
+			}
+			break;
+		case MotionEvent.ACTION_DOWN:
+			switch (state) {
+			case GAME:
+				game.Action(mousePos, gameActivity,
+						Game.MouseState.MOUSE_DOWN);
+				break;
+			}
+			break;
+		case MotionEvent.ACTION_MOVE:
+			switch (state) {
+			case GAME:
+				game.Action(mousePos, gameActivity,
+						Game.MouseState.MOUSE_MOVE);
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+
+		return true;
+	}
+}

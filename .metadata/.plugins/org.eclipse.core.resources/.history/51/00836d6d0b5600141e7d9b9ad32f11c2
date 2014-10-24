@@ -1,0 +1,9 @@
+package fr.eurecom.utility;
+
+import fr.eurecom.dumdumgame.App;
+
+public class DataReader {
+	static public void ReadData() {
+		App
+	}
+}

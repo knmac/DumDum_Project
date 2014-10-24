@@ -1,0 +1,18 @@
+package fr.eurecom.dumdumgame;
+
+import android.app.Application;
+import android.content.Context;
+
+public class App extends Application {
+	private static Context myContext;
+
+	public static Context getMyContext() {
+		return myContext;
+	}
+
+	public static void setMyContext(Context myContext) {
+		App.myContext = myContext;
+	}
+	
+	
+}

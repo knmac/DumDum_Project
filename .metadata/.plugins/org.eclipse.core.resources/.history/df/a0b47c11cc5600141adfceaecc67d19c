@@ -1,0 +1,5 @@
+package fr.eurecom.utility;
+
+public class MapReader {
+
+}

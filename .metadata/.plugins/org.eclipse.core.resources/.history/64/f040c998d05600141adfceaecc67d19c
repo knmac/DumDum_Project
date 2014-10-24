@@ -1,0 +1,7 @@
+package fr.eurecom.data;
+
+import DynamicBitmap;
+
+public class Map extends DynamicBitmap {
+
+}

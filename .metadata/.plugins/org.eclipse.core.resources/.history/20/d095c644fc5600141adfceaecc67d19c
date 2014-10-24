@@ -1,0 +1,13 @@
+package fr.eurecom.allmenus;
+
+import android.graphics.Point;
+
+public class StartMenu extends BaseMenu {
+
+	@Override
+	public boolean Action(Point p, Object o) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}

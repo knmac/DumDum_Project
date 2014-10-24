@@ -1,0 +1,208 @@
+package fr.eurecom.allmenus;
+
+
+import android.graphics.Canvas;
+import android.graphics.Point;
+
+public class PauseMenu extends BaseMenu {
+	private enum ButtonID {
+		PLAY, RESTART, ZOOM, SOUND, HOME
+	};
+	DynamicBitmap metalDisc;
+
+	private boolean isZoomed = false;
+
+	public PauseMenu(DynamicBitmap bmpBackground) {
+		super(bmpBackground);
+		int w, h;
+		w = h = Utility.Macro.dPauseBtnSize;
+		Button btn;
+
+		btn = new Button(ButtonID.PLAY, Utility.Macro.bmpBtnPlay,
+				Utility.Macro.posBtnPlay, w, h);
+		AddButton(btn);
+		btn = new Button(ButtonID.RESTART, Utility.Macro.bmpBtnRestart,
+				Utility.Macro.posBtnRestart, w, h);
+		AddButton(btn);
+		btn = new Button(ButtonID.ZOOM, Utility.Macro.bmpBtnZoom,
+				Utility.Macro.posBtnZoom, w, h);
+		AddButton(btn);
+		btn = new Button(ButtonID.SOUND, Utility.Macro.bmpBtnSound,
+				Utility.Macro.posBtnSound, w, h);
+		AddButton(btn);
+		btn = new Button(ButtonID.HOME, Utility.Macro.bmpBtnHome,
+				Utility.Macro.posBtnHome, w, h);
+		AddButton(btn);
+		
+		int s = Utility.Macro.dMetalDiscSize;
+		metalDisc = new DynamicBitmap(Utility.Macro.bmpMetalDisc,
+				Utility.Macro.posMetalDisc, 0, s, s);		
+	}
+
+	public void Show(Canvas canvas) {
+		metalDisc.show(canvas);
+		super.Show(canvas);
+	}
+
+	@Override
+	public boolean Action(Point p, Object o) {
+		ButtonID ResultButtonID = (ButtonID) ClickedButton(p);
+		
+		if (ResultButtonID == null)
+			return false;
+		
+		switch (ResultButtonID) {
+		case PLAY:
+			CallPlay(o);
+			break;
+		case RESTART:
+			CallRestart(o);
+			break;
+		case ZOOM:
+			CallZoom(o);
+			break;
+		case SOUND:
+			CallSound(o);
+			break;
+		case HOME:
+			try {
+				CallHome(o);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			break;
+		default:
+			return false;
+		}
+
+		return true;
+	}
+
+	private void CallPlay(Object o) {
+		((GolfActivity) o).setState(StateList.GAME);
+		((GolfActivity) o).getGame().resume();
+		((GolfActivity) o).getMainView().invalidate();
+	}
+
+	private void CallRestart(Object o) {
+		((GolfActivity) o).setState(StateList.GAME);
+		((GolfActivity) o).getGame().restart();
+		((GolfActivity) o).getMainView().invalidate();
+	}
+
+	private void CallZoom(Object o) {
+		for (int i = 0; i < buttonList.size(); ++i)
+			if ((ButtonID)buttonList.get(i).getID() == ButtonID.ZOOM) {
+				buttonList.get(i).updateToTheNextImage();
+
+				Game game = ((GolfActivity) o).getGame();
+				User user = ((GolfActivity) o).getCurrentUser();
+
+				// write to buffer
+				user.setCurrentLevel(((GolfActivity) o).getChosenLevel());
+				user.setCurrentScore(((GolfActivity) o).getGame().getScore());
+				Point oldBallPos = ((GolfActivity) o).getGame().getBallPos();
+
+				// unshift, unzoom ball position
+				double deltaX, deltaY;
+				deltaX = oldBallPos.x;
+				deltaY = oldBallPos.y;
+				deltaX -= Utility.Macro.dShiftParam;
+				deltaX /= Utility.Macro.dZoomParam;
+				deltaY -= Utility.Macro.dShiftParam;
+				deltaY /= Utility.Macro.dZoomParam;
+
+				if (!isZoomed) {
+					Utility.Macro.resetMacro(Utility.Macro.dZoomParam * 2,
+							Utility.Macro.dBallRadius * 2);
+				} else {
+					Utility.Macro.resetMacro(Utility.Macro.dZoomParam / 2,
+							Utility.Macro.dBallRadius / 2);
+				}
+
+				// zoom and shift the ball position again
+				int newZoomParam = Utility.Macro.dZoomParam;
+				deltaX = deltaX * newZoomParam + Utility.Macro.dShiftParam;
+				deltaY = deltaY * newZoomParam + Utility.Macro.dShiftParam;
+				user.setCurrentPos(new Point((int) deltaX, (int) deltaY));
+
+				game.flushData();
+				((GolfActivity) o).initGame();
+
+				isZoomed = !isZoomed;
+				((GolfActivity) o).setState(StateList.GAME);
+				((GolfActivity) o).getMainView().invalidate();
+				break;
+			}
+	}
+
+	private void CallSound(Object o) {
+		for (int i = 0; i < buttonList.size(); ++i)
+			if ((ButtonID)buttonList.get(i).getID() == ButtonID.SOUND) {
+				buttonList.get(i).updateToTheNextImage();
+				((GolfActivity) o).getMainView().invalidate();
+				((GolfActivity) o).switchSoundOnOff();
+				break;
+			}
+	}
+
+	public void Unzoom(Object o) {
+		User user = ((GolfActivity) o).getCurrentUser();
+
+		// unzoom the ball position before writing
+		if (isZoomed) {
+			// unzoom current zoom param
+			Point oldBallPos = ((GolfActivity) o).getGame().getBallPos();
+			double deltaX, deltaY;
+			deltaX = oldBallPos.x;
+			deltaY = oldBallPos.y;
+			deltaX -= Utility.Macro.dShiftParam;
+			deltaX /= Utility.Macro.dZoomParam;
+			deltaY -= Utility.Macro.dShiftParam;
+			deltaY /= Utility.Macro.dZoomParam;
+
+			// zoom with default zoom param
+			int defaultZoomParam = Utility.Macro.dZoomParam / 2;
+			deltaX = deltaX * defaultZoomParam + Utility.Macro.dShiftParam;
+			deltaY = deltaY * defaultZoomParam + Utility.Macro.dShiftParam;
+			user.setCurrentPos(new Point((int) deltaX, (int) deltaY));
+
+			Utility.Macro.resetMacro(Utility.Macro.dZoomParam / 2,
+					Utility.Macro.dBallRadius / 2);
+
+			for (int i = 0; i < buttonList.size(); ++i)
+				if ((ButtonID)buttonList.get(i).getID() == ButtonID.ZOOM) {
+					buttonList.get(i).updateToTheNextImage();
+					break;
+				}
+		} else {
+			user.setCurrentPos(((GolfActivity) o).getGame().getBallPos());
+		}
+		
+		// reset zoom state
+		isZoomed = false;
+	}
+
+	private void CallHome(Object o) throws Exception {
+		User user = ((GolfActivity) o).getCurrentUser();
+
+		((GolfActivity) o).setState(StateList.MAIN_MENU);
+
+		Unzoom(o);
+
+		// write to buffer
+		user.setCurrentLevel(((GolfActivity) o).getChosenLevel());
+		user.setCurrentScore(((GolfActivity) o).getGame().getScore());
+		// user.Pt_CurrentPos = ((Form1)o).Game.getBallPos();
+		if (user.getCurrentLevel() > user.getUnlockedLevel())
+			user.setUnlockedLevel(user.getCurrentLevel());
+
+		// write to disk
+		DataWriter.WriteData(((GolfActivity) o).getUserList(), Utility.Macro.pthData,
+				user.getName());
+		((GolfActivity) o).updateContent();
+
+		((GolfActivity) o).getGame().flushData();
+		((GolfActivity) o).getMainView().invalidate();
+	}
+}

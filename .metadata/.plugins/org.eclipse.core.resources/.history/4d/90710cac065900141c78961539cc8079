@@ -1,0 +1,7 @@
+package fr.eurecom.dumdumgame;
+
+import View;
+
+public class MyView extends View {
+
+}

@@ -1,0 +1,34 @@
+package fr.eurecom.dumdumgame;
+
+import android.graphics.Bitmap;
+import android.graphics.Point;
+
+public class Button extends DynamicBitmap {
+
+	public Button(Bitmap[] images, Point position, int startIndex, int width,
+			int height) {
+		super(images, position, startIndex, width, height);
+		// TODO Auto-generated constructor stub
+	}
+
+	public Button(Bitmap image, Point position, int startIndex, int width,
+			int height) {
+		super(image, position, startIndex, width, height);
+		// TODO Auto-generated constructor stub
+	}
+
+	public Button(Bitmap[] images, Point position) {
+		super(images, position);
+		// TODO Auto-generated constructor stub
+	}
+
+	public Button(Bitmap image, Point position) {
+		super(image, position);
+		// TODO Auto-generated constructor stub
+	}
+
+	public Button() {
+		// TODO Auto-generated constructor stub
+	}
+
+}
