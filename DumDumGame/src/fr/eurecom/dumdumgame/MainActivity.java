@@ -14,7 +14,9 @@ import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
 import android.support.v7.app.ActionBarActivity;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -254,6 +256,9 @@ public class MainActivity extends ActionBarActivity {
 		getWindow().clearFlags(
 				WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 		setContentView(R.layout.activity_main);
+		
+		// fixed rotation: landscape
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
 		// Get the main layout (self-defined) and add a view to it
 		// add id from activity_main.xml --> R.id.mainLayout
