@@ -29,7 +29,7 @@ import android.media.MediaPlayer;
 public class Game {
     private MapReader gameData;
     private Map background;
-    private Ball ball;
+    private Character ball;
     private double elapsedTime;
     private DynamicBitmap[] teleporters;
     private Conveyor[] conveyors;
@@ -64,12 +64,12 @@ public class Game {
         User currentUser = ((MainActivity)o).getCurrentUser();
         if (chosenLevel == currentUser.getCurrentLevel())
         {
-            ball = new Ball(currentUser.getCurrentPos());
+            ball = new Character(currentUser.getCurrentPos());
             score = currentUser.getCurrentScore();
         }
         else
         {
-            ball = new Ball(gameData.getStartPos());
+            ball = new Character(gameData.getStartPos());
             score = 0;
         }
         elapsedTime = 0.0;
@@ -257,7 +257,7 @@ public class Game {
 
             // If the ball hits the wall
 			if (!mainForm.isWallThroughAllowed()) {
-				Ball aBall = ball.getBallAtTime(elapsedTime);
+				Character aBall = ball.getBallAtTime(elapsedTime);
 				LinkedList<Segment> nextObstacles = null;
 				nextObstacles = aBall.isOverWalls(gameData.getReflectorList());
 				if (nextObstacles.size() > 0) {
@@ -287,8 +287,8 @@ public class Game {
             // Show ball's shadow
             Point temp = new Point(ball.getPosition());
             Point shadowPos2 = Helper.Point_GetMirrorFrom(temp, shadowPos1);
-            (new Ball(shadowPos2)).showShadow(canvas, background.getPosition(), 50);
-            (new Ball(shadowPos1)).showShadow(canvas, background.getPosition(), 100);
+            (new Character(shadowPos2)).showShadow(canvas, background.getPosition(), 50);
+            (new Character(shadowPos1)).showShadow(canvas, background.getPosition(), 100);
 
             // Show ball
             ball.show(canvas, background.getPosition());
@@ -388,7 +388,7 @@ public class Game {
     public void restart()
     {
         this.firstTimeShow = true;
-        ball = new Ball(gameData.getStartPos());
+        ball = new Character(gameData.getStartPos());
         updateView();
         score = 0;
     }
