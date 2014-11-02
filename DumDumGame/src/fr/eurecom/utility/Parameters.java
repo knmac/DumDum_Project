@@ -3,10 +3,10 @@ package fr.eurecom.utility;
 import java.util.concurrent.Semaphore;
 
 import fr.eurecom.dumdumgame.*;
-
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
 
@@ -16,10 +16,13 @@ public class Parameters {
 
 	// Button Image
 	static public Bitmap bmpBtnStart;
-	static public Bitmap bmpBtnLoad;
+	static public Bitmap bmpBtnSinglePlayer;
+	static public Bitmap bmpBtnMultiPlayer;
 	static public Bitmap bmpBtnUser;
 	static public Bitmap bmpBtnHighScore;
 	static public Bitmap bmpBtnHelp;
+	static public Bitmap bmpBtnShop;
+	static public Bitmap bmpBtnSetting;
 	static public Bitmap bmpBtnExit;
 	static public Bitmap bmpBtnReturn;
 	static public Bitmap bmpBtnTransparent;
@@ -30,17 +33,32 @@ public class Parameters {
 
 	// Button Position
 	static public Point posBtnStartMainMenu;
-	static public Point posBtnLoadMainMenu;
+	static public Point posBtnSinglePlayerMenu;
+	static public Point posBtnMultiPlayerMenu;
 	static public Point posBtnUserMainMenu;
 	static public Point posBtnHighScoreMainMenu;
 	static public Point posBtnHelpMainMenu;
+	static public Point posBtnShopMenu;
+	static public Point posBtnSettingMenu;
 	static public Point posBtnExitMainMenu;
 
 	static public Point posBtnReturn;
 	static public Point posBtnAdd;
 
+	// Button Size
 	static public int dBtnWidth = 120;
 	static public int dBtnHeight = 40;
+
+	static public int dBtnSinglePlayerWidth = 295;
+	static public int dBtnSinglePlayerHeight = 150;
+	static public int dBtnMultiPlayerWidth = 295;
+	static public int dBtnMultiPlayerHeight = 150;
+	static public int dBtnShopWidth = 120;
+	static public int dBtnShopHeight = 120;
+	static public int dBtnSettingWidth = 120;
+	static public int dBtnSettingHeight = 120;
+	static public int dBtnExitWidth = 120;
+	static public int dBtnExitHeight = 120;
 
 	// Background Image
 	static public Bitmap bmpBkMainMenu;
@@ -92,7 +110,7 @@ public class Parameters {
 	static public int dMaxHeight;
 
 	// Ball properties
-	static public int dBallRadius = 9;
+	static public int dBallRadius = 18;
 	static public int dMaxNumOfCollisions = 20;
 
 	// Conveyor properties
@@ -103,7 +121,7 @@ public class Parameters {
 	static public int dTeleRadius;
 
 	// Zoom param
-	static public int dZoomParam = 25;
+	static public int dZoomParam = 50;
 	static public int dShiftParam = 200;
 
 	// Extra informations
@@ -141,14 +159,20 @@ public class Parameters {
 	static public void initParameters(Rect screen, int timeInterval)
 			throws Exception {
 		Resources res = App.getMyContext().getResources();
+
 		// Step
 		// 1--------------------------------------------------------------------------
 		bmpBtnStart = BitmapFactory.decodeResource(res, R.drawable.start_game);
-		bmpBtnLoad = BitmapFactory.decodeResource(res, R.drawable.load_game);
+		bmpBtnSinglePlayer = BitmapFactory.decodeResource(res,
+				R.drawable.single_player);
+		bmpBtnMultiPlayer = BitmapFactory.decodeResource(res,
+				R.drawable.multi_player);
 		bmpBtnUser = BitmapFactory.decodeResource(res, R.drawable.user);
 		bmpBtnHighScore = BitmapFactory.decodeResource(res,
 				R.drawable.high_score);
 		bmpBtnHelp = BitmapFactory.decodeResource(res, R.drawable.help);
+		bmpBtnShop = BitmapFactory.decodeResource(res, R.drawable.shop);
+		bmpBtnSetting = BitmapFactory.decodeResource(res, R.drawable.setting);
 		bmpBtnExit = BitmapFactory.decodeResource(res, R.drawable.exit);
 		bmpBtnReturn = BitmapFactory
 				.decodeResource(res, R.drawable.return_back);
@@ -201,20 +225,41 @@ public class Parameters {
 				.decodeResource(res, R.drawable.sound_off);
 
 		resource = res;
+
 		// Step
 		// 2---------------------------------------------------------------------------
-		int tempX = (screen.width() - dBtnWidth) / 2;
-		int tempY = screen.height() / 3 + 30;
 		dMaxWidth = screen.width();
 		dMaxHeight = screen.height();
-		tempY -= 10;
+		// int tempX = (screen.width() - dBtnWidth) / 2;
+		// int tempY = screen.height() / 3 + 30;
+		// tempY -= 10;
 
+		// posBtnStartMainMenu = new Point(tempX, tempY);
+		// posBtnLoadMainMenu = new Point(tempX, tempY + 1 * dBtnHeight);
+		// posBtnUserMainMenu = new Point(tempX, tempY + 2 * dBtnHeight);
+		// posBtnHighScoreMainMenu = new Point(tempX, tempY + 3 * dBtnHeight);
+		// posBtnHelpMainMenu = new Point(tempX, tempY + 4 * dBtnHeight);
+		// posBtnExitMainMenu = new Point(tempX, tempY + 5 * dBtnHeight);
+
+		int tempX = dMaxWidth - dBtnWidth;
+		int tempY = 0;
 		posBtnStartMainMenu = new Point(tempX, tempY);
-		posBtnLoadMainMenu = new Point(tempX, tempY + 1 * dBtnHeight);
-		posBtnUserMainMenu = new Point(tempX, tempY + 2 * dBtnHeight);
-		posBtnHighScoreMainMenu = new Point(tempX, tempY + 3 * dBtnHeight);
-		posBtnHelpMainMenu = new Point(tempX, tempY + 4 * dBtnHeight);
-		posBtnExitMainMenu = new Point(tempX, tempY + 5 * dBtnHeight);
+		posBtnUserMainMenu = new Point(tempX, tempY + 1 * dBtnHeight);
+		posBtnHighScoreMainMenu = new Point(tempX, tempY + 2 * dBtnHeight);
+		posBtnHelpMainMenu = new Point(tempX, tempY + 3 * dBtnHeight);
+
+		posBtnSinglePlayerMenu = new Point(
+				(dMaxWidth - dBtnSinglePlayerWidth) * 1 / 5,
+				(dMaxHeight - dBtnSinglePlayerHeight) * 3 / 5);
+		posBtnMultiPlayerMenu = new Point(
+				(dMaxWidth - dBtnMultiPlayerWidth) * 4 / 5,
+				(dMaxHeight - dBtnMultiPlayerHeight) * 3 / 5);
+		posBtnShopMenu = new Point(dMaxWidth / 30, dMaxHeight - dBtnShopHeight
+				- screen.height() / 30);
+		posBtnSettingMenu = new Point((dMaxWidth - dBtnSettingWidth) / 2,
+				screen.height() - dBtnSettingHeight - dMaxHeight / 30);
+		posBtnExitMainMenu = new Point(dMaxWidth - dBtnExitWidth - dMaxWidth
+				/ 30, dMaxHeight - dBtnExitHeight - dMaxHeight / 30);
 
 		posBtnReturn = new Point(screen.width() - bmpBtnReturn.getWidth(),
 				screen.height() - bmpBtnReturn.getHeight());
