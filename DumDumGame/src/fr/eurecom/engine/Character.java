@@ -18,7 +18,7 @@ public class Character {
     private Ray direction;
     private boolean state;
     private Physics physics;
-    private List<Point> positionList;
+    private List<Point> trajectoryList;
     private int positionIndex;
 
     public Character(Point position)
@@ -28,7 +28,7 @@ public class Character {
         this.initialVelocity = 0.0;
         this.direction = null;
         this.state = false;
-        this.positionList = null;
+        this.trajectoryList = null;
         this.positionIndex = -1;
         
         Point[] arr = {new Point(0, 100)};
@@ -42,6 +42,13 @@ public class Character {
         this.direction = direction;
         this.state = true;
         this.positionIndex = -1;
+        
+    	Point initVelocity = new Point(0, 0);
+    	
+    	initVelocity.x = this.direction.getSecondPoint().x - this.direction.getRoot().x;
+    	initVelocity.y = this.direction.getSecondPoint().y - this.direction.getRoot().y;
+    	
+    	this.trajectoryList =  physics.computeTrajectory(position, initVelocity);
     }
 
     public Point getPosition() {
@@ -51,6 +58,30 @@ public class Character {
 		this.position = position;
 	}    
 
+    public Point getFirstPosition() {
+    	if (this.trajectoryList != null)
+    		return this.trajectoryList.get(0);
+    	return null;
+    }
+    
+    public Point getLastPosition() {
+    	if (this.trajectoryList != null)
+    		return this.trajectoryList.get(this.trajectoryList.size() - 1);
+    	return null;
+    }
+    
+    public Point getCurrentPosition() {
+    	if (this.trajectoryList != null && this.positionIndex > -1 && this.positionIndex < this.trajectoryList.size())
+    		return this.trajectoryList.get(this.positionIndex);
+    	return null;
+    }
+    
+    public Point getNextPosition () {
+    	if (this.trajectoryList != null && this.positionIndex < this.trajectoryList.size() - 1)
+    		return this.trajectoryList.get(this.positionIndex + 1);
+    	return null;
+    }
+    
     public void show(Canvas canvas)
     {
         Paint paint = new Paint();
@@ -105,17 +136,7 @@ public class Character {
 //
 //        return true;
         
-        if (this.positionList == null) 
-        {
-        	Point initVelocity = new Point(0, 0);
-        	
-        	initVelocity.x = this.direction.getSecondPoint().x - this.direction.getRoot().x;
-        	initVelocity.y = this.direction.getSecondPoint().y - this.direction.getRoot().y;
-        	
-        	this.positionList =  physics.computeOrbit(position, initVelocity);
-        }
-                
-      	this.position = this.positionList.get(++this.positionIndex);
+        this.position = this.trajectoryList.get(++this.positionIndex);
              
         return true;
     }

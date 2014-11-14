@@ -180,8 +180,14 @@ public class Game {
             }
         }
     }
-
-    public void Show(Canvas canvas) throws Exception
+    
+    private boolean isNextPostAvailable() {
+    	// TODO
+    	
+    	return false;
+    }
+    
+    public void show(Canvas canvas) throws Exception
     {
         // Show background
         showBackground(canvas);
@@ -277,12 +283,18 @@ public class Game {
 				}
 			}
 
-            if (ball.update(elapsedTime, quantum))
-            {
-                double acc = getAccelerationUnderTheBall();
-                if (ball.getCurrentAcceleration() != acc)
-                    changeTheBallAcceleration(acc);
-            }
+			if (isNextPostAvailable())
+				ball.update(elapsedTime, quantum);		// these parameters are only for placeholder purpose, they have no meaning till this moment!!!
+			//else
+			//	give ball something that he can re-computes his position
+			
+			
+//            if (ball.update(elapsedTime, quantum))
+//            {
+//                double acc = getAccelerationUnderTheBall();
+//                if (ball.getCurrentAcceleration() != acc)
+//                    changeTheBallAcceleration(acc);
+//            }
             
             // Show ball's shadow
             Point temp = new Point(ball.getPosition());
@@ -325,7 +337,7 @@ public class Game {
                 BitmapShader shader = new BitmapShader(Parameters.bmpTextureWallpaper, TileMode.REPEAT, TileMode.REPEAT);
                 paint.setShader(shader);                
                 canvas.drawRect(0, 0, Parameters.dMaxWidth, Parameters.dMaxHeight, paint);                
-                this.Show(canvas);
+                this.show(canvas);
             }
 
             // If the ball is outside the visible region

@@ -445,7 +445,7 @@ public class MainActivity extends ActionBarActivity {
 				break;
 			case GAME:
 				try {
-					game.Show(myCanvas);
+					game.show(myCanvas);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
