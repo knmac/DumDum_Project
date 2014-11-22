@@ -8,26 +8,42 @@ import android.graphics.Point;
 import android.graphics.Rect;
 
 public class Segment {
+	
+	// with great assumption that first point must have smaller x component than second point
 	private Point firstPoint = new Point(0, 0);
     private Point secondPoint = new Point(0, 0);
 
     public Segment(Point firstPoint, Point secondPoint)
     {
-        this.firstPoint = firstPoint;
-        this.secondPoint = secondPoint;
+    	// only use property function (getter/setter) to set points
+        setFirstPoint(firstPoint);
+        setSecondPoint(secondPoint);
     }
 
     public Point getFirstPoint() {
 		return firstPoint;
 	}
     public void setFirstPoint(Point firstPoint) {
-		this.firstPoint = firstPoint;
+    	
+    	if (this.secondPoint.x < firstPoint.x)
+    	{    		
+    		this.firstPoint = this.secondPoint;
+    		this.secondPoint = firstPoint;
+    	}
+    	else
+    		this.firstPoint = firstPoint;
 	}
     public Point getSecondPoint() {
 		return secondPoint;
 	}
     public void setSecondPoint(Point secondPoint) {
-		this.secondPoint = secondPoint;
+    	if (this.firstPoint.x > secondPoint.x)
+    	{    		
+    		this.secondPoint = this.firstPoint;
+    		this.firstPoint = secondPoint;
+    	}
+    	else
+    		this.secondPoint = secondPoint;
 	}
 
     public Line toLine()
