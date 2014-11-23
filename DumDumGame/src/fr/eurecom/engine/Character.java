@@ -18,7 +18,7 @@ public class Character {
     private Ray direction;
     private boolean state;
     private Physics physics;
-    private List<Point> trajectoryList;
+    private LinkedList<Point> trajectoryList;
     private int positionIndex;
 
     public Character(Point position)
@@ -28,27 +28,45 @@ public class Character {
         this.initialVelocity = 0.0;
         this.direction = null;
         this.state = false;
-        this.trajectoryList = null;
+        this.setTrajectoryList(null);
         this.positionIndex = -1;
         
         Point[] arr = {new Point(0, 100)};
         this.physics = new Physics(arr);
     }
     
+    // TODO: change the Ray + initialVelocity into 1 variable presenting velocity
     public void init(double acceleration, double initialVelocity, Ray direction)
     {
         this.acceleration = acceleration;
         this.initialVelocity = initialVelocity;
         this.direction = direction;
         this.state = true;
-        this.positionIndex = -1;
+        this.positionIndex = 0;
         
     	Point initVelocity = new Point(0, 0);
     	
     	initVelocity.x = this.direction.getSecondPoint().x - this.direction.getRoot().x;
     	initVelocity.y = this.direction.getSecondPoint().y - this.direction.getRoot().y;
     	
-    	this.trajectoryList =  physics.computeTrajectory(position, initVelocity);
+    	this.setTrajectoryList(physics.computeTrajectory(position, initVelocity));
+    }
+    
+    // TODO: the name is not really appropriate, find another one!
+    public void bounce(Segment wall) {
+    	
+    	
+    	Point initVelocity = new Point(0, 0);
+    	
+    	initVelocity.x = this.direction.getSecondPoint().x - this.direction.getRoot().x;
+    	initVelocity.y = this.direction.getSecondPoint().y - this.direction.getRoot().y;
+    	
+    	//this.setTrajectoryList(physics.computeTrajectory(initVelocity, getCurrentPosition(), this.positionIndex, wall));
+    	Point[] temp = physics.bouncing(initVelocity, getCurrentPosition(), this.positionIndex, wall);
+    	this.setTrajectoryList(physics.computeTrajectory(temp[0], temp[1]));
+    	
+    	this.positionIndex = 0;
+    	this.direction = new Ray(new Point (0,0), temp[1]);
     }
 
     public Point getPosition() {
@@ -59,26 +77,26 @@ public class Character {
 	}    
 
     public Point getFirstPosition() {
-    	if (this.trajectoryList != null)
-    		return this.trajectoryList.get(0);
+    	if (this.getTrajectoryList() != null)
+    		return this.getTrajectoryList().get(0);
     	return null;
     }
     
     public Point getLastPosition() {
-    	if (this.trajectoryList != null)
-    		return this.trajectoryList.get(this.trajectoryList.size() - 1);
+    	if (this.getTrajectoryList() != null)
+    		return this.getTrajectoryList().get(this.getTrajectoryList().size() - 1);
     	return null;
     }
     
     public Point getCurrentPosition() {
-    	if (this.trajectoryList != null && this.positionIndex > -1 && this.positionIndex < this.trajectoryList.size())
-    		return this.trajectoryList.get(this.positionIndex);
+    	if (this.getTrajectoryList() != null && this.positionIndex > -1 && this.positionIndex < this.getTrajectoryList().size())
+    		return this.getTrajectoryList().get(this.positionIndex);
     	return null;
     }
     
     public Point getNextPosition () {
-    	if (this.trajectoryList != null && this.positionIndex < this.trajectoryList.size() - 1)
-    		return this.trajectoryList.get(this.positionIndex + 1);
+    	if (this.getTrajectoryList() != null && this.positionIndex < this.getTrajectoryList().size() - 1)
+    		return this.getTrajectoryList().get(this.positionIndex + 1);
     	return null;
     }
     
@@ -136,7 +154,7 @@ public class Character {
 //
 //        return true;
         
-        this.position = this.trajectoryList.get(++this.positionIndex);
+        this.position = this.getTrajectoryList().get(++this.positionIndex);
              
         return true;
     }
@@ -227,4 +245,12 @@ public class Character {
 
         return resultList;
     }
+
+	public LinkedList<Point> getTrajectoryList() {
+		return trajectoryList;
+	}
+
+	private void setTrajectoryList(LinkedList<Point> trajectoryList) {
+		this.trajectoryList = trajectoryList;
+	}
 }

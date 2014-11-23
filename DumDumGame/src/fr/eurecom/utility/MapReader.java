@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 
 import fr.eurecom.engine.Polygon;
@@ -27,8 +29,21 @@ public class MapReader {
     private Point startPos = new Point(0, 0);
     private Point holePos = new Point(0, 0);
     
-	public void setReflectorList(LinkedList<Segment> reflectorList) {
-		this.reflectorList = reflectorList;
+//	public void setReflectorList(LinkedList<Segment> reflectorList) {
+//		this.reflectorList = reflectorList;
+//	}
+    
+    // make sure everytime a reflectorList is created, this function must be called
+	public void addtoReflectorList(Segment reflector) {
+		for (int i = 0; i < this.reflectorList.size(); ++i)
+			if ( (this.reflectorList.get(i).getFirstPoint().x > reflector.getFirstPoint().x) ||
+					(this.reflectorList.get(i).getFirstPoint().x == reflector.getFirstPoint().x &&
+					this.reflectorList.get(i).getFirstPoint().y > reflector.getFirstPoint().y) )
+			{
+				this.reflectorList.add(i, reflector);
+				return;
+			}
+		reflectorList.addLast(reflector);
 	}
 	public LinkedList<Segment> getReflectorList() {
 		return reflectorList;
@@ -94,7 +109,7 @@ public class MapReader {
 		return holePos;
 	}
 
-
+ 
     private Point ZoomPoint(Point p, int zoomParam)
     {
         return new Point(p.x * zoomParam, p.y * zoomParam);
@@ -107,14 +122,17 @@ public class MapReader {
 
         for (int i = 0; i < reflectorList.size(); ++i)
         {
-            reflectorList.get(i).setFirstPoint(ZoomPoint(reflectorList.get(i).getFirstPoint(), zoomParam));
-            reflectorList.get(i).setSecondPoint(ZoomPoint(reflectorList.get(i).getSecondPoint(), zoomParam));
+        	Point zoomedFirst = ZoomPoint(reflectorList.get(i).getFirstPoint(), zoomParam);
+        	Point zoomedSecond = ZoomPoint(reflectorList.get(i).getSecondPoint(), zoomParam);
+            //reflectorList.get(i).setFirstPoint(ZoomPoint(reflectorList.get(i).getFirstPoint(), zoomParam));
+            //reflectorList.get(i).setSecondPoint(ZoomPoint(reflectorList.get(i).getSecondPoint(), zoomParam));
+        	reflectorList.get(i).setPoints(zoomedFirst, zoomedSecond);
         }
 
         for (int i = 0; i < conveyorList.size(); ++i)
         {            
-            conveyorList.get(i).setFirstPoint(ZoomPoint(conveyorList.get(i).getFirstPoint(), zoomParam));
-            conveyorList.get(i).setSecondPoint(ZoomPoint(conveyorList.get(i).getSecondPoint(), zoomParam));
+            //conveyorList.get(i).setFirstPoint(ZoomPoint(conveyorList.get(i).getFirstPoint(), zoomParam));
+            //conveyorList.get(i).setSecondPoint(ZoomPoint(conveyorList.get(i).getSecondPoint(), zoomParam));
         }
 
         for (int i = 0; i < teleporterList.size(); ++i)
@@ -176,15 +194,17 @@ public class MapReader {
 
         for (int i = 0; i < reflectorList.size(); ++i)
         {
-            reflectorList.get(i).setFirstPoint(ShiftPoint(reflectorList.get(i).getFirstPoint(), shiftParam));
-            reflectorList.get(i).setSecondPoint(ShiftPoint(reflectorList.get(i).getSecondPoint(), shiftParam));
+            //reflectorList.get(i).setFirstPoint(ShiftPoint(reflectorList.get(i).getFirstPoint(), shiftParam));
+            //reflectorList.get(i).setSecondPoint(ShiftPoint(reflectorList.get(i).getSecondPoint(), shiftParam));
+        	reflectorList.get(i).setPoints(ShiftPoint(reflectorList.get(i).getFirstPoint(), shiftParam), 
+        			ShiftPoint(reflectorList.get(i).getSecondPoint(), shiftParam));
         }
 
-        for (int i = 0; i < conveyorList.size(); ++i)
-        {
-            conveyorList.get(i).setFirstPoint(ShiftPoint(conveyorList.get(i).getFirstPoint(), shiftParam));
-            conveyorList.get(i).setSecondPoint(ShiftPoint(conveyorList.get(i).getSecondPoint(), shiftParam));
-        }
+        //for (int i = 0; i < conveyorList.size(); ++i)
+        //{
+            //conveyorList.get(i).setFirstPoint(ShiftPoint(conveyorList.get(i).getFirstPoint(), shiftParam));
+            //conveyorList.get(i).setSecondPoint(ShiftPoint(conveyorList.get(i).getSecondPoint(), shiftParam));
+        //}
 
         for (int i = 0; i < teleporterList.size(); ++i)
         {
@@ -280,7 +300,8 @@ public class MapReader {
             n = Integer.parseInt(reader.readLine());
             for (int i = 0; i < n; ++i)
             {
-                reflectorList.add(ReadSegment(reader));
+            	//addtoReflectorList(ReadSegment(reader));		// LHAn: new version, sort the ReflectorList when creating it
+                reflectorList.add(ReadSegment(reader));		// LHAn: old version
             }
 
             // read conveyor pos
@@ -343,6 +364,8 @@ public class MapReader {
             // Shift map downward to move the map to the center
             ShiftAll(Parameters.dShiftParam);
 
+            Collections.sort(reflectorList, new SegmentComparable());
+            
             reader.close();
         }
         catch (Exception ex)
@@ -351,6 +374,21 @@ public class MapReader {
         }
     }
 
+    public static class SegmentComparable implements Comparator<Segment> {
+    	@Override
+		public int compare(Segment a, Segment b) {
+    		int aX = a.getFirstPoint().x;
+    		int bX = b.getFirstPoint().x;
+    		
+    		if(aX > bX)
+    			return 1;
+    		else 
+    			if (aX < bX)
+    				return -1;
+    		return 0;
+    	}
+    }
+    
     public void Show(Canvas canvas)
     {
         // Show outer walls
@@ -378,6 +416,13 @@ public class MapReader {
         {
             this.waterList.get(i).FillWithImage(Parameters.bmpWater, canvas);
         }
+//        
+//        for(Segment tmp : reflectorList) {
+//        	System.out.println(reflectorList.indexOf(tmp));
+//        	System.out.println("1st pnt: " + tmp.getFirstPoint().x + " " + tmp.getFirstPoint().y);
+//        	System.out.println("2nd pnt: " + tmp.getSecondPoint().x + " " + tmp.getSecondPoint().y);
+//        }
+//        
         // Show reflective surfaces
         for (int i = 0; i < this.reflectorList.size(); ++i)
         {

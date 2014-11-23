@@ -6,10 +6,12 @@ import java.util.Random;
 
 import fr.eurecom.data.Map;
 import fr.eurecom.data.User;
+import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Conveyor;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.MainActivity.StateList;
+import fr.eurecom.dumdumgame.Obstacles;
 import fr.eurecom.utility.DataWriter;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.MapReader;
@@ -25,6 +27,7 @@ import android.graphics.Rect;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
+import android.widget.Toast;
 
 public class Game {
     private MapReader gameData;
@@ -181,10 +184,49 @@ public class Game {
         }
     }
     
-    private boolean isNextPostAvailable() {
-    	// TODO
+    private Segment isNextPostAvailable() {
+    	// TODO with great assumption that wall list is sorted according to the x position of first point 
+    	// and that first point of wall is always smaller than second point in term of x position
     	
-    	return false;
+    	int reflectorList_len = gameData.getReflectorList().size();
+    	
+    	for (int i = 0; i < reflectorList_len; ++i)
+    	{
+    		Segment currentReflector = gameData.getReflectorList().get(i);
+    		
+    		if (ball.getTrajectoryList().getFirst().x < currentReflector.getFirstPoint().x &&
+    				ball.getTrajectoryList().getLast().x < currentReflector.getFirstPoint().x)
+    			break;    		
+    		
+			Point current = new Point(ball.getCurrentPosition());
+			Point next = new Point(ball.getNextPosition());
+			Point wall1 = new Point(currentReflector.getFirstPoint());
+			Point wall2 = new Point(currentReflector.getSecondPoint());
+			
+			double cPoint = -current.x * (next.y - current.y) + current.y
+					* (next.x - current.x);
+			double cPoint1 = -wall1.x * (wall2.y - wall1.y) + wall1.y
+					* (wall2.x - wall1.x);
+
+			double checkingInq1a = (next.y - current.y) * wall1.x
+					- (next.x - current.x) * wall1.y + cPoint;
+			double checkingInq1b = (next.y - current.y) * wall2.x
+					- (next.x - current.x) * wall2.y + cPoint;
+
+			double checkingIng2a = (wall2.y - wall1.y) * current.x
+					- (wall2.x - wall1.x) * current.y + cPoint1;
+			double checkingIng2b = (wall2.y - wall1.y) * next.x
+					- (wall2.x - wall1.x) * next.y + cPoint1;
+
+			if (checkingInq1a * checkingInq1b < 0
+					&& checkingIng2a * checkingIng2b < 0) {
+				return currentReflector;
+			}
+				
+  		}
+						
+    	  	
+    	return null;
     }
     
     public void show(Canvas canvas) throws Exception
@@ -262,31 +304,37 @@ public class Game {
             elapsedTime += quantum;
 
             // If the ball hits the wall
-			if (!mainForm.isWallThroughAllowed()) {
-				Character aBall = ball.getBallAtTime(elapsedTime);
-				LinkedList<Segment> nextObstacles = null;
-				nextObstacles = aBall.isOverWalls(gameData.getReflectorList());
-				if (nextObstacles.size() > 0) {
-					this.bloibs[bloibIndex].start();
-					bloibIndex = (bloibIndex + 1) % bloibs.length;
-					previousObstacles = nextObstacles;
-					highlightCounter = 0;
-					reflectTheBall(nextObstacles);
+//			if (!mainForm.isWallThroughAllowed()) {
+//				Character aBall = ball.getBallAtTime(elapsedTime);
+//				LinkedList<Segment> nextObstacles = null;
+//				nextObstacles = aBall.isOverWalls(gameData.getReflectorList());
+//				if (nextObstacles.size() > 0) {
+//					this.bloibs[bloibIndex].start();
+//					bloibIndex = (bloibIndex + 1) % bloibs.length;
+//					previousObstacles = nextObstacles;
+//					highlightCounter = 0;
+//					reflectTheBall(nextObstacles);
+//
+//					
+////					 * // Remove this fragment of code for performance purposes
+////					 * // Test again! aBall = ball.getBallAtTime(elapsedTime);
+////					 * nextObstacles =
+////					 * aBall.isOverWalls(gameData.getReflectorList()); if
+////					 * (nextObstacles.size() > 0) ball.exhaustTheball();
+////					 
+//				}
+//			}
+			
+			// TODO: this object must be of type Obstacle and then be type-casted into Segment
+			Segment obstacle = isNextPostAvailable();
 
-					/*
-					 * // Remove this fragment of code for performance purposes
-					 * // Test again! aBall = ball.getBallAtTime(elapsedTime);
-					 * nextObstacles =
-					 * aBall.isOverWalls(gameData.getReflectorList()); if
-					 * (nextObstacles.size() > 0) ball.exhaustTheball();
-					 */
-				}
-			}
-
-			if (isNextPostAvailable())
+			if (obstacle == null)
 				ball.update(elapsedTime, quantum);		// these parameters are only for placeholder purpose, they have no meaning till this moment!!!
-			//else
-			//	give ball something that he can re-computes his position
+			else
+			{				
+				ball.bounce(obstacle);
+				ball.update(elapsedTime, quantum);
+			}
 			
 			
 //            if (ball.update(elapsedTime, quantum))

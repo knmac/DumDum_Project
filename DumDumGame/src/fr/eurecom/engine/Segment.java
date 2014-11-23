@@ -1,5 +1,7 @@
 package fr.eurecom.engine;
 
+import java.util.Comparator;
+
 import fr.eurecom.utility.Helper;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -19,13 +21,25 @@ public class Segment {
         setFirstPoint(firstPoint);
         setSecondPoint(secondPoint);
     }
-
+    public void setPoints(Point point1, Point point2) {
+    	if (point1.x > point2.x)
+    	{    		
+    		this.firstPoint = point2;
+    		this.secondPoint = point1;
+    	}
+    	else 
+    	{
+    		this.firstPoint = point1;
+    		this.secondPoint = point2;
+    	}
+    }
+    
     public Point getFirstPoint() {
 		return firstPoint;
 	}
-    public void setFirstPoint(Point firstPoint) {
+    private void setFirstPoint(Point firstPoint) {
     	
-    	if (this.secondPoint.x < firstPoint.x)
+    	if (this.secondPoint.x > firstPoint.x)
     	{    		
     		this.firstPoint = this.secondPoint;
     		this.secondPoint = firstPoint;
@@ -36,8 +50,8 @@ public class Segment {
     public Point getSecondPoint() {
 		return secondPoint;
 	}
-    public void setSecondPoint(Point secondPoint) {
-    	if (this.firstPoint.x > secondPoint.x)
+    private void setSecondPoint(Point secondPoint) {
+    	if (this.firstPoint.x < secondPoint.x)
     	{    		
     		this.secondPoint = this.firstPoint;
     		this.firstPoint = secondPoint;
@@ -122,6 +136,7 @@ public class Segment {
 
         return new Rect(minX, minY, maxX, maxY);
     }
+    
     public void show(Canvas canvas, Point offset)
     {       
         Point first = new Point(firstPoint.x + offset.x, firstPoint.y + offset.y);
@@ -131,4 +146,6 @@ public class Segment {
         paint.setStrokeWidth(3);
         canvas.drawLine(first.x, first.y, second.x, second.y, paint);
     }
+    
+    
 }
