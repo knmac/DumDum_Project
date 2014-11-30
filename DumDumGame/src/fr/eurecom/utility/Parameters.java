@@ -110,7 +110,7 @@ public class Parameters {
 	static public int dMaxHeight;
 
 	// Ball properties
-	static public int dBallRadius = 18;
+	static public int dBallRadius = 40; //18
 	static public int dMaxNumOfCollisions = 20;
 
 	// Conveyor properties

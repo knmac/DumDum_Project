@@ -28,6 +28,11 @@ public class MapReader {
     private boolean rain = false;
     private Point startPos = new Point(0, 0);
     private Point holePos = new Point(0, 0);
+    private Point mapBottomRight = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
+    
+    public Point getMapBottomRight() {
+    	return mapBottomRight;
+    }
     
 //	public void setReflectorList(LinkedList<Segment> reflectorList) {
 //		this.reflectorList = reflectorList;
@@ -363,6 +368,8 @@ public class MapReader {
 
             // Shift map downward to move the map to the center
             ShiftAll(Parameters.dShiftParam);
+            
+            expandMapBound();
 
             Collections.sort(reflectorList, new SegmentComparable());
             
@@ -372,6 +379,15 @@ public class MapReader {
         {
             Log.e("Map Reader", ex.getMessage());
         }
+    }
+    
+    private void expandMapBound() {
+    	for (int i = 0; i < reflectorList.size(); i++) {
+			mapBottomRight.x = reflectorList.get(i).getFirstPoint().x > mapBottomRight.x ? reflectorList.get(i).getFirstPoint().x : mapBottomRight.x;
+			mapBottomRight.y = reflectorList.get(i).getFirstPoint().y > mapBottomRight.y ? reflectorList.get(i).getFirstPoint().y : mapBottomRight.y;
+			mapBottomRight.x = reflectorList.get(i).getSecondPoint().x > mapBottomRight.x ? reflectorList.get(i).getSecondPoint().x : mapBottomRight.x;
+			mapBottomRight.y = reflectorList.get(i).getSecondPoint().y > mapBottomRight.y ? reflectorList.get(i).getSecondPoint().y : mapBottomRight.y;
+		}
     }
 
     public static class SegmentComparable implements Comparator<Segment> {

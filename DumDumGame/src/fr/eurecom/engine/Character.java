@@ -10,14 +10,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Paint.Style;
+import android.util.Log;
 
 public class Character {
     private Point position = new Point(0, 0);
     private double acceleration;
     private double initialVelocity;
     private Ray direction;
-    private boolean state;
-    private Physics physics;
+    private boolean state; // isRunningState
+//    private Physics physics;
     private LinkedList<Point> trajectoryList;
     private int positionIndex;
 
@@ -31,8 +32,8 @@ public class Character {
         this.setTrajectoryList(null);
         this.positionIndex = -1;
         
-        Point[] arr = {new Point(0, 100)};
-        this.physics = new Physics(arr);
+//        Point[] arr = {new Point(0, 100)};
+//        this.physics = new Physics(arr);
     }
     
     // TODO: change the Ray + initialVelocity into 1 variable presenting velocity
@@ -49,8 +50,12 @@ public class Character {
     	initVelocity.x = this.direction.getSecondPoint().x - this.direction.getRoot().x;
     	initVelocity.y = this.direction.getSecondPoint().y - this.direction.getRoot().y;
     	
-    	this.setTrajectoryList(physics.computeTrajectory(position, initVelocity));
+    	this.setTrajectoryList(Game.getPhysics().computeTrajectory(position, initVelocity));
     }
+    
+    Point LastPost = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
+    int count = 0;
+    int delta = 3;
     
     // TODO: the name is not really appropriate, find another one!
     public void bounce(Segment wall) {
@@ -62,8 +67,32 @@ public class Character {
     	initVelocity.y = this.direction.getSecondPoint().y - this.direction.getRoot().y;
     	
     	//this.setTrajectoryList(physics.computeTrajectory(initVelocity, getCurrentPosition(), this.positionIndex, wall));
-    	Point[] temp = physics.bouncing(initVelocity, getCurrentPosition(), this.positionIndex, wall);
-    	this.setTrajectoryList(physics.computeTrajectory(temp[0], temp[1]));
+    	Point[] temp = Game.getPhysics().bouncing(initVelocity, getCurrentPosition(), this.positionIndex, wall);
+    	
+    	temp[1] = new Point((int)(temp[1].x), (int)(temp[1].y));
+    	
+		this.setTrajectoryList(Game.getPhysics().computeTrajectory(temp[0],
+				temp[1]));
+
+		// Log.i("NewPOS", temp[0].toString());
+		// Log.i("NewVEL", temp[1].toString());
+
+		// exhauste the ball
+		if (Math.abs(LastPost.x - temp[0].x) < delta 
+				&& Math.abs(LastPost.y - temp[0].y) < delta) 
+				count++;
+		else 
+			count = 0;
+		
+		LastPost.x = temp[0].x;
+		LastPost.y = temp[0].y;
+		
+		if (count == 10 || temp[1].y == 0)
+		{
+			state = false;
+			position = temp[0];
+			count = 0;
+		}
     	
     	this.positionIndex = 0;
     	this.direction = new Ray(new Point (0,0), temp[1]);
@@ -154,7 +183,10 @@ public class Character {
 //
 //        return true;
         
-        this.position = this.getTrajectoryList().get(++this.positionIndex);
+        if (this.positionIndex >= this.getTrajectoryList().size())
+        	return false;
+        else
+        	this.position = this.getTrajectoryList().get(++this.positionIndex);
              
         return true;
     }
