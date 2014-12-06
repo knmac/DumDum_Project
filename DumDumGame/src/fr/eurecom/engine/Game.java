@@ -15,6 +15,7 @@ import fr.eurecom.utility.DataWriter;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.MapReader;
 import fr.eurecom.utility.Parameters;
+import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
@@ -42,9 +43,9 @@ public class Game {
 	private MediaPlayer[] bloibs;
 	private int bloibIndex;
 	private static Physics physics;
-	
+
 	private Environment myEnvironment;
-	
+
 	public static Physics getPhysics() {
 		return physics;
 	}
@@ -59,7 +60,8 @@ public class Game {
 		gameData = new MapReader(Parameters.dMapID[chosenLevel - 1]);
 
 		// Create a background from those data
-		Bitmap tmpBitmap = Bitmap.createBitmap(1300, 1300,
+		Point boundary = gameData.getMapBottomRight();
+		Bitmap tmpBitmap = Bitmap.createBitmap(boundary.x, boundary.y,
 				Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(tmpBitmap);
 		Paint paint = new Paint();
@@ -119,9 +121,9 @@ public class Game {
 
 		mainForm = (MainActivity) o;
 		updateView();
-		
+
 		myEnvironment = new Earth();
-        this.physics = new Physics(myEnvironment, gameData.getMapBottomRight());
+		this.physics = new Physics(myEnvironment, gameData.getMapBottomRight());
 	}
 
 	private boolean isBallClicked = false;
@@ -194,6 +196,8 @@ public class Game {
 		}
 	}
 
+	int endGame = 0;
+
 	private Segment isNextPostAvailable() {
 		// TODO with great assumption that wall list is sorted according to the
 		// x position of first point
@@ -206,10 +210,17 @@ public class Game {
 		Segment returnedWall = null;
 
 		Point current = new Point(ball.getCurrentPosition());
-		Point next = new Point(ball.getNextPosition()) ;
+		Point next = new Point(ball.getNextPosition());
 
-		if (current == null || next == null)
+		if (current == null)
 			return null;
+
+		if (next == null || (next.y >= gameData.getMapBottomRight().y)) // TODO!!
+		{
+			endGame = 1;
+			this.restart();
+			return null;
+		}
 
 		for (int i = 0; i < reflectorList_len; ++i) {
 			Segment currentReflector = gameData.getReflectorList().get(i);
@@ -222,15 +233,16 @@ public class Game {
 
 			Point wall1 = new Point(currentReflector.getFirstPoint());
 			Point wall2 = new Point(currentReflector.getSecondPoint());
-			
+
 			// equation of the wall
 			double A = wall2.y - wall1.y;
 			double B = -(wall2.x - wall1.x);
 			double C = -wall1.x * (wall2.y - wall1.y) + wall1.y
 					* (wall2.x - wall1.x);
 			double vAB = Math.sqrt(Math.pow(A, 2) + Math.pow(B, 2));
-				
-			double distanceNextWall = Math.abs(A * next.x + B * next.y + C) / (vAB);
+
+			double distanceNextWall = Math.abs(A * next.x + B * next.y + C)
+					/ (vAB);
 
 			double cPoint = -current.x * (next.y - current.y) + current.y
 					* (next.x - current.x);
@@ -247,30 +259,38 @@ public class Game {
 			double checkingIng2b = (wall2.y - wall1.y) * next.x
 					- (wall2.x - wall1.x) * next.y + cPoint1;
 
-			if ( (checkingInq1a * checkingInq1b <= 0 && checkingIng2a * checkingIng2b <= 0)) {
-				double distancePointWall = Math.abs(A * current.x + B * current.y + C);
-				
+			if ((checkingInq1a * checkingInq1b <= 0 && checkingIng2a
+					* checkingIng2b <= 0)) {
+				double distancePointWall = Math.abs(A * current.x + B
+						* current.y + C);
+
 				if (distancePointWall < minDistance) {
 					minDistance = distancePointWall;
 					returnedWall = currentReflector;
 				}
-			} 
-			else if (distanceNextWall < Parameters.dBallRadius) {
-				double distNextWall1 = Math.sqrt(Math.pow(next.x - wall1.x, 2) + Math.pow(next.y - wall1.y, 2));
-				double distNextWall2 = Math.sqrt(Math.pow(next.x - wall2.x, 2) + Math.pow(next.y - wall2.y, 2));
-				double distWall1Wall2 = Math.sqrt(Math.pow(wall1.x - wall2.x, 2) + Math.pow(wall1.y - wall2.y, 2));
-				
-				double condition1 = Math.sqrt(Math.pow(distNextWall1, 2) - Math.pow(distanceNextWall, 2));
-				double condition2 = Math.sqrt(Math.pow(distNextWall2, 2) - Math.pow(distanceNextWall, 2));
-				
+			} else if (distanceNextWall < Parameters.dBallRadius) {
+				double distNextWall1 = Math.sqrt(Math.pow(next.x - wall1.x, 2)
+						+ Math.pow(next.y - wall1.y, 2));
+				double distNextWall2 = Math.sqrt(Math.pow(next.x - wall2.x, 2)
+						+ Math.pow(next.y - wall2.y, 2));
+				double distWall1Wall2 = Math.sqrt(Math
+						.pow(wall1.x - wall2.x, 2)
+						+ Math.pow(wall1.y - wall2.y, 2));
+
+				double condition1 = Math.sqrt(Math.pow(distNextWall1, 2)
+						- Math.pow(distanceNextWall, 2));
+				double condition2 = Math.sqrt(Math.pow(distNextWall2, 2)
+						- Math.pow(distanceNextWall, 2));
+
 				double epsilon = 1;
-				if (condition1 + condition2 > distWall1Wall2 - epsilon && condition1 + condition2 < distWall1Wall2 + epsilon) {					
+				if (condition1 + condition2 > distWall1Wall2 - epsilon
+						&& condition1 + condition2 < distWall1Wall2 + epsilon) {
 					if (distanceNextWall < minDistance) {
 						minDistance = distanceNextWall;
 						returnedWall = currentReflector;
 					}
 				}
-			}			
+			}
 		}
 
 		return returnedWall;
@@ -328,8 +348,9 @@ public class Game {
 		// Show ruler, if any
 		if (isDragging) {
 			Paint paint = new Paint();
-			paint.setColor(Color.BLUE);
-			paint.setStrokeWidth(2);
+			paint.setColor(Color.GRAY);
+			paint.setStrokeWidth(5);
+			// paint.setAlpha(200);
 			canvas.drawLine(ball.getPosition().x + background.getPosition().x,
 					ball.getPosition().y + background.getPosition().y,
 					junction.x, junction.y, paint);
@@ -366,6 +387,12 @@ public class Game {
 			// TODO: this object must be of type Obstacle and then be
 			// type-casted into Segment
 			Segment obstacle = isNextPostAvailable();
+
+			if (endGame == 1) {
+				endGame = 0;
+				updateView();
+				return;
+			}
 
 			if (obstacle == null)
 				ball.update(elapsedTime, quantum); // these parameters are only
@@ -435,6 +462,7 @@ public class Game {
 			if (isBallOutOfView())
 				updateView();
 		} else
+			// ball is not running
 			ball.show(canvas, background.getPosition());
 
 		if (Helper.Point_GetDistanceFrom(ball.getPosition(),
@@ -525,46 +553,46 @@ public class Game {
 		elapsedTime = 0.0;
 	}
 
-	private void reflectTheBall(LinkedList<Segment> nextObstacles)
-			throws Exception {
-		if (nextObstacles == null || nextObstacles.size() == 0)
-			return;
-
-		boolean engineError = false;
-		double acceleration = ball.getCurrentAcceleration();
-		double velocity = ball.getInstantVelocity(elapsedTime);
-		Ray direction = null;
-		if (nextObstacles.size() == 1) {
-			// Need more code here +.+!
-			Line tmpLine = nextObstacles.get(0).getAbreastLine(
-					ball.getPosition());
-			Ray tmpRay = new Ray(ball.getCurrentDirection().getRoot(), ball
-					.getCurrentDirection().getSecondPoint());
-			if (tmpLine.RoughlyContains(tmpRay.getRoot())) {
-				Point p = Helper.Point_GetMirrorFrom(tmpRay.getSecondPoint(),
-						tmpRay.getRoot());
-				tmpRay.setRoot(Helper.Point_GetMirrorFrom(tmpRay.getRoot(), p));
-			}
-			try {
-				direction = tmpRay.fastGenerateReflectedRayFrom(tmpLine);
-			} catch (Exception ex) {
-				engineError = true;
-			}
-		} else {
-			// THE VERY BIG BUG IS HERE
-			direction = new Ray(ball.getPosition(), ball.getCurrentDirection()
-					.getRoot());
-		}
-
-		if (!engineError)
-			initBall(velocity, acceleration, direction);
-		else
-			ball.exhaustTheball();
-
-		numOfCollisions++;
-		if (numOfCollisions > Parameters.dMaxNumOfCollisions)
-			ball.exhaustTheball();
-	}
+	// private void reflectTheBall(LinkedList<Segment> nextObstacles)
+	// throws Exception {
+	// if (nextObstacles == null || nextObstacles.size() == 0)
+	// return;
+	//
+	// boolean engineError = false;
+	// double acceleration = ball.getCurrentAcceleration();
+	// double velocity = ball.getInstantVelocity(elapsedTime);
+	// Ray direction = null;
+	// if (nextObstacles.size() == 1) {
+	// // Need more code here +.+!
+	// Line tmpLine = nextObstacles.get(0).getAbreastLine(
+	// ball.getPosition());
+	// Ray tmpRay = new Ray(ball.getCurrentDirection().getRoot(), ball
+	// .getCurrentDirection().getSecondPoint());
+	// if (tmpLine.RoughlyContains(tmpRay.getRoot())) {
+	// Point p = Helper.Point_GetMirrorFrom(tmpRay.getSecondPoint(),
+	// tmpRay.getRoot());
+	// tmpRay.setRoot(Helper.Point_GetMirrorFrom(tmpRay.getRoot(), p));
+	// }
+	// try {
+	// direction = tmpRay.fastGenerateReflectedRayFrom(tmpLine);
+	// } catch (Exception ex) {
+	// engineError = true;
+	// }
+	// } else {
+	// // THE VERY BIG BUG IS HERE
+	// direction = new Ray(ball.getPosition(), ball.getCurrentDirection()
+	// .getRoot());
+	// }
+	//
+	// if (!engineError)
+	// initBall(velocity, acceleration, direction);
+	// else
+	// ball.exhaustTheball();
+	//
+	// numOfCollisions++;
+	// if (numOfCollisions > Parameters.dMaxNumOfCollisions)
+	// ball.exhaustTheball();
+	// }
 
 	private void teleportTheBall(int currentTeleporter) {
 		Random generator = new Random();
@@ -591,14 +619,14 @@ public class Game {
 		initBall(velocity, acceleration, direction);
 	}
 
-	private void changeTheBallAcceleration(double acceleration) {
-		if (!ball.isRunning())
-			return;
-		double initialVelocity = ball.getInstantVelocity(elapsedTime);
-		Ray direction = new Ray(ball.getPosition(), Helper.Point_GetMirrorFrom(
-				ball.getCurrentDirection().getRoot(), ball.getPosition()));
-		initBall(initialVelocity, acceleration, direction);
-	}
+	// private void changeTheBallAcceleration(double acceleration) {
+	// if (!ball.isRunning())
+	// return;
+	// double initialVelocity = ball.getInstantVelocity(elapsedTime);
+	// Ray direction = new Ray(ball.getPosition(), Helper.Point_GetMirrorFrom(
+	// ball.getCurrentDirection().getRoot(), ball.getPosition()));
+	// initBall(initialVelocity, acceleration, direction);
+	// }
 
 	// private void showReflectors(Canvas canvas)
 	// {
@@ -728,8 +756,10 @@ public class Game {
 	private void showFullBackground(Canvas canvas) {
 		Paint paint = new Paint();
 		paint.setStyle(Style.FILL);
+//		BitmapShader shader = new BitmapShader(Parameters.bmpTextureWallpaper,
+//				TileMode.REPEAT, TileMode.REPEAT);
 		BitmapShader shader = new BitmapShader(Parameters.bmpTextureWallpaper,
-				TileMode.REPEAT, TileMode.REPEAT);
+				TileMode.MIRROR, TileMode.MIRROR);
 		paint.setShader(shader);
 		canvas.drawRect(0, 0, Parameters.dMaxWidth, background.getPosition().y,
 				paint);

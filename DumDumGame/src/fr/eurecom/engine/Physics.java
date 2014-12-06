@@ -100,9 +100,7 @@ public class Physics {
 				.getFirstPoint().y
 				* (wall.getSecondPoint().x - wall.getFirstPoint().x));
 
-		Point interPoint = SolveEquation(a1, b1, c1, a2, b2, c2); // check when
-																	// return
-																	// NULL!!!
+		Point interPoint = SolveEquation(a1, b1, c1, a2, b2, c2);
 		
 		Point[] temp = new Point[2];
 		if (interPoint == null) {

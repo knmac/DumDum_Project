@@ -13,8 +13,6 @@ import fr.eurecom.utility.DataWriter;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
 import android.support.v7.app.ActionBarActivity;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -243,8 +241,6 @@ public class MainActivity extends ActionBarActivity {
 
 	// --------------------------------------------------------------------------
 	// Override methods
-	@SuppressLint("NewApi")
-	// ignore 'mainDisplay.getSize(size);' for API less than 13
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

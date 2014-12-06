@@ -6,7 +6,6 @@ import fr.eurecom.dumdumgame.*;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
 
@@ -80,6 +79,10 @@ public class Parameters {
 	static public Bitmap[] bmpConveyorUp;
 	static public Bitmap[] bmpConveyorDown;
 	static public Bitmap[] bmpRain;
+	static public Bitmap[] bmpRoll;
+	static public Bitmap bmpDumDumNormal;
+	static public Bitmap bmpDumDumAngel;
+	static public Point posDumDumPivot = new Point(35, -5);
 
 	// Pause Game Menu
 	static public Bitmap bmpMetalDisc;
@@ -121,8 +124,8 @@ public class Parameters {
 	static public int dTeleRadius;
 
 	// Zoom param
-	static public int dZoomParam = 50;
-	static public int dShiftParam = 200;
+	static public int dZoomParam = 35; //50
+	static public int dShiftParam = 0; //200
 
 	// Extra informations
 	static public double grassFrictionAcceleration = -100;
@@ -203,14 +206,20 @@ public class Parameters {
 		posScoreList[8] = new Point(206, 200);
 		posScoreList[9] = new Point(252, 200);
 
+//		bmpTextureWall = BitmapFactory.decodeResource(res,
+//				R.drawable.wall_texture);
 		bmpTextureWall = BitmapFactory.decodeResource(res,
-				R.drawable.wall_texture);
+				R.drawable.block);
+//		bmpTextureGrass = BitmapFactory.decodeResource(res,
+//				R.drawable.grass_texture);
 		bmpTextureGrass = BitmapFactory.decodeResource(res,
-				R.drawable.grass_texture);
+				R.drawable.background);
 		bmpSand = BitmapFactory.decodeResource(res, R.drawable.sand);
 		bmpWater = BitmapFactory.decodeResource(res, R.drawable.water);
+//		bmpTextureWallpaper = BitmapFactory.decodeResource(res,
+//				R.drawable.wallpaper);
 		bmpTextureWallpaper = BitmapFactory.decodeResource(res,
-				R.drawable.wallpaper);
+				R.drawable.space_pattern);
 
 		bmpMetalDisc = BitmapFactory.decodeResource(res, R.drawable.metal_disc);
 		bmpBtnPlay = BitmapFactory.decodeResource(res, R.drawable.play);
@@ -233,6 +242,8 @@ public class Parameters {
 		// int tempX = (screen.width() - dBtnWidth) / 2;
 		// int tempY = screen.height() / 3 + 30;
 		// tempY -= 10;
+		
+		dZoomParam = screen.height() / 18;
 
 		// posBtnStartMainMenu = new Point(tempX, tempY);
 		// posBtnLoadMainMenu = new Point(tempX, tempY + 1 * dBtnHeight);
@@ -289,6 +300,10 @@ public class Parameters {
 		bmpRain = Cutter.cutBitmap(
 				BitmapFactory.decodeResource(res, R.drawable.rain), 4,
 				Cutter.CutStyle.VERTICAL);
+		bmpRoll = Cutter.cutBitmap(BitmapFactory.decodeResource(res, R.drawable.roll_sprite), 
+				8, Cutter.CutStyle.VERTICAL);
+		bmpDumDumNormal = BitmapFactory.decodeResource(res, R.drawable.dumdum_normal);
+		bmpDumDumAngel = BitmapFactory.decodeResource(res, R.drawable.dumdum_angel);
 
 		dConveyorWidth = dZoomParam;
 		dTeleRadius = 2 * dBallRadius;

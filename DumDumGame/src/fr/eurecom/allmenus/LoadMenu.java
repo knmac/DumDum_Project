@@ -15,10 +15,14 @@ import android.graphics.Point;
 import android.graphics.Typeface;
 
 public class LoadMenu extends BaseMenu {
-	private Point[] posList = new Point[] { new Point(11, 340),
-			new Point(91, 340), new Point(171, 340), new Point(251, 340),
-			new Point(51, 260), new Point(131, 260), new Point(211, 260),
-			new Point(91, 180), new Point(171, 180), new Point(131, 100) };
+//	private Point[] posList = new Point[] { new Point(11, 340),
+//			new Point(91, 340), new Point(171, 340), new Point(251, 340),
+//			new Point(51, 260), new Point(131, 260), new Point(211, 260),
+//			new Point(91, 180), new Point(171, 180), new Point(131, 100) };
+	
+	private Point[] posList = new Point[] { 
+			new Point(150, 250), new Point(350, 250), new Point(550, 250), new Point(750, 250), new Point(950, 250), 
+			new Point(150, 450), new Point(350, 450), new Point(550, 450), new Point(750, 450), new Point(950, 450) };
 
 	private final int returnID = 1000;
 	private int w;
@@ -66,12 +70,12 @@ public class LoadMenu extends BaseMenu {
 			btn.updateToTheNextImage();
 		}
 		Paint paint = new Paint();
-		paint.setTextSize(15);
+		paint.setTextSize(25);
 		paint.setColor(Color.BLACK);
 		paint.setTypeface(Typeface.DEFAULT_BOLD);
 		for (int i = 0; i < 10; ++i) {
-			canvas.drawText("Level " + (i + 1), posList[i].x, posList[i].y
-					+ h + 12, paint);
+			canvas.drawText("Level " + (i + 1), posList[i].x+10, posList[i].y
+					+ h + 20, paint);
 		}
 	}
 

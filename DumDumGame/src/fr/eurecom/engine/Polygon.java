@@ -38,6 +38,21 @@ public class Polygon {
 		
 		canvas.drawPath(path, paint);
 	}
+	
+	public void Fill(Bitmap texture, Canvas canvas, TileMode tileModeX, TileMode tileModeY) {
+		Path path = new Path();
+		path.moveTo(points.get(0).x, points.get(0).y);
+		for (int i = 1; i < points.size(); ++i) {
+			path.lineTo(points.get(i).x, points.get(i).y);
+		}
+		
+		Paint paint = new Paint();
+		paint.setStyle(Style.FILL);
+		BitmapShader shader = new BitmapShader(texture, tileModeX, tileModeY);
+		paint.setShader(shader);
+		
+		canvas.drawPath(path, paint);
+	}
 
 	public void FillWithImage(Bitmap bmp, Canvas canvas) {
 		Rect boundRect = getBoundRect();

@@ -14,6 +14,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Shader.TileMode;
 import android.util.Log;
 
 public class MapReader {
@@ -415,7 +416,8 @@ public class MapReader {
         // Show grass
         for (int i = 0; i < this.grassList.size(); ++i)
         {
-            this.grassList.get(i).Fill(Parameters.bmpTextureGrass, canvas);
+            //this.grassList.get(i).Fill(Parameters.bmpTextureGrass, canvas);
+        	this.grassList.get(i).Fill(Parameters.bmpTextureGrass, canvas, TileMode.MIRROR, TileMode.MIRROR);
         }
         // Show inner walls
         for (int i = 0; i < this.internalWallList.size(); ++i)
