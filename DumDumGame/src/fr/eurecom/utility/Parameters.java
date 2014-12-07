@@ -83,6 +83,8 @@ public class Parameters {
 	static public Bitmap bmpDumDumNormal;
 	static public Bitmap bmpDumDumAngel;
 	static public Point posDumDumPivot = new Point(35, -5);
+	static public Bitmap bmpHeartRed;
+	static public Bitmap bmpHeartBlack;
 
 	// Pause Game Menu
 	static public Bitmap bmpMetalDisc;
@@ -145,8 +147,10 @@ public class Parameters {
 
 	// Resource
 	static public Resources resource;
-	static public int dDataID = R.raw.data;
-	static public String pthData = "UserData.txt";
+//	static public int dDataID = R.raw.data;
+//	static public String pthUserData = "UserData.txt";
+	static public String pthUserData = "user_data.txt";
+	static public int dUserData = R.raw.user_data;
 	static public int[] dMapID = new int[] { R.raw.map1, R.raw.map2,
 			R.raw.map3, R.raw.map4, R.raw.map5, R.raw.map6, R.raw.map7,
 			R.raw.map8, R.raw.map9, R.raw.map10 };
@@ -304,6 +308,8 @@ public class Parameters {
 				8, Cutter.CutStyle.VERTICAL);
 		bmpDumDumNormal = BitmapFactory.decodeResource(res, R.drawable.dumdum_normal);
 		bmpDumDumAngel = BitmapFactory.decodeResource(res, R.drawable.dumdum_angel);
+		bmpHeartRed = BitmapFactory.decodeResource(res, R.drawable.hear_red);
+		bmpHeartBlack = BitmapFactory.decodeResource(res, R.drawable.hear_black);
 
 		dConveyorWidth = dZoomParam;
 		dTeleRadius = 2 * dBallRadius;

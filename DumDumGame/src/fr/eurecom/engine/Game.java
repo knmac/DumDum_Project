@@ -16,6 +16,7 @@ import fr.eurecom.utility.DataWriter;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.MapReader;
 import fr.eurecom.utility.Parameters;
+import fr.eurecom.utility.UserWriter;
 import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
@@ -413,7 +414,7 @@ public class Game {
 			// type-casted into Segment
 			Segment obstacle = isNextPostAvailable();
 
-			// TODO: DOUBLE CHECK THESE CONDITIONS
+			// TODO: DOUBLE CHECK THESE CONDITIONS, change the method or at least the name
 			if (endGame == 1) {
 				ball.setState(Character.motionState.DEATH);
 				ball.update(elapsedTime, quantum);
@@ -427,10 +428,28 @@ public class Game {
 				if (lives > 0) { // TODO: set lives
 					((MainActivity)App.getMyContext()).getUser().setCurrentLives(lives-1);
 				} else {
-//					Calendar currentTime = Calendar.getInstance();
-//					((MainActivity)App.getMyContext()).getUser().setLastTime(currentTime);
 					((MainActivity)App.getMyContext()).setState(StateList.MAIN_MENU);
 				}
+				
+				Calendar currentTime = Calendar.getInstance();
+				
+				int ss = currentTime.get(Calendar.SECOND);
+				int mm = currentTime.get(Calendar.MINUTE);
+				int hh = currentTime.get(Calendar.HOUR_OF_DAY);
+				int yyyy = currentTime.get(Calendar.YEAR);
+				int MM = currentTime.get(Calendar.MONTH);
+				int dd = currentTime.get(Calendar.DAY_OF_MONTH);
+				
+				String strCurrentTime = String.format("%04d",yyyy) + "-" +
+										String.format("%02d",MM) + "-" +
+										String.format("%02d",dd) + " " +
+										String.format("%02d",hh) + ":" +
+										String.format("%02d",mm) + ":" +
+										String.format("%02d",ss);
+				Log.i("DATETIME", strCurrentTime);
+				
+				((MainActivity)App.getMyContext()).getUser().setLastTime(strCurrentTime);
+				UserWriter.writeUserData(((MainActivity)App.getMyContext()).getUser(), Parameters.pthUserData);
 				
 				this.restart();
 				updateView();
