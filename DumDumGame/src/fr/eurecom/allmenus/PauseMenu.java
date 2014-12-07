@@ -9,6 +9,7 @@ import fr.eurecom.dumdumgame.MainActivity.StateList;
 import fr.eurecom.engine.Game;
 import fr.eurecom.utility.DataWriter;
 import fr.eurecom.utility.Parameters;
+import fr.eurecom.utility.UserWriter;
 import android.graphics.Canvas;
 import android.graphics.Point;
 
@@ -104,11 +105,11 @@ public class PauseMenu extends BaseMenu {
 				buttonList.get(i).updateToTheNextImage();
 
 				Game game = ((MainActivity) o).getGame();
-				User user = ((MainActivity) o).getCurrentUser();
+				User user = ((MainActivity) o).getUser();
 
 				// write to buffer
-				user.setCurrentLevel(((MainActivity) o).getChosenLevel());
-				user.setCurrentScore(((MainActivity) o).getGame().getScore());
+//				user.setCurrentLevel(((MainActivity) o).getChosenLevel());
+//				user.setCurrentScore(((MainActivity) o).getGame().getScore());
 				Point oldBallPos = ((MainActivity) o).getGame().getBallPos();
 
 				// unshift, unzoom ball position
@@ -132,7 +133,7 @@ public class PauseMenu extends BaseMenu {
 				int newZoomParam = Parameters.dZoomParam;
 				deltaX = deltaX * newZoomParam + Parameters.dShiftParam;
 				deltaY = deltaY * newZoomParam + Parameters.dShiftParam;
-				user.setCurrentPos(new Point((int) deltaX, (int) deltaY));
+//				user.setCurrentPos(new Point((int) deltaX, (int) deltaY));
 
 				game.flushData();
 
@@ -154,7 +155,7 @@ public class PauseMenu extends BaseMenu {
 	}
 
 	public void Unzoom(Object o) {
-		User user = ((MainActivity) o).getCurrentUser();
+		User user = ((MainActivity) o).getUser();
 
 		// unzoom the ball position before writing
 		if (isZoomed) {
@@ -172,7 +173,7 @@ public class PauseMenu extends BaseMenu {
 			int defaultZoomParam = Parameters.dZoomParam / 2;
 			deltaX = deltaX * defaultZoomParam + Parameters.dShiftParam;
 			deltaY = deltaY * defaultZoomParam + Parameters.dShiftParam;
-			user.setCurrentPos(new Point((int) deltaX, (int) deltaY));
+//			user.setCurrentPos(new Point((int) deltaX, (int) deltaY));
 
 			Parameters.resetMacro(Parameters.dZoomParam / 2,
 					Parameters.dBallRadius / 2);
@@ -183,7 +184,7 @@ public class PauseMenu extends BaseMenu {
 					break;
 				}
 		} else {
-			user.setCurrentPos(((MainActivity) o).getGame().getBallPos());
+//			user.setCurrentPos(((MainActivity) o).getGame().getBallPos());
 		}
 		
 		// reset zoom state
@@ -191,22 +192,24 @@ public class PauseMenu extends BaseMenu {
 	}
 
 	private void CallHome(Object o) throws Exception {
-		User user = ((MainActivity) o).getCurrentUser();
+		User user = ((MainActivity) o).getUser();
 
 		((MainActivity) o).setState(StateList.MAIN_MENU);
 
 		Unzoom(o);
 
 		// write to buffer
-		user.setCurrentLevel(((MainActivity) o).getChosenLevel());
-		user.setCurrentScore(((MainActivity) o).getGame().getScore());
-		// user.Pt_CurrentPos = ((Form1)o).Game.getBallPos();
-		if (user.getCurrentLevel() > user.getUnlockedLevel())
-			user.setUnlockedLevel(user.getCurrentLevel());
+//		user.setCurrentLevel(((MainActivity) o).getChosenLevel());
+//		user.setCurrentScore(((MainActivity) o).getGame().getScore());
+//		if (user.getCurrentLevel() > user.getUnlockedLevel())
+//			user.setUnlockedLevel(user.getCurrentLevel());
 
 		// write to disk
-		DataWriter.WriteData(((MainActivity) o).getUserList(), Parameters.pthData,
-				user.getName());
+		// TODO
+//		DataWriter.WriteData(((MainActivity) o).getUser(), Parameters.pthUserData,
+//				user.getName());
+		UserWriter.writeUserData(((MainActivity) o).getUser(),
+				Parameters.pthUserData);
 		((MainActivity) o).updateContent();
 
 		((MainActivity) o).getGame().flushData();

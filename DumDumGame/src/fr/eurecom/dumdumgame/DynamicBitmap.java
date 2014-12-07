@@ -33,6 +33,16 @@ public class DynamicBitmap {
 		this._width = width;
 		this._height = height;
 	}
+	
+	public DynamicBitmap(Bitmap image, Point position,
+			int width, int height) {
+		this.images = new Bitmap[1];
+		this.images[0] = image;
+		this._position = position;
+		this._currentIndex = 0;
+		this._width = width;
+		this._height = height;
+	}
 
 	public DynamicBitmap(Bitmap[] images, Point position) {
 		this.images = images;

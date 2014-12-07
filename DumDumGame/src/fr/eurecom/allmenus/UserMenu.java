@@ -102,39 +102,40 @@ public class UserMenu extends BaseMenu {
 	}
 
 	private void CallSetCurrentUser(int userIndex, Object o) throws Exception {
-		((MainActivity) o).setCurrentUserName(userList.get(userIndex).getName());
-		((MainActivity) o).updateContent();	
-		((MainActivity) o).getMssgBox().showMessage(
-				"Current user is now: \n\n" + userList.get(userIndex).getName(),
-				StateList.USER_MENU, (MainActivity) o);
-		((MainActivity) o).getMainView().invalidate();
+		// TODO
+//		((MainActivity) o).setCurrentUserName(userList.get(userIndex).getName());
+//		((MainActivity) o).updateContent();	
+//		((MainActivity) o).getMssgBox().showMessage(
+//				"Current user is now: \n\n" + userList.get(userIndex).getName(),
+//				StateList.USER_MENU, (MainActivity) o);
+//		((MainActivity) o).getMainView().invalidate();
 	}
 
 	private void CallDeleteUser(int userIndex, Object o) throws Exception {
-		//if (userList.get(userIndex).getName() == ((MainActivity) o).getCurrentUserName()) {
-		if (userList.get(userIndex).getName().contentEquals(((MainActivity) o).getCurrentUserName())) {
-			((MainActivity) o).getMssgBox().showMessage(
-					"Can't remove current user.\n\n Please select another one.",
-					StateList.USER_MENU, (MainActivity) o);
-			((MainActivity) o).getMainView().invalidate();
-			return;
-		}
-
-		userList.remove(userIndex); // delete that user
-		((MainActivity) o).setUserList(userList); // update new list to database
-		((MainActivity) o).updateContent(); // update highscore since the user
-											// has changed
-
-		buttonList.clear(); // clear all button
-		
-		// add return button
-		Button btnReturn = new Button(RETURN_ID, Parameters.bmpBtnReturn,
-				Parameters.posBtnReturn,
-				Parameters.bmpBtnReturn.getWidth(),
-				Parameters.bmpBtnReturn.getHeight());
-		AddButton(btnReturn);
-		SpawnUserButton(); // reset user button, based on the new user list
-
-		((MainActivity) o).getMainView().invalidate();
+		// TODO
+//		if (userList.get(userIndex).getName().contentEquals(((MainActivity) o).getCurrentUserName())) {
+//			((MainActivity) o).getMssgBox().showMessage(
+//					"Can't remove current user.\n\n Please select another one.",
+//					StateList.USER_MENU, (MainActivity) o);
+//			((MainActivity) o).getMainView().invalidate();
+//			return;
+//		}
+//
+//		userList.remove(userIndex); // delete that user
+//		((MainActivity) o).setUserList(userList); // update new list to database
+//		((MainActivity) o).updateContent(); // update highscore since the user
+//											// has changed
+//
+//		buttonList.clear(); // clear all button
+//		
+//		// add return button
+//		Button btnReturn = new Button(RETURN_ID, Parameters.bmpBtnReturn,
+//				Parameters.posBtnReturn,
+//				Parameters.bmpBtnReturn.getWidth(),
+//				Parameters.bmpBtnReturn.getHeight());
+//		AddButton(btnReturn);
+//		SpawnUserButton(); // reset user button, based on the new user list
+//
+//		((MainActivity) o).getMainView().invalidate();
 	}
 }

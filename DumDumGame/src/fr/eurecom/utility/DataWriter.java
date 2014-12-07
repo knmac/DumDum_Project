@@ -32,10 +32,10 @@ public class DataWriter {
 				fos.write(user.getName().getBytes());
 				fos.write(newLine.getBytes());
 				
-				fos.write((user.getCurrentLevel() + " "
-						+ user.getCurrentScore() + " " + user.getCurrentPos().x
-						+ " " + user.getCurrentPos().y + " "
-						+ user.getUnlockedLevel()).getBytes());
+//				fos.write((user.getCurrentLevel() + " "
+//						+ user.getCurrentScore() + " " + user.getCurrentPos().x
+//						+ " " + user.getCurrentPos().y + " "
+//						+ user.getUnlockedLevel()).getBytes());
 				fos.write(newLine.getBytes());
 				
 				for (int j = 0; j < 10; ++j)

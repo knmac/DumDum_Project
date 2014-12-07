@@ -82,8 +82,10 @@ public class StartMenu extends BaseMenu {
 
 		return true;
 	}
+	
+	private void CallAddUser(Object o) throws Exception {} //TODO
 
-	private void CallAddUser(Object o) throws Exception {
+	/*private void CallAddUser(Object o) throws Exception {
 //		String new_user_name = txtAddUser.getText().toString();
 		String new_user_name = "start menu 88";
 		this.hideTextBox(o);
@@ -130,16 +132,16 @@ public class StartMenu extends BaseMenu {
 
 		// add new user
 		User new_user = new User();
-		new_user.setCurrentLevel(1);
+//		new_user.setCurrentLevel(1);
 		new_user.setUnlockedLevel(1);
-		new_user.setCurrentScore(0);
+//		new_user.setCurrentScore(0);
 		new_user.setName(new_user_name);
 		new_user.setLevelScore(new LinkedList<Integer>());
 
 		for (int i = 0; i < 10; ++i)
 			new_user.getLevelScore().add(0);
 		MapReader gameData = new MapReader(Parameters.dMapID[0]);
-		new_user.setCurrentPos(gameData.getStartPos());
+//		new_user.setCurrentPos(gameData.getStartPos());
 
 		((MainActivity) o).getUserList().add(new_user);
 		((MainActivity) o).setCurrentUserName(new_user.getName());
@@ -150,7 +152,7 @@ public class StartMenu extends BaseMenu {
 		((MainActivity) o).initGame();
 		((MainActivity) o).setState(StateList.GAME);
 		((MainActivity) o).getMainView().invalidate();
-	}
+	}*/
 
 	private void CallReturn(Object o) {
 		// hide text box

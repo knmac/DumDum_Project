@@ -1,0 +1,20 @@
+UserName
+5
+3
+2014-12-07 10:10:10
+3
+10 20 30
+1000
+
+
+
+
+
+
+// line 1: user name
+// line 2: max lives
+// line 3: current lives
+// line 4: last time  yyyy-MM-dd HH:mm:ss
+// line 5: unlocked level
+// line 6: list of level score
+// line 7: current money

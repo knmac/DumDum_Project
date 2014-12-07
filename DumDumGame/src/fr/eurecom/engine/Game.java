@@ -1,5 +1,6 @@
 package fr.eurecom.engine;
 
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -43,6 +44,8 @@ public class Game {
 	private MediaPlayer[] bloibs;
 	private int bloibIndex;
 	private static Physics physics;
+	private DynamicBitmap[] heartRedArr;
+	private DynamicBitmap[] heartBlackArr;
 
 	private Environment myEnvironment;
 
@@ -78,14 +81,17 @@ public class Game {
 				Parameters.dMaxWidth, Parameters.dMaxHeight));
 
 		// Create a ball
-		User currentUser = ((MainActivity) o).getCurrentUser();
-		if (chosenLevel == currentUser.getCurrentLevel()) {
-			ball = new Character(currentUser.getCurrentPos());
-			score = currentUser.getCurrentScore();
-		} else {
-			ball = new Character(gameData.getStartPos());
-			score = 0;
-		}
+		// User currentUser = ((MainActivity) o).getCurrentUser();
+		// if (chosenLevel == currentUser.getCurrentLevel()) {
+		// ball = new Character(currentUser.getCurrentPos());
+		// score = currentUser.getCurrentScore();
+		// } else {
+		// ball = new Character(gameData.getStartPos());
+		// score = 0;
+		// }
+
+		ball = new Character(gameData.getStartPos());
+		score = 0;
 		elapsedTime = 0.0;
 
 		// Create teleporters
@@ -118,6 +124,22 @@ public class Game {
 			bloibs[i].setLooping(false);
 		}
 		bloibIndex = 0;
+
+		// Create hearts
+		int maxLives = ((MainActivity) App.getMyContext()).getUser()
+				.getMaxLives();
+		heartRedArr = new DynamicBitmap[maxLives];
+		heartBlackArr = new DynamicBitmap[maxLives];
+		for (int i = 0; i < maxLives; i++) {
+			Point position = new Point(Parameters.dBallRadius * 2 * (i + 1),
+					Parameters.dBallRadius);
+			heartRedArr[i] = new DynamicBitmap(Parameters.bmpHeartRed,
+					position, Parameters.dBallRadius * 2,
+					Parameters.dBallRadius * 2);
+			heartBlackArr[i] = new DynamicBitmap(Parameters.bmpHeartBlack,
+					position, Parameters.dBallRadius * 2,
+					Parameters.dBallRadius * 2);
+		}
 
 		mainForm = (MainActivity) o;
 		updateView();
@@ -209,16 +231,18 @@ public class Game {
 		double minDistance = Double.MAX_VALUE;
 		Segment returnedWall = null;
 
-		Point current = new Point(ball.getCurrentPosition());
-		Point next = new Point(ball.getNextPosition());
+		Point current = ball.getCurrentPosition();
+
+		Point next = ball.getNextPosition();
 
 		if (current == null)
 			return null;
 
-		if (next == null || (next.y >= gameData.getMapBottomRight().y)) // TODO!!
-		{
-			endGame = 1;
-			this.restart();
+		// ball gets out of scence
+		// TODO
+		if (next == null) {// || (next.y >= gameData.getMapBottomRight().y) ||
+							// (next.y <= 0)) {
+			++endGame;
 			return null;
 		}
 
@@ -357,7 +381,8 @@ public class Game {
 		}
 
 		// Show ball
-		if (ball.isRunning()) {
+		// TODO: polish cho nay lai nhaaaaaaa!!!!
+		if (ball.isRunning() || ball.getState() == Character.motionState.DEATH) {
 			Point shadowPos1 = new Point(ball.getPosition());
 			double quantum = Parameters.timer / 1000.0;
 			elapsedTime += quantum;
@@ -388,18 +413,37 @@ public class Game {
 			// type-casted into Segment
 			Segment obstacle = isNextPostAvailable();
 
+			// TODO: DOUBLE CHECK THESE CONDITIONS
 			if (endGame == 1) {
+				ball.setState(Character.motionState.DEATH);
+				ball.update(elapsedTime, quantum);
+				endGame++;
+			} else if (endGame == 2) {
+				ball.update(elapsedTime, quantum);
+			} else if (endGame == 3) { // MUST BE 3 (not 2 nhe)
 				endGame = 0;
+				
+				int lives = ((MainActivity)App.getMyContext()).getUser().getCurrentLives();
+				if (lives > 0) { // TODO: set lives
+					((MainActivity)App.getMyContext()).getUser().setCurrentLives(lives-1);
+				} else {
+//					Calendar currentTime = Calendar.getInstance();
+//					((MainActivity)App.getMyContext()).getUser().setLastTime(currentTime);
+					((MainActivity)App.getMyContext()).setState(StateList.MAIN_MENU);
+				}
+				
+				this.restart();
 				updateView();
+				this.mainForm.getMainView().invalidate();
 				return;
 			}
 
-			if (obstacle == null)
+			else if (obstacle == null)
 				ball.update(elapsedTime, quantum); // these parameters are only
 													// for placeholder purpose,
 													// they have no meaning till
 													// this moment!!!
-			else {
+			else if (obstacle != null && endGame == 0) {
 				ball.bounce(obstacle);
 				ball.update(elapsedTime, quantum);
 			}
@@ -412,12 +456,14 @@ public class Game {
 			// }
 
 			// Show ball's shadow
-			Point temp = new Point(ball.getPosition());
-			Point shadowPos2 = Helper.Point_GetMirrorFrom(temp, shadowPos1);
-			(new Character(shadowPos2)).showShadow(canvas,
-					background.getPosition(), 50);
-			(new Character(shadowPos1)).showShadow(canvas,
-					background.getPosition(), 100);
+			if (ball.getState() == Character.motionState.MOVING) {
+				Point temp = new Point(ball.getPosition());
+				Point shadowPos2 = Helper.Point_GetMirrorFrom(temp, shadowPos1);
+				(new Character(shadowPos2)).showShadow(canvas,
+						background.getPosition(), 50);
+				(new Character(shadowPos1)).showShadow(canvas,
+						background.getPosition(), 100);
+			}
 
 			// Show ball
 			ball.show(canvas, background.getPosition());
@@ -442,7 +488,8 @@ public class Game {
 				amulet = false;
 
 			// If the ball stops running
-			if (!ball.isRunning()) {
+			// TODO: polish: original is !ball.isRunning()
+			if (ball.getState() == Character.motionState.STANDING) {
 				elapsedTime = 0.0;
 				updateView();
 				numOfCollisions = 0;
@@ -465,6 +512,17 @@ public class Game {
 			// ball is not running
 			ball.show(canvas, background.getPosition());
 
+		// draw hearts
+		int lives = ((MainActivity) App.getMyContext()).getUser()
+				.getCurrentLives();
+		for (int i = 0; i < lives; i++) {
+			heartRedArr[i].show(canvas);
+		}
+		for (int i = lives; i < heartBlackArr.length; i++) {
+			heartBlackArr[i].show(canvas);
+		}
+
+		// draw microwave
 		if (Helper.Point_GetDistanceFrom(ball.getPosition(),
 				gameData.getHolePos()) < 0.65 * Parameters.dBallRadius) {
 			// Do a down on the mutex
@@ -484,7 +542,8 @@ public class Game {
 			return true;
 		if (gameData.isRain())
 			return true;
-		if (this.ball.isRunning() || isDragging)
+		if (this.ball.isRunning() || isDragging
+				|| ball.getState() == Character.motionState.DEATH)
 			return true;
 		return false;
 	}
@@ -687,7 +746,7 @@ public class Game {
 		paint.setTextSize(20);
 		paint.setColor(Color.BLUE);
 		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.drawText("Score: " + score, Parameters.dMaxWidth / 2 - 40, 20,
+		canvas.drawText("Turn: " + score, Parameters.dMaxWidth / 2 - 40, 20,
 				paint);
 	}
 
@@ -713,7 +772,7 @@ public class Game {
 	}
 
 	public void levelUp() throws Exception {
-		User user = mainForm.getCurrentUser();
+		User user = mainForm.getUser();
 
 		// save progress
 		int level = mainForm.getChosenLevel();
@@ -734,18 +793,18 @@ public class Game {
 		}
 
 		// reset data for new level
-		user.setCurrentLevel(mainForm.getChosenLevel());
-		user.setCurrentScore(0);
+		// user.setCurrentLevel(mainForm.getChosenLevel());
+		// user.setCurrentScore(0);
 		gameData = null;
 		gameData = new MapReader(
 				Parameters.dMapID[mainForm.getChosenLevel() - 1]);
-		user.setCurrentPos(gameData.getStartPos());
-		if (user.getCurrentLevel() > user.getUnlockedLevel())
-			user.setUnlockedLevel(user.getCurrentLevel());
+		// user.setCurrentPos(gameData.getStartPos());
+		// if (user.getCurrentLevel() > user.getUnlockedLevel())
+		// user.setUnlockedLevel(user.getCurrentLevel());
 
 		// write to disk
-		DataWriter.WriteData(mainForm.getUserList(), Parameters.pthData,
-				user.getName());
+		// DataWriter.WriteData(mainForm.getUserList(), Parameters.pthUserData,
+		// user.getName());
 		mainForm.updateContent();
 
 		mainForm.getGame().flushData();
@@ -756,8 +815,9 @@ public class Game {
 	private void showFullBackground(Canvas canvas) {
 		Paint paint = new Paint();
 		paint.setStyle(Style.FILL);
-//		BitmapShader shader = new BitmapShader(Parameters.bmpTextureWallpaper,
-//				TileMode.REPEAT, TileMode.REPEAT);
+		// BitmapShader shader = new
+		// BitmapShader(Parameters.bmpTextureWallpaper,
+		// TileMode.REPEAT, TileMode.REPEAT);
 		BitmapShader shader = new BitmapShader(Parameters.bmpTextureWallpaper,
 				TileMode.MIRROR, TileMode.MIRROR);
 		paint.setShader(shader);

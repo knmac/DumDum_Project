@@ -12,6 +12,8 @@ import fr.eurecom.utility.DataReader;
 import fr.eurecom.utility.DataWriter;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
+import fr.eurecom.utility.UserReader;
+import fr.eurecom.utility.UserWriter;
 import android.support.v7.app.ActionBarActivity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -40,24 +42,25 @@ public class MainActivity extends ActionBarActivity {
 	private MyView mainView;
 	private int timeInterval = 40; // what is that, check later
 	private boolean timerOn;
-	
+
 	// --------------------------------------------------------------------------
 	// Game variables
 	private MainMenu mainMenu;
-	private HelpMenu helpMenu;
-	private UserMenu userMenu;
-	private HighScoreMenu highScoreMenu;
-	private StartMenu startMenu;
+	// private HelpMenu helpMenu;
+	// private UserMenu userMenu;
+	// private HighScoreMenu highScoreMenu;
+	// private StartMenu startMenu;
 	private LoadMenu loadMenu;
 	private PauseMenu pauseMenu;
 
-	private LinkedList<User> userList = new LinkedList<User>();
+	// private LinkedList<User> userList = new LinkedList<User>();
+	private User user;
 
 	private MediaPlayer spMenu;
 	private MediaPlayer spBackground;
 	private MediaPlayer spVictory;
 	private boolean soundOn = true;
-	
+
 	private MssgBox mssgBox;
 	private CongratBox congratBox;
 
@@ -69,8 +72,13 @@ public class MainActivity extends ActionBarActivity {
 
 	private Point size;
 
+	// public enum StateList {
+	// MAIN_MENU, USER_MENU, HIGH_SCORE_MENU, HELP_MENU, START_MENU, LOAD_MENU,
+	// PAUSE_MENU, GAME, MSSG_BOX, CONGRAT_BOX
+	// }
+
 	public enum StateList {
-		MAIN_MENU, USER_MENU, HIGH_SCORE_MENU, HELP_MENU, START_MENU, LOAD_MENU, PAUSE_MENU, GAME, MSSG_BOX, CONGRAT_BOX
+		MAIN_MENU, LOAD_MENU, PAUSE_MENU, GAME, MSSG_BOX, CONGRAT_BOX
 	}
 
 	private StateList state = StateList.MAIN_MENU;
@@ -84,23 +92,28 @@ public class MainActivity extends ActionBarActivity {
 		mainMenu = new MainMenu(new DynamicBitmap(Parameters.bmpBkMainMenu,
 				new Point(0, 0), 0, size.x, size.y));
 
-		helpMenu = new HelpMenu(new DynamicBitmap(Parameters.bmpBkSubMenu,
-				new Point(0, 0), 0, size.x, size.y));
-
-		userMenu = new UserMenu(new DynamicBitmap(Parameters.bmpBkSubMenu,
-				new Point(0, 0), 0, size.x, size.y), userList);
-
-		highScoreMenu = new HighScoreMenu(new DynamicBitmap(
-				Parameters.bmpBkSubMenu, new Point(0, 0), 0, size.x, size.y),
-				userList);
-
-		startMenu = new StartMenu(new DynamicBitmap(Parameters.bmpBkSubMenu,
-				new Point(0, 0), 0, size.x, size.y), this);
+		// helpMenu = new HelpMenu(new DynamicBitmap(Parameters.bmpBkSubMenu,
+		// new Point(0, 0), 0, size.x, size.y));
+		//
+		// userMenu = new UserMenu(new DynamicBitmap(Parameters.bmpBkSubMenu,
+		// new Point(0, 0), 0, size.x, size.y), userList);
+		//
+		// highScoreMenu = new HighScoreMenu(new DynamicBitmap(
+		// Parameters.bmpBkSubMenu, new Point(0, 0), 0, size.x, size.y),
+		// userList);
+		//
+		// startMenu = new StartMenu(new DynamicBitmap(Parameters.bmpBkSubMenu,
+		// new Point(0, 0), 0, size.x, size.y), this);
 
 		try {
+			// loadMenu = new LoadMenu(new
+			// DynamicBitmap(Parameters.bmpBkSubMenu,
+			// new Point(0, 0), 0, size.x, size.y), getCurrentUser()
+			// .getUnlockedLevel());
+
 			loadMenu = new LoadMenu(new DynamicBitmap(Parameters.bmpBkSubMenu,
-					new Point(0, 0), 0, size.x, size.y), getCurrentUser()
-					.getUnlockedLevel());
+					new Point(0, 0), 0, size.x, size.y),
+					user.getUnlockedLevel());
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -145,12 +158,16 @@ public class MainActivity extends ActionBarActivity {
 		this.currentUserName = currentUserName;
 	}
 
-	public LinkedList<User> getUserList() {
-		return userList;
-	}
+	// public LinkedList<User> getUserList() {
+	// return userList;
+	// }
+	//
+	// public void setUserList(LinkedList<User> userList) {
+	// this.userList = userList;
+	// }
 
-	public void setUserList(LinkedList<User> userList) {
-		this.userList = userList;
+	public User getUser() {
+		return this.user;
 	}
 
 	public MssgBox getMssgBox() {
@@ -186,7 +203,9 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	public void shutdownApp() {
-		DataWriter.WriteData(userList, Parameters.pthData, currentUserName);
+		// DataWriter.WriteData(userList, Parameters.pthUserData,
+		// currentUserName);
+		UserWriter.writeUserData(this.getUser(), Parameters.pthUserData);
 		flushSound();
 		timerOn = false;
 		if (screenShot != null) {
@@ -221,18 +240,20 @@ public class MainActivity extends ActionBarActivity {
 		}
 	}
 
-	public User getCurrentUser() {
-		for (int i = 0; i < userList.size(); ++i) {
-			if (userList.get(i).getName().contentEquals(this.currentUserName))
-				return userList.get(i);
-		}
-		return null;
-	}
+	// public User getCurrentUser() {
+	// for (int i = 0; i < userList.size(); ++i) {
+	// if (userList.get(i).getName().contentEquals(this.currentUserName))
+	// return userList.get(i);
+	// }
+	// return null;
+	// }
 
 	public void updateContent() throws Exception {
-		userMenu.SpawnUserButton();
-		highScoreMenu.FindTotalScore(userList);
-		loadMenu.SpawnLevel(getCurrentUser().getUnlockedLevel());
+		// userMenu.SpawnUserButton();
+		// highScoreMenu.FindTotalScore(userList);
+		// loadMenu.SpawnLevel(getCurrentUser().getUnlockedLevel());
+
+		loadMenu.SpawnLevel(user.getUnlockedLevel());
 	}
 
 	public boolean isWallThroughAllowed() {
@@ -252,7 +273,7 @@ public class MainActivity extends ActionBarActivity {
 		getWindow().clearFlags(
 				WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 		setContentView(R.layout.activity_main);
-		
+
 		// fixed rotation: landscape
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
@@ -262,8 +283,8 @@ public class MainActivity extends ActionBarActivity {
 		mainView = new MyView(this);
 		mainLayout.addView(mainView);
 		mainView.bringToFront();
-		
-		gameActivity = this; /////////////////////////////////////////
+
+		gameActivity = this; // ///////////////////////////////////////
 
 		// Initialize system
 		App.setMyContext(this);
@@ -278,13 +299,20 @@ public class MainActivity extends ActionBarActivity {
 		}
 
 		// If internally stored file exists, read that file
+		/*
+		 * try { FileInputStream fin = openFileInput(Parameters.pthUserData);
+		 * fin.close(); currentUserName = DataReader.ReadData(userList,
+		 * Parameters.pthUserData); } catch (FileNotFoundException e2) { int tmp
+		 * = Parameters.dDataID; currentUserName =
+		 * DataReader.ReadRawData(userList, tmp); } catch (IOException e) {
+		 * e.printStackTrace(); }
+		 */
 		try {
-			FileInputStream fin = openFileInput(Parameters.pthData);
-			fin.close();
-			currentUserName = DataReader.ReadData(userList, Parameters.pthData);
+			FileInputStream fin = openFileInput(Parameters.pthUserData);
+			fin.close(); // try if the file exists
+			user = UserReader.readUserData(Parameters.pthUserData);
 		} catch (FileNotFoundException e2) {
-			int tmp = Parameters.dDataID;
-			currentUserName = DataReader.ReadRawData(userList, tmp);
+			user = UserReader.readUserData(Parameters.dUserData);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -358,7 +386,6 @@ public class MainActivity extends ActionBarActivity {
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		// TODO Auto-generated method stub
 		if (keyCode == KeyEvent.KEYCODE_ENTER) {
 			if (state == StateList.GAME && !game.isBallRunning()) {
 				// Capture the screen
@@ -396,19 +423,7 @@ public class MainActivity extends ActionBarActivity {
 		return true;
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/////////////////////////////////////////////////////////////////////////////////////
+	// ///////////////////////////////////////////////////////////////////////////////////
 	public class MyView extends View {
 		public MyView(Context context) {
 			super(context);
@@ -421,21 +436,22 @@ public class MainActivity extends ActionBarActivity {
 
 			switch (state) {
 			case MAIN_MENU:
-				mainMenu.Show(myCanvas, currentUserName, getCurrentUser()
-						.getCurrentLevel());
+				// mainMenu.Show(myCanvas, currentUserName, getCurrentUser()
+				// .getCurrentLevel());
+				mainMenu.Show(myCanvas);
 				break;
-			case USER_MENU:
-				userMenu.Show(myCanvas);
-				break;
-			case HIGH_SCORE_MENU:
-				highScoreMenu.Show(myCanvas);
-				break;
-			case HELP_MENU:
-				helpMenu.Show(myCanvas);
-				break;
-			case START_MENU:
-				startMenu.Show(myCanvas);
-				break;
+			// case USER_MENU:
+			// userMenu.Show(myCanvas);
+			// break;
+			// case HIGH_SCORE_MENU:
+			// highScoreMenu.Show(myCanvas);
+			// break;
+			// case HELP_MENU:
+			// helpMenu.Show(myCanvas);
+			// break;
+			// case START_MENU:
+			// startMenu.Show(myCanvas);
+			// break;
 			case LOAD_MENU:
 				loadMenu.Show(myCanvas);
 				break;
@@ -478,10 +494,10 @@ public class MainActivity extends ActionBarActivity {
 			} else {
 				switch (state) {
 				case MAIN_MENU:
-				case USER_MENU:
-				case HIGH_SCORE_MENU:
-				case HELP_MENU:
-				case START_MENU:
+					// case USER_MENU:
+					// case HIGH_SCORE_MENU:
+					// case HELP_MENU:
+					// case START_MENU:
 				case LOAD_MENU:
 					if (spBackground.isPlaying())
 						spBackground = Helper.stopMediaPlayer(spBackground,
@@ -534,18 +550,18 @@ public class MainActivity extends ActionBarActivity {
 				case MAIN_MENU:
 					mainMenu.Action(mousePos, gameActivity);
 					break;
-				case USER_MENU:
-					userMenu.Action(mousePos, gameActivity);
-					break;
-				case HIGH_SCORE_MENU:
-					highScoreMenu.Action(mousePos, gameActivity);
-					break;
-				case HELP_MENU:
-					helpMenu.Action(mousePos, gameActivity);
-					break;
-				case START_MENU:
-					startMenu.Action(mousePos, gameActivity);
-					break;
+				// case USER_MENU:
+				// userMenu.Action(mousePos, gameActivity);
+				// break;
+				// case HIGH_SCORE_MENU:
+				// highScoreMenu.Action(mousePos, gameActivity);
+				// break;
+				// case HELP_MENU:
+				// helpMenu.Action(mousePos, gameActivity);
+				// break;
+				// case START_MENU:
+				// startMenu.Action(mousePos, gameActivity);
+				// break;
 				case LOAD_MENU:
 					loadMenu.Action(mousePos, gameActivity);
 					break;

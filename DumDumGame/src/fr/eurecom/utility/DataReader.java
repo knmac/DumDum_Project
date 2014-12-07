@@ -38,10 +38,10 @@ public class DataReader {
 				// 2nd line: <current level><current score><current x><current
 				// y><unlocked level>
 				arr = reader.readLine().split(" ");
-				user.setCurrentLevel(Integer.parseInt(arr[0]));
-				user.setCurrentScore(Integer.parseInt(arr[1]));
-				user.setCurrentPos(new Point(Integer.parseInt(arr[2]), Integer
-						.parseInt(arr[3])));
+//				user.setCurrentLevel(Integer.parseInt(arr[0]));
+//				user.setCurrentScore(Integer.parseInt(arr[1]));
+//				user.setCurrentPos(new Point(Integer.parseInt(arr[2]), Integer
+//						.parseInt(arr[3])));
 				user.setUnlockedLevel(Integer.parseInt(arr[4]));
 
 				// 3rd line: score of each level
@@ -56,7 +56,7 @@ public class DataReader {
 			}
 			
 			// write raw data to new file
-			DataWriter.WriteData(userList, Parameters.pthData, currentUser);
+//			DataWriter.WriteData(userList, Parameters.pthUserData, currentUser);
 
 			reader.close();
 			inputStream.close();
@@ -95,10 +95,10 @@ public class DataReader {
 				// 2nd line: <current level><current score><current x><current
 				// y><unlocked level>
 				arr = reader.readLine().split(" ");
-				user.setCurrentLevel(Integer.parseInt(arr[0]));
-				user.setCurrentScore(Integer.parseInt(arr[1]));
-				user.setCurrentPos(new Point(Integer.parseInt(arr[2]), Integer
-						.parseInt(arr[3])));
+//				user.setCurrentLevel(Integer.parseInt(arr[0]));
+//				user.setCurrentScore(Integer.parseInt(arr[1]));
+//				user.setCurrentPos(new Point(Integer.parseInt(arr[2]), Integer
+//						.parseInt(arr[3])));
 				user.setUnlockedLevel(Integer.parseInt(arr[4]));
 
 				// 3rd line: score of each level

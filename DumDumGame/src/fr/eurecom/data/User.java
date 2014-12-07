@@ -1,53 +1,85 @@
 package fr.eurecom.data;
 
+import java.util.Calendar;
 import java.util.LinkedList;
 
 import android.graphics.Point;
 
 public class User {
 	private String name;
+	// private int currentLevel;
+	// private int currentScore;
+	// private Point currentPos = new Point(0, 0);
+	private int unlockedLevel;
+	private LinkedList<Integer> levelScore = new LinkedList<Integer>();
+	private int currentMoney;
+	private int currentLives;
+	private int maxLives;
+	private String lastTime; //TODO: change format
+	
+	public String getLastTime() {
+		return this.lastTime;
+	}
 
-    private int currentLevel;
+	public void setLastTime(String lastTime) {
+		this.lastTime = lastTime;
+	}
+	
+	public void setCurrentLives(int lives) {
+		this.currentLives = lives;
+	}
 
-    private int currentScore;
+	public int getCurrentLives() {
+		return this.currentLives;
+	}
+	
+	public void setMaxLives(int lives) {
+		this.maxLives = lives;
+	}
 
-    private Point currentPos = new Point(0, 0);
-
-    private int unlockedLevel;
-
-    private LinkedList<Integer> levelScore = new LinkedList<Integer>();
+	public int getMaxLives() {
+		return this.maxLives;
+	}
 
 	public void setName(String name) {
 		this.name = name;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
-	public void setCurrentLevel(int currentLevel) {
-		this.currentLevel = currentLevel;
+	public void setCurrentMoney(int currentMoney) {
+		this.currentMoney = currentMoney;
 	}
 
-	public int getCurrentLevel() {
-		return currentLevel;
+	public int getCurrentMoney() {
+		return currentMoney;
 	}
 
-	public void setCurrentScore(int currentScore) {
-		this.currentScore = currentScore;
-	}
+	// public void setCurrentLevel(int currentLevel) {
+	// this.currentLevel = currentLevel;
+	// }
+	//
+	// public int getCurrentLevel() {
+	// return currentLevel;
+	// }
 
-	public int getCurrentScore() {
-		return currentScore;
-	}
+	// public void setCurrentScore(int currentScore) {
+	// this.currentScore = currentScore;
+	// }
+	//
+	// public int getCurrentScore() {
+	// return currentScore;
+	// }
 
-	public void setCurrentPos(Point currentPos) {
-		this.currentPos = currentPos;
-	}
-
-	public Point getCurrentPos() {
-		return currentPos;
-	}
+	// public void setCurrentPos(Point currentPos) {
+	// this.currentPos = currentPos;
+	// }
+	//
+	// public Point getCurrentPos() {
+	// return currentPos;
+	// }
 
 	public void setUnlockedLevel(int unlockedLevel) {
 		this.unlockedLevel = unlockedLevel;

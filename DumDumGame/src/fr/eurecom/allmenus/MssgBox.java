@@ -42,8 +42,8 @@ public class MssgBox extends BaseMenu {
 
 	@Override
 	public boolean Action(Point p, Object o) {
-		if (prevState == StateList.START_MENU) {
-		}
+//		if (prevState == StateList.START_MENU) {
+//		}
 		
 		((MainActivity) o).setState(prevState);
 		((MainActivity) o).getMainView().invalidate();
