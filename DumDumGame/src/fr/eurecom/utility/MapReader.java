@@ -417,7 +417,7 @@ public class MapReader {
         for (int i = 0; i < this.grassList.size(); ++i)
         {
             //this.grassList.get(i).Fill(Parameters.bmpTextureGrass, canvas);
-        	this.grassList.get(i).Fill(Parameters.bmpTextureGrass, canvas, TileMode.MIRROR, TileMode.MIRROR);
+        	this.grassList.get(i).Fill(Parameters.bmpTextureScenery, canvas, TileMode.MIRROR, TileMode.MIRROR);
         }
         // Show inner walls
         for (int i = 0; i < this.internalWallList.size(); ++i)

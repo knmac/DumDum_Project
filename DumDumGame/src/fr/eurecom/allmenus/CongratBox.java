@@ -4,7 +4,6 @@ import fr.eurecom.data.User;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.MainActivity.StateList;
-import fr.eurecom.utility.DataWriter;
 import fr.eurecom.utility.MapReader;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
@@ -48,8 +47,6 @@ public class CongratBox extends BaseMenu {
 		((MainActivity) o).setState(StateList.MAIN_MENU);
 
 		User user = ((MainActivity) o).getUser();
-
-		((MainActivity) o).getPauseMenu().Unzoom(o);
 
 		// write to buffer
 		// user.setCurrentLevel(1);

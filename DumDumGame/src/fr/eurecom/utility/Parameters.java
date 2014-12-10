@@ -14,40 +14,30 @@ public class Parameters {
 	static public int numSprtActiveLevel = 6;
 
 	// Button Image
-	static public Bitmap bmpBtnStart;
-	static public Bitmap bmpBtnSinglePlayer;
-	static public Bitmap bmpBtnMultiPlayer;
-	static public Bitmap bmpBtnUser;
-	static public Bitmap bmpBtnHighScore;
-	static public Bitmap bmpBtnHelp;
-	static public Bitmap bmpBtnShop;
-	static public Bitmap bmpBtnSetting;
-	static public Bitmap bmpBtnExit;
 	static public Bitmap bmpBtnReturn;
 	static public Bitmap bmpBtnTransparent;
-	static public Bitmap bmpBtnDelete;
-	static public Bitmap bmpBtnAdd;
+	static public Bitmap bmpBtnHalfTransparent;
 	static public Bitmap bmpBtnActiveLevel;
 	static public Bitmap bmpBtnInactiveLevel;
 
+	static public Bitmap bmpBtnArrowRight;
+	static public Bitmap bmpBtnArrowLeft;
+	static public Bitmap bmpBtnBuy;
+
 	// Button Position
-	static public Point posBtnStartMainMenu;
 	static public Point posBtnSinglePlayerMenu;
 	static public Point posBtnMultiPlayerMenu;
-	static public Point posBtnUserMainMenu;
-	static public Point posBtnHighScoreMainMenu;
-	static public Point posBtnHelpMainMenu;
 	static public Point posBtnShopMenu;
 	static public Point posBtnSettingMenu;
 	static public Point posBtnExitMainMenu;
 
 	static public Point posBtnReturn;
-	static public Point posBtnAdd;
 
 	// Button Size
 	static public int dBtnWidth = 120;
 	static public int dBtnHeight = 40;
 
+	// TODO: change the button size according to the screen
 	static public int dBtnSinglePlayerWidth = 295;
 	static public int dBtnSinglePlayerHeight = 150;
 	static public int dBtnMultiPlayerWidth = 295;
@@ -69,7 +59,7 @@ public class Parameters {
 
 	// Game Image
 	static public Bitmap bmpTextureWall;
-	static public Bitmap bmpTextureGrass;
+	static public Bitmap bmpTextureScenery;
 	static public Bitmap bmpSand;
 	static public Bitmap bmpWater;
 	static public Bitmap bmpTextureWallpaper;
@@ -80,42 +70,28 @@ public class Parameters {
 	static public Bitmap[] bmpConveyorDown;
 	static public Bitmap[] bmpRain;
 	static public Bitmap[] bmpRoll;
-	static public Bitmap bmpDumDumNormal;
-	static public Bitmap bmpDumDumAngel;
-	static public Point posDumDumPivot = new Point(35, -5);
+
 	static public Bitmap bmpHeartRed;
 	static public Bitmap bmpHeartBlack;
 
+	static public Bitmap bmpDumDumNormal;
+	static public Bitmap bmpDumDumAngel;
+	static public Point posDumDumPivot = new Point(-3, -40); // TODO
+
 	// Pause Game Menu
-	static public Bitmap bmpMetalDisc;
-	static public Bitmap bmpBtnPlay;
-	static public Bitmap bmpBtnRestart;
-	static public Bitmap bmpBtnHome;
-	static public Bitmap[] bmpBtnZoom;
-	static public Bitmap[] bmpBtnSound;
-	static public Point posMetalDisc = new Point(10, 90);
-	static public Point posBtnPlay = new Point(110, 190);
-	static public Point posBtnRestart = new Point(6, 190);
-	static public Point posBtnHome = new Point(110, 290);
-	static public Point posBtnZoom = new Point(214, 190);
-	static public Point posBtnSound = new Point(110, 90);
+	// TODO
+	static public Point posBtnPlay = new Point(400, 350);
+	static public Point posBtnRestart = new Point(500, 350);
+	static public Point posBtnHome = new Point(600, 350);
+	static public Point posBtnSound = new Point(700, 350);
 	static public int dPauseBtnSize = 100;
-	static public int dMetalDiscSize = 300;
-
-	// Data Path
-	// static public String programPath;
-	// static public String pthHighScore;
-	// static public String pthData;
-
-	// Text Area
-	static public Rect recTextArea;
 
 	// Screen
 	static public int dMaxWidth;
 	static public int dMaxHeight;
 
 	// Ball properties
-	static public int dBallRadius = 40; //18
+	static public int dBallRadius;
 	static public int dMaxNumOfCollisions = 20;
 
 	// Conveyor properties
@@ -126,8 +102,8 @@ public class Parameters {
 	static public int dTeleRadius;
 
 	// Zoom param
-	static public int dZoomParam = 35; //50
-	static public int dShiftParam = 0; //200
+	static public int dZoomParam;
+	static public int dShiftParam = 0; // 200
 
 	// Extra informations
 	static public double grassFrictionAcceleration = -100;
@@ -139,16 +115,8 @@ public class Parameters {
 	static public int timer = 40;
 	static public int updatePeriod = 5;
 
-	// // SoundTrack
-	// static public String pthMenuSoundtrack;
-	// static public String pthBackgroundSoundtrack;
-	// static public String pthVictorySoundtrack;
-	// static public String pthBloibSound;
-
 	// Resource
 	static public Resources resource;
-//	static public int dDataID = R.raw.data;
-//	static public String pthUserData = "UserData.txt";
 	static public String pthUserData = "user_data.txt";
 	static public int dUserData = R.raw.user_data;
 	static public int[] dMapID = new int[] { R.raw.map1, R.raw.map2,
@@ -169,28 +137,20 @@ public class Parameters {
 
 		// Step
 		// 1--------------------------------------------------------------------------
-		bmpBtnStart = BitmapFactory.decodeResource(res, R.drawable.start_game);
-		bmpBtnSinglePlayer = BitmapFactory.decodeResource(res,
-				R.drawable.single_player);
-		bmpBtnMultiPlayer = BitmapFactory.decodeResource(res,
-				R.drawable.multi_player);
-		bmpBtnUser = BitmapFactory.decodeResource(res, R.drawable.user);
-		bmpBtnHighScore = BitmapFactory.decodeResource(res,
-				R.drawable.high_score);
-		bmpBtnHelp = BitmapFactory.decodeResource(res, R.drawable.help);
-		bmpBtnShop = BitmapFactory.decodeResource(res, R.drawable.shop);
-		bmpBtnSetting = BitmapFactory.decodeResource(res, R.drawable.setting);
-		bmpBtnExit = BitmapFactory.decodeResource(res, R.drawable.exit);
-		bmpBtnReturn = BitmapFactory
-				.decodeResource(res, R.drawable.return_back);
+		bmpBtnReturn = BitmapFactory.decodeResource(res, R.drawable.back_btn);
 		bmpBtnTransparent = BitmapFactory.decodeResource(res,
 				R.drawable.transparent);
-		bmpBtnDelete = BitmapFactory.decodeResource(res, R.drawable.delete);
-		bmpBtnAdd = BitmapFactory.decodeResource(res, R.drawable.add);
+		bmpBtnHalfTransparent = BitmapFactory.decodeResource(res,
+				R.drawable.half_transparent);
 		bmpBtnActiveLevel = BitmapFactory.decodeResource(res,
 				R.drawable.active_level);
 		bmpBtnInactiveLevel = BitmapFactory.decodeResource(res,
 				R.drawable.inactive_level);
+		bmpBtnArrowRight = BitmapFactory.decodeResource(res,
+				R.drawable.arrow_right);
+		bmpBtnArrowLeft = BitmapFactory.decodeResource(res,
+				R.drawable.arrow_left);
+		bmpBtnBuy = BitmapFactory.decodeResource(res, R.drawable.buy_btn);
 
 		bmpBkMainMenu = BitmapFactory.decodeResource(res, R.drawable.main_menu);
 		bmpBkSubMenu = BitmapFactory.decodeResource(res, R.drawable.sub_menu);
@@ -210,32 +170,13 @@ public class Parameters {
 		posScoreList[8] = new Point(206, 200);
 		posScoreList[9] = new Point(252, 200);
 
-//		bmpTextureWall = BitmapFactory.decodeResource(res,
-//				R.drawable.wall_texture);
-		bmpTextureWall = BitmapFactory.decodeResource(res,
-				R.drawable.block);
-//		bmpTextureGrass = BitmapFactory.decodeResource(res,
-//				R.drawable.grass_texture);
-		bmpTextureGrass = BitmapFactory.decodeResource(res,
+		bmpTextureWall = BitmapFactory.decodeResource(res, R.drawable.block);
+		bmpTextureScenery = BitmapFactory.decodeResource(res,
 				R.drawable.background);
 		bmpSand = BitmapFactory.decodeResource(res, R.drawable.sand);
 		bmpWater = BitmapFactory.decodeResource(res, R.drawable.water);
-//		bmpTextureWallpaper = BitmapFactory.decodeResource(res,
-//				R.drawable.wallpaper);
 		bmpTextureWallpaper = BitmapFactory.decodeResource(res,
 				R.drawable.space_pattern);
-
-		bmpMetalDisc = BitmapFactory.decodeResource(res, R.drawable.metal_disc);
-		bmpBtnPlay = BitmapFactory.decodeResource(res, R.drawable.play);
-		bmpBtnRestart = BitmapFactory.decodeResource(res, R.drawable.restart);
-		bmpBtnHome = BitmapFactory.decodeResource(res, R.drawable.home);
-		bmpBtnZoom = new Bitmap[2];
-		bmpBtnZoom[0] = BitmapFactory.decodeResource(res, R.drawable.zoom_in);
-		bmpBtnZoom[1] = BitmapFactory.decodeResource(res, R.drawable.zoom_out);
-		bmpBtnSound = new Bitmap[2];
-		bmpBtnSound[0] = BitmapFactory.decodeResource(res, R.drawable.sound_on);
-		bmpBtnSound[1] = BitmapFactory
-				.decodeResource(res, R.drawable.sound_off);
 
 		resource = res;
 
@@ -243,25 +184,9 @@ public class Parameters {
 		// 2---------------------------------------------------------------------------
 		dMaxWidth = screen.width();
 		dMaxHeight = screen.height();
-		// int tempX = (screen.width() - dBtnWidth) / 2;
-		// int tempY = screen.height() / 3 + 30;
-		// tempY -= 10;
-		
+
 		dZoomParam = screen.height() / 18;
-
-		// posBtnStartMainMenu = new Point(tempX, tempY);
-		// posBtnLoadMainMenu = new Point(tempX, tempY + 1 * dBtnHeight);
-		// posBtnUserMainMenu = new Point(tempX, tempY + 2 * dBtnHeight);
-		// posBtnHighScoreMainMenu = new Point(tempX, tempY + 3 * dBtnHeight);
-		// posBtnHelpMainMenu = new Point(tempX, tempY + 4 * dBtnHeight);
-		// posBtnExitMainMenu = new Point(tempX, tempY + 5 * dBtnHeight);
-
-		int tempX = dMaxWidth - dBtnWidth;
-		int tempY = 0;
-		posBtnStartMainMenu = new Point(tempX, tempY);
-		posBtnUserMainMenu = new Point(tempX, tempY + 1 * dBtnHeight);
-		posBtnHighScoreMainMenu = new Point(tempX, tempY + 2 * dBtnHeight);
-		posBtnHelpMainMenu = new Point(tempX, tempY + 3 * dBtnHeight);
+		dBallRadius = dZoomParam * 5 / 4;
 
 		posBtnSinglePlayerMenu = new Point(
 				(dMaxWidth - dBtnSinglePlayerWidth) * 1 / 5,
@@ -276,13 +201,9 @@ public class Parameters {
 		posBtnExitMainMenu = new Point(dMaxWidth - dBtnExitWidth - dMaxWidth
 				/ 30, dMaxHeight - dBtnExitHeight - dMaxHeight / 30);
 
-		posBtnReturn = new Point(screen.width() - bmpBtnReturn.getWidth(),
-				screen.height() - bmpBtnReturn.getHeight());
-		posBtnAdd = new Point((screen.width() - bmpBtnAdd.getWidth()) / 2,
-				screen.height() / 2);
-
-		recTextArea = new Rect(20, screen.height() / 3 + 30, screen.width(),
-				screen.height() - 30);
+		posBtnReturn = new Point(screen.width() - bmpBtnReturn.getWidth()
+				- dZoomParam / 2, screen.height() - bmpBtnReturn.getHeight()
+				- dZoomParam / 2);
 
 		bmpTeleporter = Cutter.cutBitmap(
 				BitmapFactory.decodeResource(res, R.drawable.black_hole), 5,
@@ -304,12 +225,18 @@ public class Parameters {
 		bmpRain = Cutter.cutBitmap(
 				BitmapFactory.decodeResource(res, R.drawable.rain), 4,
 				Cutter.CutStyle.VERTICAL);
-		bmpRoll = Cutter.cutBitmap(BitmapFactory.decodeResource(res, R.drawable.roll_sprite), 
-				8, Cutter.CutStyle.VERTICAL);
-		bmpDumDumNormal = BitmapFactory.decodeResource(res, R.drawable.dumdum_normal);
-		bmpDumDumAngel = BitmapFactory.decodeResource(res, R.drawable.dumdum_angel);
+
 		bmpHeartRed = BitmapFactory.decodeResource(res, R.drawable.hear_red);
-		bmpHeartBlack = BitmapFactory.decodeResource(res, R.drawable.hear_black);
+		bmpHeartBlack = BitmapFactory
+				.decodeResource(res, R.drawable.hear_black);
+
+		bmpRoll = Cutter.cutBitmap(
+				BitmapFactory.decodeResource(res, R.drawable.roll_sprite), 8,
+				Cutter.CutStyle.VERTICAL);
+		bmpDumDumNormal = BitmapFactory.decodeResource(res,
+				R.drawable.dumdum_normal);
+		bmpDumDumAngel = BitmapFactory.decodeResource(res,
+				R.drawable.dumdum_angel);
 
 		dConveyorWidth = dZoomParam;
 		dTeleRadius = 2 * dBallRadius;

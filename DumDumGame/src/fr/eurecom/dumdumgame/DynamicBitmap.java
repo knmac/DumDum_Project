@@ -33,9 +33,8 @@ public class DynamicBitmap {
 		this._width = width;
 		this._height = height;
 	}
-	
-	public DynamicBitmap(Bitmap image, Point position,
-			int width, int height) {
+
+	public DynamicBitmap(Bitmap image, Point position, int width, int height) {
 		this.images = new Bitmap[1];
 		this.images[0] = image;
 		this._position = position;
@@ -87,6 +86,10 @@ public class DynamicBitmap {
 		this._position = position;
 	}
 
+	public void setCurrentIndex(int index) {
+		this._currentIndex = index;
+	}
+
 	public int getCurrentIndex() {
 		return _currentIndex;
 	}
@@ -136,6 +139,11 @@ public class DynamicBitmap {
 		Rect dstRect = new Rect(_position.x + srcX, _position.y + srcY,
 				_position.x + srcX + srcWidth, _position.y + srcY + srcHeight);
 		canvas.drawBitmap(images[_currentIndex], srcRect, dstRect, new Paint());
+	}
+
+	public void updateToThePrevImage() {
+		_currentIndex = (_currentIndex - 1) < 0 ? images.length - 1
+				: (_currentIndex - 1) % images.length;
 	}
 
 	public void updateToTheNextImage() {

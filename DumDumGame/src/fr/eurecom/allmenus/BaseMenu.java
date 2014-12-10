@@ -43,4 +43,11 @@ public abstract class BaseMenu {
 	}
 
 	public abstract boolean Action(Point p, Object o);
+	
+	public void recycle() {
+		for (Button btn : buttonList) { 
+			btn.recycle();
+		}
+		bmpBackground.recycle();
+	}
 }

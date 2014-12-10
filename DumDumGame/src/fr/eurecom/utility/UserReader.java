@@ -26,7 +26,7 @@ public class UserReader {
 			user = reading(reader);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}  catch (ParseException e) {
+		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 
@@ -50,7 +50,8 @@ public class UserReader {
 		return user;
 	}
 
-	static private User reading(BufferedReader reader) throws IOException, ParseException {
+	static private User reading(BufferedReader reader) throws IOException,
+			ParseException {
 		User user = new User();
 		String aLine;
 		String[] tokens;
@@ -67,11 +68,15 @@ public class UserReader {
 		aLine = reader.readLine();
 		user.setCurrentLives(Integer.parseInt(aLine));
 
+		// refill time
+		aLine = reader.readLine();
+		user.setRefillTime(Integer.parseInt(aLine));
+
 		// last time
 		aLine = reader.readLine();
-//		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//		Calendar cal = Calendar.getInstance();
-//		cal.setTime(sdf.parse(aLine)); 
+		// SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		// Calendar cal = Calendar.getInstance();
+		// cal.setTime(sdf.parse(aLine));
 		user.setLastTime(aLine);
 
 		// unlocked level

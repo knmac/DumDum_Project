@@ -11,18 +11,18 @@ import fr.eurecom.dumdumgame.Conveyor;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.MainActivity.StateList;
-import fr.eurecom.dumdumgame.Obstacles;
-import fr.eurecom.utility.DataWriter;
+import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.MapReader;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
-import android.app.AlertDialog;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -47,6 +47,7 @@ public class Game {
 	private static Physics physics;
 	private DynamicBitmap[] heartRedArr;
 	private DynamicBitmap[] heartBlackArr;
+	private DynamicBitmap pauseButton;
 
 	private Environment myEnvironment;
 
@@ -81,16 +82,6 @@ public class Game {
 		background = new Map(tmpBitmap, new Point(0, 0), new Rect(0, 0,
 				Parameters.dMaxWidth, Parameters.dMaxHeight));
 
-		// Create a ball
-		// User currentUser = ((MainActivity) o).getCurrentUser();
-		// if (chosenLevel == currentUser.getCurrentLevel()) {
-		// ball = new Character(currentUser.getCurrentPos());
-		// score = currentUser.getCurrentScore();
-		// } else {
-		// ball = new Character(gameData.getStartPos());
-		// score = 0;
-		// }
-
 		ball = new Character(gameData.getStartPos());
 		score = 0;
 		elapsedTime = 0.0;
@@ -105,7 +96,7 @@ public class Game {
 					position, 0, 2 * teleRad, 2 * teleRad);
 		}
 
-		// Create conveyors
+		// Create conveyers
 		conveyors = new Conveyor[gameData.getConveyorList().size()];
 		for (int i = 0; i < gameData.getConveyorList().size(); ++i)
 			conveyors[i] = new Conveyor(gameData.getConveyorList().get(i));
@@ -132,16 +123,22 @@ public class Game {
 		heartRedArr = new DynamicBitmap[maxLives];
 		heartBlackArr = new DynamicBitmap[maxLives];
 		for (int i = 0; i < maxLives; i++) {
-			Point position = new Point(Parameters.dBallRadius * 2 * (i + 1),
-					Parameters.dBallRadius);
+			int size = Parameters.dBallRadius;
+			Point position = new Point(size * (i + 1), size / 2);
 			heartRedArr[i] = new DynamicBitmap(Parameters.bmpHeartRed,
-					position, Parameters.dBallRadius * 2,
-					Parameters.dBallRadius * 2);
+					position, size, size);
 			heartBlackArr[i] = new DynamicBitmap(Parameters.bmpHeartBlack,
-					position, Parameters.dBallRadius * 2,
-					Parameters.dBallRadius * 2);
+					position, size, size);
 		}
 
+		// create buttons
+		Bitmap bmp = BitmapFactory.decodeResource(App.getMyContext()
+				.getResources(), R.drawable.pause_btn);
+		pauseButton = new DynamicBitmap(bmp, new Point(Parameters.dMaxWidth - 2
+				* Parameters.dBallRadius, Parameters.dBallRadius / 2),
+				Parameters.dBallRadius, Parameters.dBallRadius);
+
+		// ///////////////////////////////////////////////////////////////////////////////////////////
 		mainForm = (MainActivity) o;
 		updateView();
 
@@ -167,6 +164,15 @@ public class Game {
 	private int highlightCounter = 0; // for highlighting obstacles
 
 	public void Action(Point mousePos, Object o, MouseState mouseState) {
+		if (mouseState == MouseState.MOUSE_DOWN
+				&& pauseButton.isClicked(mousePos)) {
+			((MainActivity) App.getMyContext()).captureTheScreen();
+			((MainActivity) App.getMyContext()).setState(StateList.PAUSE_MENU);
+			((MainActivity) App.getMyContext()).getMainView().invalidate();
+			return;
+		}
+
+		//=========================================================================
 		if (ball.isRunning())
 			return;
 
@@ -414,7 +420,8 @@ public class Game {
 			// type-casted into Segment
 			Segment obstacle = isNextPostAvailable();
 
-			// TODO: DOUBLE CHECK THESE CONDITIONS, change the method or at least the name
+			// TODO: DOUBLE CHECK THESE CONDITIONS, change the method or at
+			// least the name
 			if (endGame == 1) {
 				ball.setState(Character.motionState.DEATH);
 				ball.update(elapsedTime, quantum);
@@ -423,34 +430,40 @@ public class Game {
 				ball.update(elapsedTime, quantum);
 			} else if (endGame == 3) { // MUST BE 3 (not 2 nhe)
 				endGame = 0;
-				
-				int lives = ((MainActivity)App.getMyContext()).getUser().getCurrentLives();
+
+				int lives = ((MainActivity) App.getMyContext()).getUser()
+						.getCurrentLives();
 				if (lives > 0) { // TODO: set lives
-					((MainActivity)App.getMyContext()).getUser().setCurrentLives(lives-1);
+					((MainActivity) App.getMyContext()).getUser()
+							.setCurrentLives(lives - 1);
 				} else {
-					((MainActivity)App.getMyContext()).setState(StateList.MAIN_MENU);
+					((MainActivity) App.getMyContext())
+							.setState(StateList.MAIN_MENU);
 				}
-				
+
 				Calendar currentTime = Calendar.getInstance();
-				
+
 				int ss = currentTime.get(Calendar.SECOND);
 				int mm = currentTime.get(Calendar.MINUTE);
 				int hh = currentTime.get(Calendar.HOUR_OF_DAY);
 				int yyyy = currentTime.get(Calendar.YEAR);
 				int MM = currentTime.get(Calendar.MONTH);
 				int dd = currentTime.get(Calendar.DAY_OF_MONTH);
-				
-				String strCurrentTime = String.format("%04d",yyyy) + "-" +
-										String.format("%02d",MM) + "-" +
-										String.format("%02d",dd) + " " +
-										String.format("%02d",hh) + ":" +
-										String.format("%02d",mm) + ":" +
-										String.format("%02d",ss);
+
+				String strCurrentTime = String.format("%04d", yyyy) + "-"
+						+ String.format("%02d", MM) + "-"
+						+ String.format("%02d", dd) + " "
+						+ String.format("%02d", hh) + ":"
+						+ String.format("%02d", mm) + ":"
+						+ String.format("%02d", ss);
 				Log.i("DATETIME", strCurrentTime);
-				
-				((MainActivity)App.getMyContext()).getUser().setLastTime(strCurrentTime);
-				UserWriter.writeUserData(((MainActivity)App.getMyContext()).getUser(), Parameters.pthUserData);
-				
+
+				((MainActivity) App.getMyContext()).getUser().setLastTime(
+						strCurrentTime);
+				UserWriter.writeUserData(
+						((MainActivity) App.getMyContext()).getUser(),
+						Parameters.pthUserData);
+
 				this.restart();
 				updateView();
 				this.mainForm.getMainView().invalidate();
@@ -531,6 +544,8 @@ public class Game {
 			// ball is not running
 			ball.show(canvas, background.getPosition());
 
+		// draw microwave
+
 		// draw hearts
 		int lives = ((MainActivity) App.getMyContext()).getUser()
 				.getCurrentLives();
@@ -541,7 +556,10 @@ public class Game {
 			heartBlackArr[i].show(canvas);
 		}
 
-		// draw microwave
+		// draw pause button
+		pauseButton.show(canvas);
+
+		// check level up
 		if (Helper.Point_GetDistanceFrom(ball.getPosition(),
 				gameData.getHolePos()) < 0.65 * Parameters.dBallRadius) {
 			// Do a down on the mutex
@@ -762,11 +780,12 @@ public class Game {
 		// Show score
 		Paint paint = new Paint();
 		paint.setTextAlign(Paint.Align.LEFT);
-		paint.setTextSize(20);
-		paint.setColor(Color.BLUE);
+		paint.setTextSize(Parameters.dZoomParam / 2);
+		paint.setColor(Color.LTGRAY);
 		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		canvas.drawText("Turn: " + score, Parameters.dMaxWidth / 2 - 40, 20,
-				paint);
+		paint.setTextAlign(Align.CENTER);
+		canvas.drawText("Turn: " + score, Parameters.dMaxWidth / 2,
+				Parameters.dBallRadius, paint);
 	}
 
 	private double getAccelerationUnderTheBall() {

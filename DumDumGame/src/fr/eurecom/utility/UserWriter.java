@@ -31,9 +31,14 @@ public class UserWriter {
 			fos.write(Integer.toString(user.getCurrentLives()).getBytes());
 			fos.write(newLine.getBytes());
 
+			// refill time
+			fos.write(Integer.toString(user.getRefillTime()).getBytes());
+			fos.write(newLine.getBytes());
+
 			// last time
-//			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//		    String lastTime = sdf.format(user.getLastTime());
+			// SimpleDateFormat sdf = new
+			// SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			// String lastTime = sdf.format(user.getLastTime());
 			fos.write(user.getLastTime().getBytes());
 			fos.write(newLine.getBytes());
 

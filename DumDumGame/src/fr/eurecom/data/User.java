@@ -15,6 +15,7 @@ public class User {
 	private int currentMoney;
 	private int currentLives;
 	private int maxLives;
+	private int refillTime; // in seconds
 	private String lastTime; //TODO: change format
 	
 	public String getLastTime() {
@@ -55,6 +56,14 @@ public class User {
 
 	public int getCurrentMoney() {
 		return currentMoney;
+	}
+	
+	public void setRefillTime(int refillTime) {
+		this.refillTime = refillTime;
+	}
+
+	public int getRefillTime() {
+		return this.refillTime;
 	}
 
 	// public void setCurrentLevel(int currentLevel) {

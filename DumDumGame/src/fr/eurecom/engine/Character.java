@@ -24,22 +24,24 @@ public class Character {
 	// private Physics physics;
 	private LinkedList<Point> trajectoryList;
 	private int positionIndex;
-	//private DynamicBitmap charImgRoll;
-	//private DynamicBitmap charImgStand;
-	//private DynamicBitmap charImgDead;
+	// private DynamicBitmap charImgRoll;
+	// private DynamicBitmap charImgStand;
+	// private DynamicBitmap charImgDead;
 
 	private DynamicBitmap[] allImg;
 
 	public static enum motionState {
 		STANDING(0), MOVING(1), DEATH(2);
-		
+
 		private final int value;
-	    private motionState(int value) {
-	        this.value = value;
-	    }
-	    public int getValue() {
-	        return value;
-	    }
+
+		private motionState(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
 	};
 
 	private enum modeState {
@@ -64,12 +66,13 @@ public class Character {
 
 		// create image for character
 		this.allImg = new DynamicBitmap[3];
-		this.allImg[motionState.MOVING.getValue()] = new DynamicBitmap(Parameters.bmpRoll, this.position,
-				0, Parameters.dBallRadius * 2, Parameters.dBallRadius * 2);
-		this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(Parameters.bmpDumDumNormal,
-				this.position);
-		this.allImg[motionState.DEATH.getValue()] = new DynamicBitmap(Parameters.bmpDumDumAngel,
-				this.position);
+		this.allImg[motionState.MOVING.getValue()] = new DynamicBitmap(
+				Parameters.bmpRoll, this.position, 0,
+				Parameters.dBallRadius * 2, Parameters.dBallRadius * 2);
+		this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(
+				Parameters.bmpDumDumNormal, this.position);
+		this.allImg[motionState.DEATH.getValue()] = new DynamicBitmap(
+				Parameters.bmpDumDumAngel, this.position);
 	}
 
 	// TODO: change the Ray + initialVelocity into 1 variable presenting
@@ -182,27 +185,29 @@ public class Character {
 	}
 
 	public void show(Canvas canvas, Point offset) { // offset of the background
-		// showShadow(canvas, offset, 255);
-		
+		showShadow(canvas, offset, 100);
+
 		switch (getState()) {
 		case MOVING:
-			this.allImg[motionState.MOVING.getValue()].setPosition(new Point(this.position.x
-					- Parameters.dBallRadius, this.position.y
-					- Parameters.dBallRadius));
+			this.allImg[motionState.MOVING.getValue()].setPosition(new Point(
+					this.position.x - Parameters.dBallRadius, this.position.y
+							- Parameters.dBallRadius));
 			this.allImg[motionState.MOVING.getValue()].show(canvas, offset);
 			this.allImg[motionState.MOVING.getValue()].updateToTheNextImage();
 			break;
 		case STANDING:
-			this.allImg[motionState.STANDING.getValue()].setPosition(new Point(this.position.x
-					- Parameters.posDumDumPivot.x - 2 * Parameters.dBallRadius,
-					this.position.y - Parameters.posDumDumPivot.y - 2
+			this.allImg[motionState.STANDING.getValue()].setPosition(new Point(
+					this.position.x - Parameters.posDumDumPivot.x - 2
+							* Parameters.dBallRadius, this.position.y
+							- Parameters.posDumDumPivot.y - 2
 							* Parameters.dBallRadius));
 			this.allImg[motionState.STANDING.getValue()].show(canvas, offset);
 			break;
 		case DEATH:
-			this.allImg[motionState.DEATH.getValue()].setPosition(new Point(this.position.x
-					- Parameters.posDumDumPivot.x - 2 * Parameters.dBallRadius,
-					this.position.y - Parameters.posDumDumPivot.y - 2
+			this.allImg[motionState.DEATH.getValue()].setPosition(new Point(
+					this.position.x - Parameters.posDumDumPivot.x - 2
+							* Parameters.dBallRadius, this.position.y
+							- Parameters.posDumDumPivot.y - 2
 							* Parameters.dBallRadius));
 			this.allImg[motionState.DEATH.getValue()].show(canvas, offset);
 			break;
@@ -219,7 +224,7 @@ public class Character {
 	}
 
 	public boolean update(double elapsedTime, double quantum) throws Exception {
-		
+
 		switch (getState()) {
 		case STANDING:
 			return false;
@@ -227,20 +232,22 @@ public class Character {
 			if (this.positionIndex >= this.getTrajectoryList().size())
 				return false;
 			else
-				this.position = this.getTrajectoryList().get(++this.positionIndex);
+				this.position = this.getTrajectoryList().get(
+						++this.positionIndex);
 			return true;
 		case DEATH:
 			if (this.positionIndex >= this.getTrajectoryList().size())
 				return false;
 			else
-				this.position = this.getTrajectoryList().get(++this.positionIndex);
+				this.position = this.getTrajectoryList().get(
+						++this.positionIndex);
 			return true;
 		}
-		
+
 		return true;
-		
-//		if (getState() == motionState.STANDING)
-//			return false;
+
+		// if (getState() == motionState.STANDING)
+		// return false;
 
 		// double displacement = 0.5 * this.acceleration * elapsedTime *
 		// elapsedTime + this.initialVelocity * elapsedTime;
@@ -270,7 +277,6 @@ public class Character {
 		//
 		// return true;
 
-		
 	}
 
 	// public Character getBallAtTime(double elapsedTime) throws Exception {
@@ -375,16 +381,16 @@ public class Character {
 
 	public void setState(motionState state) {
 		this.state = state;
-		
+
 		if (this.state == motionState.DEATH) {
 			this.trajectoryList = new LinkedList<Point>();
 			int disp = Parameters.dBallRadius;
-			
+
 			for (int y = position.y; y >= 0; y -= disp)
 				this.trajectoryList.add(new Point(position.x, y));
-			
+
 			positionIndex = 0;
-			
+
 		}
 	}
 }

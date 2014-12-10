@@ -15,11 +15,6 @@ import android.graphics.Point;
 import android.graphics.Typeface;
 
 public class LoadMenu extends BaseMenu {
-//	private Point[] posList = new Point[] { new Point(11, 340),
-//			new Point(91, 340), new Point(171, 340), new Point(251, 340),
-//			new Point(51, 260), new Point(131, 260), new Point(211, 260),
-//			new Point(91, 180), new Point(171, 180), new Point(131, 100) };
-	
 	private Point[] posList = new Point[] { 
 			new Point(150, 250), new Point(350, 250), new Point(550, 250), new Point(750, 250), new Point(950, 250), 
 			new Point(150, 450), new Point(350, 450), new Point(550, 450), new Point(750, 450), new Point(950, 450) };
