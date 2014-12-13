@@ -2,8 +2,8 @@ package fr.eurecom.allmenus;
 
 import fr.eurecom.dumdumgame.Button;
 import fr.eurecom.dumdumgame.DynamicBitmap;
+import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
-import fr.eurecom.dumdumgame.MainActivity.StateList;
 import fr.eurecom.utility.Cutter;
 import fr.eurecom.utility.Parameters;
 import android.graphics.Point;
@@ -88,8 +88,8 @@ public class LoadMenu extends BaseMenu {
 		}
 
 		if (ResultButtonID.intValue() >= unlockedLevel) {		
-			((MainActivity) o).getMssgBox().showMessage("You haven't unlocked this\n\n level yet!",
-					StateList.LOAD_MENU, (MainActivity) o);
+			GameManager.mssgBox.showMessage("You haven't unlocked this\n\n level yet!",
+					GameManager.GameState.LOAD_MENU, (MainActivity) o);
 			return true;
 		}
 
@@ -99,8 +99,8 @@ public class LoadMenu extends BaseMenu {
 	}
 
 	private void CallReturn(Object o) {
-		((MainActivity) o).setState(StateList.MAIN_MENU);
-		((MainActivity) o).getMainView().invalidate();
+		GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
+		GameManager.mainView.invalidate();
 	}
 
 	private void CallGame(Object o, int chosenLevel) {
@@ -111,10 +111,10 @@ public class LoadMenu extends BaseMenu {
 			e.printStackTrace();
 		}
 		// Critical Region--------------------------------------------
-		((MainActivity) o).setState(StateList.GAME);
-		((MainActivity) o).setChosenLevel(chosenLevel);
-		((MainActivity) o).initGame();
-		((MainActivity) o).getMainView().invalidate();
+		GameManager.setCurrentState(GameManager.GameState.GAME);
+		GameManager.chosenLevel = chosenLevel;
+		GameManager.initGame();
+		GameManager.mainView.invalidate();
 		//------------------------------------------------------------
 		// Do an up on the mutex
 		Parameters.mutex.release();

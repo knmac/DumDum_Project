@@ -2,8 +2,8 @@ package fr.eurecom.allmenus;
 
 import fr.eurecom.data.User;
 import fr.eurecom.dumdumgame.DynamicBitmap;
+import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
-import fr.eurecom.dumdumgame.MainActivity.StateList;
 import fr.eurecom.utility.MapReader;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
@@ -27,7 +27,7 @@ public class CongratBox extends BaseMenu {
 		super.Show(canvas);
 		// Show scores
 		// User user = o.getCurrentUser();
-		User user = o.getUser();
+		User user = GameManager.user;
 
 		Paint paint = new Paint();
 		paint.setTextSize(30);
@@ -44,9 +44,9 @@ public class CongratBox extends BaseMenu {
 
 	@Override
 	public boolean Action(Point p, Object o) {
-		((MainActivity) o).setState(StateList.MAIN_MENU);
+		GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
 
-		User user = ((MainActivity) o).getUser();
+		User user = GameManager.user;
 
 		// write to buffer
 		// user.setCurrentLevel(1);
@@ -59,16 +59,15 @@ public class CongratBox extends BaseMenu {
 		// write to disk
 		// DataWriter.WriteData(((MainActivity) o).getUserList(),
 		// Parameters.pthUserData, user.getName());
-		UserWriter.writeUserData(((MainActivity) o).getUser(),
-				Parameters.pthUserData);
+		UserWriter.writeUserData(GameManager.user, Parameters.pthUserData);
 		try {
-			((MainActivity) o).updateContent();
+			GameManager.updateContent();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		((MainActivity) o).getGame().flushData();
+		GameManager.game.flushData();
 
-		((MainActivity) o).getMainView().invalidate();
+		GameManager.mainView.invalidate();
 		return true;
 	}
 }

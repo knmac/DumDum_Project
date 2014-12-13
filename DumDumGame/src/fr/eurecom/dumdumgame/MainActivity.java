@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import fr.eurecom.allmenus.*;
 import fr.eurecom.data.User;
+import fr.eurecom.dumdumgame.GameManager.GameState;
 import fr.eurecom.engine.Game;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
@@ -32,251 +33,11 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
 public class MainActivity extends ActionBarActivity {
+	
 
-	// --------------------------------------------------------------------------
-	// System variables
-	private RelativeLayout mainLayout;
-	private MyView mainView;
-	private int timeInterval = 40; // what is that, check later
 	private boolean timerOn;
+	
 
-	// --------------------------------------------------------------------------
-	// Game variables
-	private MainMenu mainMenu;
-	private LoadMenu loadMenu;
-	private MultiplayerMenu multiplayerMenu;
-	private SettingMenu settingMenu;
-	private ShopMenu shopMenu;
-	private PauseMenu pauseMenu;
-	private User user;
-
-	private MediaPlayer spMenu;
-	private MediaPlayer spBackground;
-	private MediaPlayer spVictory;
-	private boolean soundOn = true;
-
-	private MssgBox mssgBox;
-	private CongratBox congratBox;
-	private int chosenLevel;
-
-	private Game game;
-	private Object gameActivity;
-
-	private Point size;
-
-	public enum StateList {
-		MAIN_MENU, LOAD_MENU, MULTIPLAYER_MENU, SHOP_MENU, SETTING_MENU, PAUSE_MENU, GAME, MSSG_BOX, CONGRAT_BOX
-	}
-
-	private StateList state = StateList.MAIN_MENU;
-
-	private Bitmap screenShot = null;
-	private boolean isWallThroughAllowed = false;
-
-	// --------------------------------------------------------------------------
-	// Private methods
-	/*private void CreateMenus() {
-		mainMenu = new MainMenu(new DynamicBitmap(Parameters.bmpBkMainMenu,
-				new Point(0, 0), 0, size.x, size.y));
-
-		multiplayerMenu = new MultiplayerMenu(new DynamicBitmap(
-				Parameters.bmpBkSubMenu, new Point(0, 0), 0, size.x, size.y));
-
-		settingMenu = new SettingMenu(new DynamicBitmap(
-				Parameters.bmpBkSubMenu, new Point(0, 0), 0, size.x, size.y));
-
-		shopMenu = new ShopMenu(new DynamicBitmap(Parameters.bmpBkSubMenu,
-				new Point(0, 0), 0, size.x, size.y));
-
-		try {
-			loadMenu = new LoadMenu(new DynamicBitmap(Parameters.bmpBkSubMenu,
-					new Point(0, 0), 0, size.x, size.y),
-					user.getUnlockedLevel());
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-
-		pauseMenu = new PauseMenu(new DynamicBitmap(
-				Parameters.bmpBtnHalfTransparent, new Point(0, 0), 0, size.x,
-				size.y));
-
-		int tmp;
-		tmp = (size.y - Parameters.bmpMssgBox.getHeight()) / 2;
-		mssgBox = new MssgBox(new DynamicBitmap(Parameters.bmpMssgBox,
-				new Point(0, tmp)));
-
-		congratBox = new CongratBox(new DynamicBitmap(Parameters.bmpCongrat,
-				new Point(0, 0), 0, size.x, size.y), this);
-	}*/
-
-	private void createCorrespondingMenu(StateList menuState) {
-		switch (menuState) {
-		case MAIN_MENU:
-			if (mainMenu == null) {
-				mainMenu = new MainMenu(new DynamicBitmap(
-						Parameters.bmpBkMainMenu, new Point(0, 0), 0, size.x,
-						size.y));
-			}
-			break;
-		case LOAD_MENU:
-			if (loadMenu == null) {
-				try {
-					loadMenu = new LoadMenu(new DynamicBitmap(
-							Parameters.bmpBkSubMenu, new Point(0, 0), 0,
-							size.x, size.y), user.getUnlockedLevel());
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-			break;
-		case MULTIPLAYER_MENU:
-			if (multiplayerMenu == null) {
-				multiplayerMenu = new MultiplayerMenu(new DynamicBitmap(
-						Parameters.bmpBkSubMenu, new Point(0, 0), 0, size.x,
-						size.y));
-			}
-			break;
-		case SHOP_MENU:
-			if (shopMenu == null) {
-				shopMenu = new ShopMenu(new DynamicBitmap(
-						Parameters.bmpBkSubMenu, new Point(0, 0), 0, size.x,
-						size.y));
-			}
-			break;
-		case SETTING_MENU:
-			if (settingMenu == null) {
-				settingMenu = new SettingMenu(new DynamicBitmap(
-						Parameters.bmpBkSubMenu, new Point(0, 0), 0, size.x,
-						size.y));
-			}
-			break;
-		case PAUSE_MENU:
-			if (pauseMenu == null) {
-				pauseMenu = new PauseMenu(new DynamicBitmap(
-						Parameters.bmpBtnHalfTransparent, new Point(0, 0), 0,
-						size.x, size.y));
-			}
-			break;
-		case MSSG_BOX:
-			if (mssgBox == null) {
-				int tmp;
-				tmp = (size.y - Parameters.bmpMssgBox.getHeight()) / 2;
-				mssgBox = new MssgBox(new DynamicBitmap(Parameters.bmpMssgBox,
-						new Point(0, tmp)));
-			}
-			break;
-		case CONGRAT_BOX:
-			if (congratBox == null) {
-				congratBox = new CongratBox(new DynamicBitmap(
-						Parameters.bmpCongrat, new Point(0, 0), 0, size.x,
-						size.y), this);
-			}
-			break;
-		default:
-			break;
-		}
-	}
-
-	// --------------------------------------------------------------------------
-	// Public methods
-
-	public StateList getState() {
-		return state;
-	}
-
-	public void setState(StateList state) {
-		this.state = state;
-	}
-
-	public int getChosenLevel() {
-		return chosenLevel;
-	}
-
-	public void setChosenLevel(int chosenLevel) {
-		this.chosenLevel = chosenLevel;
-	}
-
-	public User getUser() {
-		return this.user;
-	}
-
-	public MssgBox getMssgBox() {
-		return mssgBox;
-	}
-
-	public PauseMenu getPauseMenu() {
-		return pauseMenu;
-	}
-
-	public void setPauseMenu(PauseMenu pauseMenu) {
-		this.pauseMenu = pauseMenu;
-	}
-
-	public void captureTheScreen() {
-		screenShot = Helper.getScreenShot(screenShot, mainView);
-	}
-
-	public MyView getMainView() {
-		return mainView;
-	}
-
-	public Game getGame() {
-		return game;
-	}
-
-	public void initGame() {
-		game = new Game(gameActivity);
-	}
-
-	public void switchSoundOnOff() {
-		soundOn = !soundOn;
-	}
-
-	public void shutdownApp() {
-		UserWriter.writeUserData(this.getUser(), Parameters.pthUserData);
-		flushSound();
-		timerOn = false;
-		if (screenShot != null) {
-			screenShot.recycle();
-		}
-
-		// System.runFinalizersOnExit(true);
-		System.exit(0);
-		this.finish();
-	}
-
-	public void flushSound() {
-		if (spMenu != null) {
-			if (spMenu.isPlaying())
-				spMenu.stop();
-			spMenu.release();
-			spMenu = null;
-		}
-
-		if (spBackground != null) {
-			if (spBackground.isPlaying())
-				spBackground.stop();
-			spBackground.release();
-			spBackground = null;
-		}
-
-		if (spVictory != null) {
-			if (spVictory.isPlaying())
-				spVictory.stop();
-			spVictory.release();
-			spVictory = null;
-		}
-	}
-
-	public void updateContent() throws Exception {
-		loadMenu.SpawnLevel(user.getUnlockedLevel());
-	}
-
-	public boolean isWallThroughAllowed() {
-		return this.isWallThroughAllowed;
-	}
-
-	// --------------------------------------------------------------------------
 	// Override methods
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -292,53 +53,74 @@ public class MainActivity extends ActionBarActivity {
 
 		// fixed rotation: landscape
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
-		// Get the main layout (self-defined) and add a view to it
-		// add id from activity_main.xml --> R.id.mainLayout
-		mainLayout = (RelativeLayout) findViewById(R.id.mainLayout);
-		mainView = new MyView(this);
-		mainLayout.addView(mainView);
-		mainView.bringToFront();
-
-		gameActivity = this; // ///////////////////////////////////////
-
+		
+		
+		// ----------------
+		// create a new view class to be in charge of the app view
+		
+		//GameManager.prepareGame(new GameView(this));
+		
+		GameManager.mainView = new GameView(this);
+		GameManager.mainView.bringToFront();
+		
+		// add the new view to the app layout
+		RelativeLayout mainLayout = (RelativeLayout) findViewById(R.id.mainLayout);
+		mainLayout.addView(GameManager.mainView);		
+				
+		
 		// Initialize system
+		
+		// TODO: !! GameModel: size, user, mainLayout, mainView, spMenu, spBackground, spVictory
+		
 		App.setMyContext(this);
 		Display mainDisplay = getWindowManager().getDefaultDisplay();
-		size = new Point();
-		mainDisplay.getSize(size);
+		GameManager.screenSize = new Point();
+		mainDisplay.getSize(GameManager.screenSize);
 		try {
-			Parameters.initParameters(new Rect(0, 0, size.x, size.y),
-					timeInterval);
+			Parameters.initParameters(new Rect(0, 0, GameManager.screenSize.x, GameManager.screenSize.y));
 		} catch (Exception e2) {
 			e2.printStackTrace();
 		}
 
 		// If internally stored file exists, read that file
+//		try { // try if the file exists
+//			FileInputStream fin = openFileInput(Parameters.pthUserData);
+//			fin.close();
+//			GameManager.user = UserReader.readUserData(Parameters.pthUserData);
+//		} catch (FileNotFoundException e2) {
+//			GameManager.user = UserReader.readUserData(Parameters.dUserData);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		
+		// If internally stored file exists, read that file
 		try { // try if the file exists
 			FileInputStream fin = openFileInput(Parameters.pthUserData);
 			fin.close();
-			user = UserReader.readUserData(Parameters.pthUserData);
-		} catch (FileNotFoundException e2) {
-			user = UserReader.readUserData(Parameters.dUserData);
+			GameManager.user = UserReader.readUserData(Parameters.pthUserData);
+		} catch (FileNotFoundException e2) { // try if the file does not exist -> read dummy data
+			GameManager.user = UserReader.readUserData(Parameters.dUserData);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (Exception e) { // if there is ANY kind of errors (pretty risky)
+			//e.printStackTrace();
+			GameManager.user = UserReader.readUserData(Parameters.dUserData); // read dummy data
+			UserWriter.writeUserData(GameManager.user, Parameters.pthUserData); // overwrite the existing data by the dummy data
 		}
 
-		// Create menus
-//		CreateMenus();
-//		createCorrespondingMenu(state);
-
 		// Load sound track
-		spMenu = MediaPlayer.create(this, Parameters.dMenuSoundtrack);
-		spBackground = MediaPlayer.create(this,
-				Parameters.dBackgroundSoundtrack);
-		spVictory = MediaPlayer.create(this, Parameters.dVictorySoundtrack);
+		GameManager.spMenu = MediaPlayer.create(this, Parameters.dMenuSoundtrack);
+		GameManager.spBackground = MediaPlayer.create(this, Parameters.dBackgroundSoundtrack);
+		GameManager.spVictory = MediaPlayer.create(this, Parameters.dVictorySoundtrack);
 
-		spMenu.setLooping(true);
-		spBackground.setLooping(true);
-		spVictory.setLooping(false);
-
+		GameManager.spMenu.setLooping(true);
+		GameManager.spBackground.setLooping(true);
+		GameManager.spVictory.setLooping(false);
+		
+		
+		//------------------------------------------------------------------------
+		
+		
 		// Timer for the game
 		timerOn = true;
 		Thread timerThread = new Thread(new Runnable() {
@@ -353,10 +135,9 @@ public class MainActivity extends ActionBarActivity {
 					}
 
 					// Critical region---------------------------------
-					if (state == StateList.LOAD_MENU)
-						mainView.postInvalidate();
-					else if (state == StateList.GAME && game.isRunning())
-						mainView.postInvalidate();
+					if ( (GameManager.getCurrentState() == GameManager.GameState.LOAD_MENU) ||
+							(GameManager.getCurrentState() == GameManager.GameState.GAME && GameManager.game.isRunning()) )
+						GameManager.mainView.postInvalidate();
 					// ----------------------------------------------
 
 					// Do an up on the mutex
@@ -395,220 +176,34 @@ public class MainActivity extends ActionBarActivity {
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_ENTER) {
-			if (state == StateList.GAME && !game.isBallRunning()) {
-				// Capture the screen
-				captureTheScreen();
-
-				state = StateList.PAUSE_MENU;
-				mainView.invalidate();
-			} else if (state == StateList.PAUSE_MENU) {
-				state = StateList.GAME;
-				game.resume();
-				mainView.invalidate();
-			}
-		} else if (keyCode == KeyEvent.KEYCODE_0) {
-			isWallThroughAllowed = !isWallThroughAllowed;
-		} else if (keyCode == KeyEvent.KEYCODE_9) {
-			if (state == StateList.GAME && game != null) {
-				try {
-					// Do a down on the mutex
-					Parameters.mutex.acquire();
-
-					// Critical region
-					game.levelUp();
-					// ------------------
-
-					// Do an up on the mutex
-					Parameters.mutex.release();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
 
 		return true;
 	}
+	
+	public void shutdownApp() {
+		UserWriter.writeUserData(GameManager.user, Parameters.pthUserData);
+		GameManager.flushSound();
+		timerOn = false;
+		if (GameManager.screenShot != null) {
+			GameManager.screenShot.recycle();
+		}
+
+		// System.runFinalizersOnExit(true);
+		System.exit(0);
+		this.finish();
+	}
+	
+	@Override
+	protected void onPause() {
+		// TODO Implement onPause functions
+		super.onPause();
+	}
+	
+	@Override
+	protected void onResume() {
+		// TODO Implement onResume function
+		super.onResume();
+	}
 
 	// ///////////////////////////////////////////////////////////////////////////////////
-	public class MyView extends View {
-		public MyView(Context context) {
-			super(context);
-		}
-
-		@Override
-		protected void onDraw(Canvas canvas) {
-			Canvas myCanvas = canvas;
-			createCorrespondingMenu(state);
-			
-			switch (state) {
-			case MAIN_MENU:
-				mainMenu.Show(myCanvas);
-				break;
-			case MULTIPLAYER_MENU:
-				multiplayerMenu.Show(myCanvas);
-				break;
-			case LOAD_MENU:
-				loadMenu.Show(myCanvas);
-				break;
-			case SHOP_MENU:
-				if (shopMenu == null)
-					shopMenu = new ShopMenu(new DynamicBitmap(
-							Parameters.bmpBkSubMenu, new Point(0, 0), 0,
-							size.x, size.y));
-				shopMenu.Show(myCanvas);
-				break;
-			case SETTING_MENU:
-				settingMenu.Show(myCanvas);
-				break;
-			case GAME:
-				try {
-					game.show(myCanvas);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				break;
-			case PAUSE_MENU:
-				if (screenShot != null) {
-					canvas.drawBitmap(screenShot, 0, 0, new Paint());
-					canvas.drawARGB(80, 0, 0, 0);
-				}
-				pauseMenu.Show(myCanvas);
-				break;
-			case MSSG_BOX:
-				if (screenShot != null) {
-					canvas.drawBitmap(screenShot, 0, 0, new Paint());
-					canvas.drawARGB(80, 0, 0, 0);
-				}
-				mssgBox.Show(myCanvas);
-				break;
-			case CONGRAT_BOX:
-				congratBox.Show(myCanvas);
-				break;
-			}
-
-			if (!soundOn) { // sound off
-				if (spBackground.isPlaying())
-					spBackground = Helper.stopMediaPlayer(spBackground,
-							Parameters.dBackgroundSoundtrack);
-				if (spVictory.isPlaying())
-					spVictory = Helper.stopMediaPlayer(spVictory,
-							Parameters.dVictorySoundtrack);
-				if (spMenu.isPlaying())
-					spMenu = Helper.stopMediaPlayer(spMenu,
-							Parameters.dMenuSoundtrack);
-			} else { // sound on
-				switch (state) {
-				case MAIN_MENU:
-				case MULTIPLAYER_MENU:
-				case SHOP_MENU:
-				case SETTING_MENU:
-				case LOAD_MENU:
-					if (spBackground.isPlaying())
-						spBackground = Helper.stopMediaPlayer(spBackground,
-								Parameters.dBackgroundSoundtrack);
-					if (spVictory.isPlaying())
-						spVictory = Helper.stopMediaPlayer(spVictory,
-								Parameters.dVictorySoundtrack);
-					if (!spMenu.isPlaying())
-						spMenu.start();
-					break;
-				case PAUSE_MENU:
-				case GAME:
-					if (spVictory.isPlaying())
-						spVictory = Helper.stopMediaPlayer(spVictory,
-								Parameters.dVictorySoundtrack);
-					if (spMenu.isPlaying())
-						spMenu = Helper.stopMediaPlayer(spMenu,
-								Parameters.dMenuSoundtrack);
-					if (!spBackground.isPlaying())
-						spBackground.start();
-					break;
-				case MSSG_BOX:
-					break;
-				case CONGRAT_BOX:
-					if (spBackground.isPlaying())
-						spBackground = Helper.stopMediaPlayer(spBackground,
-								Parameters.dBackgroundSoundtrack);
-					if (spMenu.isPlaying())
-						spMenu = Helper.stopMediaPlayer(spMenu,
-								Parameters.dMenuSoundtrack);
-					if (!spVictory.isPlaying())
-						spVictory.start();
-					break;
-				default:
-					break;
-				}
-			}
-		}
-
-		@Override
-		public boolean onTouchEvent(MotionEvent event) {
-			// Depend on current state, the mouse position invokes different
-			// actions
-			Point mousePos = new Point((int) event.getX(), (int) event.getY());
-			createCorrespondingMenu(state);
-
-			switch (event.getAction()) {
-			case MotionEvent.ACTION_UP:
-				switch (state) {
-				case MAIN_MENU:
-					mainMenu.Action(mousePos, gameActivity);
-					break;
-				case MULTIPLAYER_MENU:
-					multiplayerMenu.Action(mousePos, gameActivity);
-					break;
-				case LOAD_MENU:
-					loadMenu.Action(mousePos, gameActivity);
-					break;
-				case SHOP_MENU:
-					if (shopMenu == null)
-						shopMenu = new ShopMenu(new DynamicBitmap(
-								Parameters.bmpBkSubMenu, new Point(0, 0), 0,
-								size.x, size.y));
-					shopMenu.Action(mousePos, gameActivity);
-					break;
-				case SETTING_MENU:
-					settingMenu.Action(mousePos, gameActivity);
-					break;
-				case GAME:
-					game.Action(mousePos, gameActivity,
-							Game.MouseState.MOUSE_UP);
-					break;
-				case PAUSE_MENU:
-					pauseMenu.Action(mousePos, gameActivity);
-					break;
-				case MSSG_BOX:
-					mssgBox.Action(mousePos, gameActivity);
-					break;
-				case CONGRAT_BOX:
-					congratBox.Action(mousePos, gameActivity);
-					break;
-				}
-				break;
-			case MotionEvent.ACTION_DOWN:
-				switch (state) {
-				case GAME:
-					game.Action(mousePos, gameActivity,
-							Game.MouseState.MOUSE_DOWN);
-					break;
-				}
-				break;
-			case MotionEvent.ACTION_MOVE:
-				switch (state) {
-				case GAME:
-					game.Action(mousePos, gameActivity,
-							Game.MouseState.MOUSE_MOVE);
-					break;
-				}
-				break;
-			default:
-				break;
-			}
-
-			return true;
-		}
-	}
 }

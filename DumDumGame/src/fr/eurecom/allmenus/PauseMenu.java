@@ -4,8 +4,8 @@ import fr.eurecom.data.User;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Button;
 import fr.eurecom.dumdumgame.DynamicBitmap;
+import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
-import fr.eurecom.dumdumgame.MainActivity.StateList;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
@@ -292,34 +292,33 @@ public class PauseMenu extends BaseMenu {
 	}
 
 	private void CallResume() {
-		((MainActivity) App.getMyContext()).setState(StateList.GAME);
-		((MainActivity) App.getMyContext()).getGame().resume();
-		((MainActivity) App.getMyContext()).getMainView().invalidate();
+		GameManager.setCurrentState(GameManager.GameState.GAME);
+		GameManager.game.resume();
+		GameManager.mainView.invalidate();
 	}
 
 	private void CallRestart() {
-		((MainActivity) App.getMyContext()).setState(StateList.GAME);
-		((MainActivity) App.getMyContext()).getGame().restart();
-		((MainActivity) App.getMyContext()).getMainView().invalidate();
+		GameManager.setCurrentState(GameManager.GameState.GAME);
+		GameManager.game.restart();
+		GameManager.mainView.invalidate();
 	}
 
 	private void CallSound() {
 		for (int i = 0; i < buttonList.size(); ++i)
 			if ((ButtonID) buttonList.get(i).getID() == ButtonID.SOUND) {
 				buttonList.get(i).updateToTheNextImage();
-				((MainActivity) App.getMyContext()).getMainView().invalidate();
-				((MainActivity) App.getMyContext()).switchSoundOnOff();
+				GameManager.mainView.invalidate();
+				GameManager.switchSound();
 				break;
 			}
 	}
 
 	private void CallHome() throws Exception {
-		((MainActivity) App.getMyContext()).setState(StateList.MAIN_MENU);
-		UserWriter.writeUserData(((MainActivity) App.getMyContext()).getUser(),
-				Parameters.pthUserData);
-		((MainActivity) App.getMyContext()).updateContent();
+		GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
+		UserWriter.writeUserData(GameManager.user, Parameters.pthUserData);
+		GameManager.updateContent();
 
-		((MainActivity) App.getMyContext()).getGame().flushData();
-		((MainActivity) App.getMyContext()).getMainView().invalidate();
+		GameManager.game.flushData();
+		GameManager.mainView.invalidate();
 	}
 }

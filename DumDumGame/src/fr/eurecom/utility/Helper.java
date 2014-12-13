@@ -1,7 +1,6 @@
 package fr.eurecom.utility;
 
 import fr.eurecom.dumdumgame.App;
-import fr.eurecom.dumdumgame.MainActivity.MyView;
 import fr.eurecom.engine.Line;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -59,13 +58,4 @@ public class Helper {
 		return m1;
 	}
 
-	public static Bitmap getScreenShot(Bitmap bmp, MyView mainView) {
-		if (bmp != null)
-			bmp.recycle();
-
-		mainView.setDrawingCacheEnabled(true);
-		Bitmap result = Bitmap.createBitmap(mainView.getDrawingCache());
-		mainView.setDrawingCacheEnabled(false);
-		return result;
-	}
 }

@@ -3,6 +3,7 @@ package fr.eurecom.allmenus;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Button;
 import fr.eurecom.dumdumgame.DynamicBitmap;
+import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
@@ -136,14 +137,13 @@ public class MainMenu extends BaseMenu {
 	// }
 
 	private void CallSinglePlayer(Object o) {
-		((MainActivity) o).setState(MainActivity.StateList.LOAD_MENU);
-		((MainActivity) o).getMainView().invalidate();
+		GameManager.setCurrentState(GameManager.GameState.LOAD_MENU);
+		GameManager.mainView.invalidate();
 	}
 
 	private void CallMultiPlayer() {
-		((MainActivity) App.getMyContext())
-				.setState(MainActivity.StateList.MULTIPLAYER_MENU);
-		((MainActivity) App.getMyContext()).getMainView().invalidate();
+		GameManager.setCurrentState(GameManager.GameState.MULTIPLAYER_MENU);
+		GameManager.mainView.invalidate();
 	}
 
 	// private void CallUser(Object o) {
@@ -162,19 +162,17 @@ public class MainMenu extends BaseMenu {
 	// }
 
 	private void CallShop() {
-		((MainActivity) App.getMyContext())
-				.setState(MainActivity.StateList.SHOP_MENU);
-		((MainActivity) App.getMyContext()).getMainView().invalidate();
+		GameManager.setCurrentState(GameManager.GameState.SHOP_MENU);
+		GameManager.mainView.invalidate();
 	}
 
 	private void CallSetting() {
-		((MainActivity) App.getMyContext())
-				.setState(MainActivity.StateList.SETTING_MENU);
-		((MainActivity) App.getMyContext()).getMainView().invalidate();
+		GameManager.setCurrentState(GameManager.GameState.SETTING_MENU);
+		GameManager.mainView.invalidate();
 	}
 
 	private void CallExit(Object o) {
-		((MainActivity) o).flushSound();
-		((MainActivity) o).shutdownApp();
+		GameManager.flushSound();
+		((MainActivity) o).shutdownApp();	// TODO!!
 	}
 }

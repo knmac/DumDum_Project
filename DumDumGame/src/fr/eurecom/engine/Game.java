@@ -9,8 +9,8 @@ import fr.eurecom.data.User;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Conveyor;
 import fr.eurecom.dumdumgame.DynamicBitmap;
+import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
-import fr.eurecom.dumdumgame.MainActivity.StateList;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.MapReader;
@@ -41,7 +41,6 @@ public class Game {
 	private Conveyor[] conveyors;
 	private DynamicBitmap rain;
 	private int score;
-	private MainActivity mainForm;
 	private MediaPlayer[] bloibs;
 	private int bloibIndex;
 	private static Physics physics;
@@ -59,9 +58,9 @@ public class Game {
 		MOUSE_UP, MOUSE_DOWN, MOUSE_MOVE
 	}
 
-	public Game(Object o) {
+	public Game() {
 		// Load game data from a matrix map
-		int chosenLevel = ((MainActivity) o).getChosenLevel();
+		int chosenLevel = GameManager.chosenLevel;
 		gameData = new MapReader(Parameters.dMapID[chosenLevel - 1]);
 
 		// Create a background from those data
@@ -108,18 +107,17 @@ public class Game {
 		else
 			rain = null;
 
-		// Load Sound
+		// TODO: BOUNCING SOUND
 		bloibs = new MediaPlayer[3];
-		for (int i = 0; i < bloibs.length; ++i) {
-			bloibs[i] = MediaPlayer.create((MainActivity) o,
-					Parameters.dBloibSound);
-			bloibs[i].setLooping(false);
-		}
+//		for (int i = 0; i < bloibs.length; ++i) {
+//			bloibs[i] = MediaPlayer.create((MainActivity) o,
+//					Parameters.dBloibSound);
+//			bloibs[i].setLooping(false);
+//		}
 		bloibIndex = 0;
 
 		// Create hearts
-		int maxLives = ((MainActivity) App.getMyContext()).getUser()
-				.getMaxLives();
+		int maxLives = GameManager.user.getMaxLives();
 		heartRedArr = new DynamicBitmap[maxLives];
 		heartBlackArr = new DynamicBitmap[maxLives];
 		for (int i = 0; i < maxLives; i++) {
@@ -138,8 +136,6 @@ public class Game {
 				* Parameters.dBallRadius, Parameters.dBallRadius / 2),
 				Parameters.dBallRadius, Parameters.dBallRadius);
 
-		// ///////////////////////////////////////////////////////////////////////////////////////////
-		mainForm = (MainActivity) o;
 		updateView();
 
 		myEnvironment = new Earth();
@@ -166,9 +162,9 @@ public class Game {
 	public void Action(Point mousePos, Object o, MouseState mouseState) {
 		if (mouseState == MouseState.MOUSE_DOWN
 				&& pauseButton.isClicked(mousePos)) {
-			((MainActivity) App.getMyContext()).captureTheScreen();
-			((MainActivity) App.getMyContext()).setState(StateList.PAUSE_MENU);
-			((MainActivity) App.getMyContext()).getMainView().invalidate();
+			GameManager.captureScreen();
+			GameManager.setCurrentState(GameManager.GameState.PAUSE_MENU);			
+			GameManager.redrawScreen();
 			return;
 		}
 
@@ -220,7 +216,7 @@ public class Game {
 								- clickedPoint.y);
 				background.setPosition(newPosition);
 				isUpdateView = true;
-				((MainActivity) o).getMainView().invalidate();
+				GameManager.mainView.invalidate();
 			}
 		}
 	}
@@ -394,27 +390,6 @@ public class Game {
 			double quantum = Parameters.timer / 1000.0;
 			elapsedTime += quantum;
 
-			// If the ball hits the wall
-			// if (!mainForm.isWallThroughAllowed()) {
-			// Character aBall = ball.getBallAtTime(elapsedTime);
-			// LinkedList<Segment> nextObstacles = null;
-			// nextObstacles = aBall.isOverWalls(gameData.getReflectorList());
-			// if (nextObstacles.size() > 0) {
-			// this.bloibs[bloibIndex].start();
-			// bloibIndex = (bloibIndex + 1) % bloibs.length;
-			// previousObstacles = nextObstacles;
-			// highlightCounter = 0;
-			// reflectTheBall(nextObstacles);
-			//
-			//
-			// // * // Remove this fragment of code for performance purposes
-			// // * // Test again! aBall = ball.getBallAtTime(elapsedTime);
-			// // * nextObstacles =
-			// // * aBall.isOverWalls(gameData.getReflectorList()); if
-			// // * (nextObstacles.size() > 0) ball.exhaustTheball();
-			// //
-			// }
-			// }
 
 			// TODO: this object must be of type Obstacle and then be
 			// type-casted into Segment
@@ -431,14 +406,11 @@ public class Game {
 			} else if (endGame == 3) { // MUST BE 3 (not 2 nhe)
 				endGame = 0;
 
-				int lives = ((MainActivity) App.getMyContext()).getUser()
-						.getCurrentLives();
+				int lives = GameManager.user.getCurrentLives();
 				if (lives > 0) { // TODO: set lives
-					((MainActivity) App.getMyContext()).getUser()
-							.setCurrentLives(lives - 1);
+					GameManager.user.setCurrentLives(lives - 1);
 				} else {
-					((MainActivity) App.getMyContext())
-							.setState(StateList.MAIN_MENU);
+					GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
 				}
 
 				Calendar currentTime = Calendar.getInstance();
@@ -458,15 +430,13 @@ public class Game {
 						+ String.format("%02d", ss);
 				Log.i("DATETIME", strCurrentTime);
 
-				((MainActivity) App.getMyContext()).getUser().setLastTime(
+				GameManager.user.setLastTime(
 						strCurrentTime);
-				UserWriter.writeUserData(
-						((MainActivity) App.getMyContext()).getUser(),
-						Parameters.pthUserData);
+				UserWriter.writeUserData(GameManager.user, Parameters.pthUserData);
 
 				this.restart();
 				updateView();
-				this.mainForm.getMainView().invalidate();
+				GameManager.mainView.invalidate();
 				return;
 			}
 
@@ -547,8 +517,7 @@ public class Game {
 		// draw microwave
 
 		// draw hearts
-		int lives = ((MainActivity) App.getMyContext()).getUser()
-				.getCurrentLives();
+		int lives = GameManager.user.getCurrentLives();
 		for (int i = 0; i < lives; i++) {
 			heartRedArr[i].show(canvas);
 		}
@@ -565,7 +534,7 @@ public class Game {
 			// Do a down on the mutex
 			Parameters.mutex.acquire();
 			// Critical region
-			levelUp();
+			GameManager.levelUp(score);
 			// ------------------
 			// Do an up on the mutex
 			Parameters.mutex.release();
@@ -649,47 +618,6 @@ public class Game {
 		elapsedTime = 0.0;
 	}
 
-	// private void reflectTheBall(LinkedList<Segment> nextObstacles)
-	// throws Exception {
-	// if (nextObstacles == null || nextObstacles.size() == 0)
-	// return;
-	//
-	// boolean engineError = false;
-	// double acceleration = ball.getCurrentAcceleration();
-	// double velocity = ball.getInstantVelocity(elapsedTime);
-	// Ray direction = null;
-	// if (nextObstacles.size() == 1) {
-	// // Need more code here +.+!
-	// Line tmpLine = nextObstacles.get(0).getAbreastLine(
-	// ball.getPosition());
-	// Ray tmpRay = new Ray(ball.getCurrentDirection().getRoot(), ball
-	// .getCurrentDirection().getSecondPoint());
-	// if (tmpLine.RoughlyContains(tmpRay.getRoot())) {
-	// Point p = Helper.Point_GetMirrorFrom(tmpRay.getSecondPoint(),
-	// tmpRay.getRoot());
-	// tmpRay.setRoot(Helper.Point_GetMirrorFrom(tmpRay.getRoot(), p));
-	// }
-	// try {
-	// direction = tmpRay.fastGenerateReflectedRayFrom(tmpLine);
-	// } catch (Exception ex) {
-	// engineError = true;
-	// }
-	// } else {
-	// // THE VERY BIG BUG IS HERE
-	// direction = new Ray(ball.getPosition(), ball.getCurrentDirection()
-	// .getRoot());
-	// }
-	//
-	// if (!engineError)
-	// initBall(velocity, acceleration, direction);
-	// else
-	// ball.exhaustTheball();
-	//
-	// numOfCollisions++;
-	// if (numOfCollisions > Parameters.dMaxNumOfCollisions)
-	// ball.exhaustTheball();
-	// }
-
 	private void teleportTheBall(int currentTeleporter) {
 		Random generator = new Random();
 		int index = 0;
@@ -715,34 +643,6 @@ public class Game {
 		initBall(velocity, acceleration, direction);
 	}
 
-	// private void changeTheBallAcceleration(double acceleration) {
-	// if (!ball.isRunning())
-	// return;
-	// double initialVelocity = ball.getInstantVelocity(elapsedTime);
-	// Ray direction = new Ray(ball.getPosition(), Helper.Point_GetMirrorFrom(
-	// ball.getCurrentDirection().getRoot(), ball.getPosition()));
-	// initBall(initialVelocity, acceleration, direction);
-	// }
-
-	// private void showReflectors(Canvas canvas)
-	// {
-	// Paint paint = new Paint();
-	// paint.setColor(Color.BLACK);
-	// paint.setStrokeWidth(3);
-	//
-	// for (int i = 0; i < gameData.getReflectorList().size(); ++i)
-	// {
-	// Point first = new
-	// Point(gameData.getReflectorList().get(i).getFirstPoint());
-	// Point second = new
-	// Point(gameData.getReflectorList().get(i).getSecondPoint());
-	// first.x += background.getPosition().x;
-	// first.y += background.getPosition().y;
-	// second.x += background.getPosition().x;
-	// second.y += background.getPosition().y;
-	// canvas.drawLine(first.x, first.y, second.x, second.y, paint);
-	// }
-	// }
 	private void showBackground(Canvas canvas) {
 		// int rad = Parameters.dBallRadius;
 
@@ -807,47 +707,6 @@ public class Game {
 
 		// Otherwise
 		return Parameters.grassFrictionAcceleration;
-	}
-
-	public void levelUp() throws Exception {
-		User user = mainForm.getUser();
-
-		// save progress
-		int level = mainForm.getChosenLevel();
-		if (user.getLevelScore().get(level - 1) == 0
-				|| (user.getLevelScore().get(level - 1) > score && user
-						.getLevelScore().get(level - 1) != 0)) // save the
-																// better result
-			user.getLevelScore().set(level - 1, score);
-
-		// go to next level
-		if (mainForm.getChosenLevel() == 10) {
-			mainForm.setChosenLevel(1);
-			mainForm.setState(StateList.CONGRAT_BOX);
-			mainForm.getMainView().invalidate();
-			return;
-		} else {
-			mainForm.setChosenLevel(level + 1);
-		}
-
-		// reset data for new level
-		// user.setCurrentLevel(mainForm.getChosenLevel());
-		// user.setCurrentScore(0);
-		gameData = null;
-		gameData = new MapReader(
-				Parameters.dMapID[mainForm.getChosenLevel() - 1]);
-		// user.setCurrentPos(gameData.getStartPos());
-		// if (user.getCurrentLevel() > user.getUnlockedLevel())
-		// user.setUnlockedLevel(user.getCurrentLevel());
-
-		// write to disk
-		// DataWriter.WriteData(mainForm.getUserList(), Parameters.pthUserData,
-		// user.getName());
-		mainForm.updateContent();
-
-		mainForm.getGame().flushData();
-		mainForm.initGame();
-		mainForm.getMainView().invalidate();
 	}
 
 	private void showFullBackground(Canvas canvas) {

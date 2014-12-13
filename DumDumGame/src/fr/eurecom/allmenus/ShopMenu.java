@@ -3,6 +3,7 @@ package fr.eurecom.allmenus;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Button;
 import fr.eurecom.dumdumgame.DynamicBitmap;
+import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
@@ -179,24 +180,23 @@ public class ShopMenu extends BaseMenu {
 
 	private void CallChoosePrevSkin() {
 		allDumDumSkin.updateToThePrevImage();
-		((MainActivity) App.getMyContext()).getMainView().invalidate();
+		GameManager.mainView.invalidate();
 	}
 
 	private void CallChooseNextSkin() {
 		allDumDumSkin.updateToTheNextImage();
-		((MainActivity) App.getMyContext()).getMainView().invalidate();
+		GameManager.mainView.invalidate();
 	}
 
 	private void CallBuy() {
 		int index = allDumDumSkin.getCurrentIndex();
 		availableNumber[index]++;
-		((MainActivity) App.getMyContext()).getMainView().invalidate();
+		GameManager.mainView.invalidate();
 	}
 
 	private void CallReturn() {
-		((MainActivity) App.getMyContext())
-				.setState(MainActivity.StateList.MAIN_MENU);
-		((MainActivity) App.getMyContext()).getMainView().invalidate();
+		GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
+		GameManager.mainView.invalidate();
 	}
 
 }

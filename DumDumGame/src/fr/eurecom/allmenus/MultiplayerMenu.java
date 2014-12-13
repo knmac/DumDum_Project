@@ -2,6 +2,7 @@ package fr.eurecom.allmenus;
 
 import fr.eurecom.dumdumgame.Button;
 import fr.eurecom.dumdumgame.DynamicBitmap;
+import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.utility.Parameters;
 import android.graphics.Canvas;
@@ -47,8 +48,8 @@ public class MultiplayerMenu extends BaseMenu {
 	}
 
 	private void CallReturn(Object o) {
-		((MainActivity) o).setState(MainActivity.StateList.MAIN_MENU);
-		((MainActivity) o).getMainView().invalidate();
+		GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
+		GameManager.mainView.invalidate();
 	}
 	
 }

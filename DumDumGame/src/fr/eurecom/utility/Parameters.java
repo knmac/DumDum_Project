@@ -131,7 +131,7 @@ public class Parameters {
 	static public Semaphore mutex = new Semaphore(1);
 
 	// Init Macro
-	static public void initParameters(Rect screen, int timeInterval)
+	static public void initParameters(Rect screen)
 			throws Exception {
 		Resources res = App.getMyContext().getResources();
 
@@ -240,7 +240,6 @@ public class Parameters {
 
 		dConveyorWidth = dZoomParam;
 		dTeleRadius = 2 * dBallRadius;
-		timer = timeInterval;
 	}
 
 	static public void resetMacro(int zoomParam, int ballRadius) {
