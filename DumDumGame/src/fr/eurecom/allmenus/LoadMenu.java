@@ -88,7 +88,7 @@ public class LoadMenu extends BaseMenu {
 		}
 
 		if (ResultButtonID.intValue() >= unlockedLevel) {		
-			GameManager.mssgBox.showMessage("You haven't unlocked this\n\n level yet!",
+			GameManager.getMssgBox().showMessage("You haven't unlocked this\n\n level yet!",
 					GameManager.GameState.LOAD_MENU, (MainActivity) o);
 			return true;
 		}

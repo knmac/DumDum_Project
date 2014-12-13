@@ -12,6 +12,7 @@ import fr.eurecom.utility.UserWriter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Point;
 
 /*public class PauseMenu extends BaseMenu {
@@ -257,6 +258,11 @@ public class PauseMenu extends BaseMenu {
 	}
 
 	public void Show(Canvas canvas) {
+		if (GameManager.screenShot != null) {
+			canvas.drawBitmap(GameManager.screenShot, 0, 0, new Paint());
+			canvas.drawARGB(80, 0, 0, 0);
+		}
+		
 		super.Show(canvas);
 	}
 

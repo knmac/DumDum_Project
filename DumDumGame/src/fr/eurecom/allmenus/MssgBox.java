@@ -30,6 +30,12 @@ public class MssgBox extends BaseMenu {
 	}
 
 	public void Show(Canvas canvas) {
+		
+		if (GameManager.screenShot != null) {
+			canvas.drawBitmap(GameManager.screenShot, 0, 0, new Paint());
+			canvas.drawARGB(80, 0, 0, 0);
+		}
+		
 		super.Show(canvas);
 
 		Paint paint = new Paint();

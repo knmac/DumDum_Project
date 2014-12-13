@@ -58,7 +58,6 @@ public class MainActivity extends ActionBarActivity {
 		// ----------------
 		// create a new view class to be in charge of the app view
 		
-		//GameManager.prepareGame(new GameView(this));
 		
 		GameManager.mainView = new GameView(this);
 		GameManager.mainView.bringToFront();
@@ -117,6 +116,8 @@ public class MainActivity extends ActionBarActivity {
 		GameManager.spBackground.setLooping(true);
 		GameManager.spVictory.setLooping(false);
 		
+		
+		GameManager.prepareGame(new GameView(this), GameManager.screenSize, GameManager.user);
 		
 		//------------------------------------------------------------------------
 		
