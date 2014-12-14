@@ -81,22 +81,24 @@ public class ShopMenu extends BaseMenu {
 
 		// create buttons
 		arrowSize = skinSize.y / 2;
-		Button btnChoosePrevSkin = new Button(ButtonID.CHOOSE_PREV_SKIN,
-				Parameters.bmpBtnArrowLeft, new Point(skinPos.x - arrowSize,
-						skinPos.y + skinSize.y - arrowSize), arrowSize,
-				arrowSize);
+		Bitmap bmp;
+
+		bmp = BitmapFactory.decodeResource(res, R.drawable.arrow_left);
+		Button btnChoosePrevSkin = new Button(ButtonID.CHOOSE_PREV_SKIN, bmp,
+				new Point(skinPos.x - arrowSize, skinPos.y + skinSize.y
+						- arrowSize), arrowSize, arrowSize);
 		AddButton(btnChoosePrevSkin);
 
-		Button btnChooseNextSkin = new Button(ButtonID.CHOOSE_NEXT_SKIN,
-				Parameters.bmpBtnArrowRight, new Point(skinPos.x + skinSize.x,
-						skinPos.y + skinSize.y - arrowSize), arrowSize,
-				arrowSize);
+		bmp = BitmapFactory.decodeResource(res, R.drawable.arrow_right);
+		Button btnChooseNextSkin = new Button(ButtonID.CHOOSE_NEXT_SKIN, bmp,
+				new Point(skinPos.x + skinSize.x, skinPos.y + skinSize.y
+						- arrowSize), arrowSize, arrowSize);
 		AddButton(btnChooseNextSkin);
 
-		Button btnBuy = new Button(ButtonID.BUY, Parameters.bmpBtnBuy,
-				new Point((screenSize.x - arrowSize * 3 / 4) / 2, skinPos.y
-						+ skinSize.y + arrowSize / 2), arrowSize / 2,
-				arrowSize / 2);
+		bmp = BitmapFactory.decodeResource(res, R.drawable.buy_btn);
+		Button btnBuy = new Button(ButtonID.BUY, bmp, new Point(
+				(screenSize.x - arrowSize * 3 / 4) / 2, skinPos.y + skinSize.y
+						+ arrowSize / 2), arrowSize / 2, arrowSize / 2);
 		AddButton(btnBuy);
 
 		Button btnReturn = new Button(ButtonID.RETURN, Parameters.bmpBtnReturn,

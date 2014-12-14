@@ -1,12 +1,10 @@
 package fr.eurecom.engine;
 
 import java.util.LinkedList;
-import java.util.List;
 
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.R;
-import fr.eurecom.utility.Cutter;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
 import android.graphics.Bitmap;
@@ -16,20 +14,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Paint.Style;
-import android.util.Log;
 
 public class Character {
 	private Point position = new Point(0, 0);
 	private double acceleration;
 	private double initialVelocity;
 	private Ray direction;
-	private motionState state; // isRunningState
-	// private Physics physics;
+	private motionState state;
 	private LinkedList<Point> trajectoryList;
 	private int positionIndex;
-	// private DynamicBitmap charImgRoll;
-	// private DynamicBitmap charImgStand;
-	// private DynamicBitmap charImgDead;
 
 	private DynamicBitmap[] allImg;
 
@@ -86,43 +79,45 @@ public class Character {
 		this.gear = newGear;
 
 		Bitmap bmp = BitmapFactory.decodeResource(App.getMyContext()
-				.getResources(), R.drawable.dumdum_normal);
+				.getResources(), R.drawable.dumdum_normal_big);
 
 		switch (gear) {
 		case NORMAL:
 			break;
 		case HELMET:
 			bmp = BitmapFactory.decodeResource(App.getMyContext()
-					.getResources(), R.drawable.dumdum_helmet);
+					.getResources(), R.drawable.dumdum_helmet_big);
 			break;
 		case DRILL:
 			bmp = BitmapFactory.decodeResource(App.getMyContext()
-					.getResources(), R.drawable.dumdum_drill);
+					.getResources(), R.drawable.dumdum_drill_big);
 			break;
 		case SCHOLAR:
 			bmp = BitmapFactory.decodeResource(App.getMyContext()
-					.getResources(), R.drawable.dumdum_tracingray);
+					.getResources(), R.drawable.dumdum_tracingray_big);
 			break;
 		case TIME:
 			bmp = BitmapFactory.decodeResource(App.getMyContext()
-					.getResources(), R.drawable.dumdum_timedelay);
+					.getResources(), R.drawable.dumdum_timedelay_big);
 			break;
 		case FEEDER:
 			bmp = BitmapFactory.decodeResource(App.getMyContext()
-					.getResources(), R.drawable.dumdum_hungryfeeder);
+					.getResources(), R.drawable.dumdum_hungryfeeder_big);
 			break;
 		case NINJA:
 			bmp = BitmapFactory.decodeResource(App.getMyContext()
-					.getResources(), R.drawable.dumdum_ninja);
+					.getResources(), R.drawable.dumdum_ninja_big);
 			break;
 		case ANGEL:
 			bmp = BitmapFactory.decodeResource(App.getMyContext()
-					.getResources(), R.drawable.dumdum_angel);
+					.getResources(), R.drawable.dumdum_angel_big);
 			break;
 		}
 
+		// this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(bmp,
+		// this.position);
 		this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(bmp,
-				this.position);
+				this.position, Parameters.sizeDumDum.x, Parameters.sizeDumDum.y);
 	}
 
 	// TODO: change the Ray + initialVelocity into 1 variable presenting
@@ -234,6 +229,11 @@ public class Character {
 	public void show(Canvas canvas, Point offset) { // offset of the background
 		showShadow(canvas, offset, 100);
 
+		Point pivot = Parameters.pivotDumDum;
+		Point nonRollPos = new Point(this.position.x - 2
+				* Parameters.dBallRadius + pivot.x, this.position.y - 2
+				* Parameters.dBallRadius + pivot.y);
+
 		switch (getState()) {
 		case MOVING:
 			this.allImg[motionState.MOVING.getValue()].setPosition(new Point(
@@ -243,19 +243,12 @@ public class Character {
 			this.allImg[motionState.MOVING.getValue()].updateToTheNextImage();
 			break;
 		case STANDING:
-			this.allImg[motionState.STANDING.getValue()].setPosition(new Point(
-					this.position.x - Parameters.posDumDumPivot.x - 2
-							* Parameters.dBallRadius, this.position.y
-							- Parameters.posDumDumPivot.y - 2
-							* Parameters.dBallRadius));
+			this.allImg[motionState.STANDING.getValue()]
+					.setPosition(nonRollPos);
 			this.allImg[motionState.STANDING.getValue()].show(canvas, offset);
 			break;
 		case DEATH:
-			this.allImg[motionState.DEATH.getValue()].setPosition(new Point(
-					this.position.x - Parameters.posDumDumPivot.x - 2
-							* Parameters.dBallRadius, this.position.y
-							- Parameters.posDumDumPivot.y - 2
-							* Parameters.dBallRadius));
+			this.allImg[motionState.DEATH.getValue()].setPosition(nonRollPos);
 			this.allImg[motionState.DEATH.getValue()].show(canvas, offset);
 			break;
 		}

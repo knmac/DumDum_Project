@@ -17,37 +17,9 @@ public class Parameters {
 	static public Bitmap bmpBtnReturn;
 	static public Bitmap bmpBtnTransparent;
 	static public Bitmap bmpBtnHalfTransparent;
-	static public Bitmap bmpBtnActiveLevel;
-	static public Bitmap bmpBtnInactiveLevel;
-
-	static public Bitmap bmpBtnArrowRight;
-	static public Bitmap bmpBtnArrowLeft;
-	static public Bitmap bmpBtnBuy;
 
 	// Button Position
-	static public Point posBtnSinglePlayerMenu;
-	static public Point posBtnMultiPlayerMenu;
-	static public Point posBtnShopMenu;
-	static public Point posBtnSettingMenu;
-	static public Point posBtnExitMainMenu;
-
 	static public Point posBtnReturn;
-
-	// Button Size
-	static public int dBtnWidth = 120;
-	static public int dBtnHeight = 40;
-
-	// TODO: change the button size according to the screen
-	static public int dBtnSinglePlayerWidth = 295;
-	static public int dBtnSinglePlayerHeight = 150;
-	static public int dBtnMultiPlayerWidth = 295;
-	static public int dBtnMultiPlayerHeight = 150;
-	static public int dBtnShopWidth = 120;
-	static public int dBtnShopHeight = 120;
-	static public int dBtnSettingWidth = 120;
-	static public int dBtnSettingHeight = 120;
-	static public int dBtnExitWidth = 120;
-	static public int dBtnExitHeight = 120;
 
 	// Background Image
 	static public Bitmap bmpBkMainMenu;
@@ -77,15 +49,8 @@ public class Parameters {
 
 	static public Bitmap bmpDumDumNormal;
 	static public Bitmap bmpDumDumAngel;
-	static public Point posDumDumPivot = new Point(-3, -40); // TODO
-
-	// Pause Game Menu
-	// TODO
-	static public Point posBtnPlay = new Point(400, 350);
-	static public Point posBtnRestart = new Point(500, 350);
-	static public Point posBtnHome = new Point(600, 350);
-	static public Point posBtnSound = new Point(700, 350);
-	static public int dPauseBtnSize = 100;
+	static public Point pivotDumDum = new Point();
+	static public Point sizeDumDum = new Point();
 
 	// Screen
 	static public int dMaxWidth;
@@ -142,15 +107,6 @@ public class Parameters {
 				R.drawable.transparent);
 		bmpBtnHalfTransparent = BitmapFactory.decodeResource(res,
 				R.drawable.half_transparent);
-		bmpBtnActiveLevel = BitmapFactory.decodeResource(res,
-				R.drawable.active_level);
-		bmpBtnInactiveLevel = BitmapFactory.decodeResource(res,
-				R.drawable.inactive_level);
-		bmpBtnArrowRight = BitmapFactory.decodeResource(res,
-				R.drawable.arrow_right);
-		bmpBtnArrowLeft = BitmapFactory.decodeResource(res,
-				R.drawable.arrow_left);
-		bmpBtnBuy = BitmapFactory.decodeResource(res, R.drawable.buy_btn);
 
 		bmpBkMainMenu = BitmapFactory.decodeResource(res, R.drawable.main_menu);
 		bmpBkSubMenu = BitmapFactory.decodeResource(res, R.drawable.sub_menu);
@@ -188,18 +144,11 @@ public class Parameters {
 		dZoomParam = screen.height() / 18;
 		dBallRadius = dZoomParam * 5 / 4;
 
-		posBtnSinglePlayerMenu = new Point(
-				(dMaxWidth - dBtnSinglePlayerWidth) * 1 / 5,
-				(dMaxHeight - dBtnSinglePlayerHeight) * 3 / 5);
-		posBtnMultiPlayerMenu = new Point(
-				(dMaxWidth - dBtnMultiPlayerWidth) * 4 / 5,
-				(dMaxHeight - dBtnMultiPlayerHeight) * 3 / 5);
-		posBtnShopMenu = new Point(dMaxWidth / 30, dMaxHeight - dBtnShopHeight
-				- screen.height() / 30);
-		posBtnSettingMenu = new Point((dMaxWidth - dBtnSettingWidth) / 2,
-				screen.height() - dBtnSettingHeight - dMaxHeight / 30);
-		posBtnExitMainMenu = new Point(dMaxWidth - dBtnExitWidth - dMaxWidth
-				/ 30, dMaxHeight - dBtnExitHeight - dMaxHeight / 30);
+		// resize texture
+		bmpTextureWall = Bitmap.createScaledBitmap(bmpTextureWall, dZoomParam,
+				dZoomParam, false);
+		bmpTextureScenery = Bitmap.createScaledBitmap(bmpTextureScenery,
+				dMaxWidth, dMaxHeight, false);
 
 		posBtnReturn = new Point(screen.width() - bmpBtnReturn.getWidth()
 				- dZoomParam / 2, screen.height() - bmpBtnReturn.getHeight()
@@ -234,18 +183,24 @@ public class Parameters {
 				BitmapFactory.decodeResource(res, R.drawable.roll_sprite), 8,
 				Cutter.CutStyle.VERTICAL);
 		bmpDumDumNormal = BitmapFactory.decodeResource(res,
-				R.drawable.dumdum_normal);
+				R.drawable.dumdum_normal_big);
 		bmpDumDumAngel = BitmapFactory.decodeResource(res,
-				R.drawable.dumdum_angel);
+				R.drawable.dumdum_angel_big);
+		
+		// resize DumDum
+		sizeDumDum.y = dBallRadius * 5 / 2;
+		sizeDumDum.x = sizeDumDum.y * bmpDumDumNormal.getWidth() / bmpDumDumNormal.getHeight();
+		pivotDumDum.x = sizeDumDum.x / 60;
+		pivotDumDum.y = sizeDumDum.y * 3 / 10;
 
 		dConveyorWidth = dZoomParam;
 		dTeleRadius = 2 * dBallRadius;
 	}
 
-	static public void resetMacro(int zoomParam, int ballRadius) {
-		dZoomParam = zoomParam;
-		dBallRadius = ballRadius;
-		dConveyorWidth = dZoomParam;
-		dTeleRadius = 2 * dBallRadius;
-	}
+	// static public void resetMacro(int zoomParam, int ballRadius) {
+	// dZoomParam = zoomParam;
+	// dBallRadius = ballRadius;
+	// dConveyorWidth = dZoomParam;
+	// dTeleRadius = 2 * dBallRadius;
+	// }
 }
