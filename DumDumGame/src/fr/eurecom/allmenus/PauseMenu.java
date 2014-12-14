@@ -1,11 +1,9 @@
 package fr.eurecom.allmenus;
 
-import fr.eurecom.data.User;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Button;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.GameManager;
-import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
@@ -228,19 +226,24 @@ public class PauseMenu extends BaseMenu {
 	public PauseMenu(DynamicBitmap bmpBackground) {
 		super(bmpBackground);
 		int w, h;
-		w = h = Parameters.dPauseBtnSize;
+		w = h = Parameters.dZoomParam * 4;
 		Button btn;
 		Bitmap bmp;
 		Bitmap[] bmpArr;
+		Point pos;
 
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.play);
-		btn = new Button(ButtonID.RESUME, bmp, Parameters.posBtnPlay, w, h);
+		pos = new Point(Parameters.dMaxWidth / 2 - 2 * w,
+				(Parameters.dMaxHeight - h) / 2);
+		btn = new Button(ButtonID.RESUME, bmp, pos, w, h);
 		AddButton(btn);
 
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.restart);
-		btn = new Button(ButtonID.RESTART, bmp, Parameters.posBtnRestart, w, h);
+		pos = new Point(Parameters.dMaxWidth / 2 - w,
+				(Parameters.dMaxHeight - h) / 2);
+		btn = new Button(ButtonID.RESTART, bmp, pos, w, h);
 		AddButton(btn);
 
 		bmpArr = new Bitmap[] {
@@ -248,12 +251,16 @@ public class PauseMenu extends BaseMenu {
 						R.drawable.sound_on),
 				BitmapFactory.decodeResource(App.getMyContext().getResources(),
 						R.drawable.sound_off) };
-		btn = new Button(ButtonID.SOUND, bmpArr, Parameters.posBtnSound, w, h);
+		pos = new Point(Parameters.dMaxWidth / 2,
+				(Parameters.dMaxHeight - h) / 2);
+		btn = new Button(ButtonID.SOUND, bmpArr, pos, w, h);
 		AddButton(btn);
 
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.home);
-		btn = new Button(ButtonID.HOME, bmp, Parameters.posBtnHome, w, h);
+		pos = new Point(Parameters.dMaxWidth / 2 + w,
+				(Parameters.dMaxHeight - h) / 2);
+		btn = new Button(ButtonID.HOME, bmp, pos, w, h);
 		AddButton(btn);
 	}
 
@@ -262,7 +269,7 @@ public class PauseMenu extends BaseMenu {
 			canvas.drawBitmap(GameManager.screenShot, 0, 0, new Paint());
 			canvas.drawARGB(80, 0, 0, 0);
 		}
-		
+
 		super.Show(canvas);
 	}
 

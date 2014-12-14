@@ -46,7 +46,9 @@ public class Game {
 	private static Physics physics;
 	private DynamicBitmap[] heartRedArr;
 	private DynamicBitmap[] heartBlackArr;
+	private DynamicBitmap microwave;
 	private DynamicBitmap pauseButton;
+	private DynamicBitmap gearUpButton;
 
 	private Environment myEnvironment;
 
@@ -109,11 +111,11 @@ public class Game {
 
 		// TODO: BOUNCING SOUND
 		bloibs = new MediaPlayer[3];
-//		for (int i = 0; i < bloibs.length; ++i) {
-//			bloibs[i] = MediaPlayer.create((MainActivity) o,
-//					Parameters.dBloibSound);
-//			bloibs[i].setLooping(false);
-//		}
+		// for (int i = 0; i < bloibs.length; ++i) {
+		// bloibs[i] = MediaPlayer.create((MainActivity) o,
+		// Parameters.dBloibSound);
+		// bloibs[i].setLooping(false);
+		// }
 		bloibIndex = 0;
 
 		// Create hearts
@@ -122,14 +124,30 @@ public class Game {
 		heartBlackArr = new DynamicBitmap[maxLives];
 		for (int i = 0; i < maxLives; i++) {
 			int size = Parameters.dBallRadius;
-			Point position = new Point(size * (i + 1), size / 2);
+			Point position = new Point(size * (i + 2), size / 2);
 			heartRedArr[i] = new DynamicBitmap(Parameters.bmpHeartRed,
 					position, size, size);
 			heartBlackArr[i] = new DynamicBitmap(Parameters.bmpHeartBlack,
 					position, size, size);
 		}
 
-		// create buttons
+		// create gear-up button
+		int h = Parameters.dBallRadius;
+		int w = h * Parameters.bmpDumDumNormal.getWidth()
+				/ Parameters.bmpDumDumNormal.getHeight();
+		Point pos = new Point(Parameters.dBallRadius * 2 - w,
+				Parameters.dBallRadius / 2);
+		gearUpButton = new DynamicBitmap(Parameters.bmpDumDumNormal, pos, w, h);
+
+		// create microwave
+		w = 4 * Parameters.dBallRadius;
+		h = w * Parameters.bmpMicrowave.getHeight()
+				/ Parameters.bmpMicrowave.getWidth();
+		pos = new Point(gameData.getHolePos().x - w / 2,
+				gameData.getHolePos().y - h / 2);
+		microwave = new DynamicBitmap(Parameters.bmpMicrowave, pos, w, h);
+
+		// create pause buttons
 		Bitmap bmp = BitmapFactory.decodeResource(App.getMyContext()
 				.getResources(), R.drawable.pause_btn);
 		pauseButton = new DynamicBitmap(bmp, new Point(Parameters.dMaxWidth - 2
@@ -160,15 +178,25 @@ public class Game {
 	private int highlightCounter = 0; // for highlighting obstacles
 
 	public void Action(Point mousePos, Object o, MouseState mouseState) {
+		// click pause button
 		if (mouseState == MouseState.MOUSE_DOWN
 				&& pauseButton.isClicked(mousePos)) {
 			GameManager.captureScreen();
-			GameManager.setCurrentState(GameManager.GameState.PAUSE_MENU);			
+			GameManager.setCurrentState(GameManager.GameState.PAUSE_MENU);
+			GameManager.redrawScreen();
+			return;
+		}
+		
+		// click gear-up button
+		if (mouseState == MouseState.MOUSE_DOWN && gearUpButton.isClicked(mousePos)) {
+			updateView();
+			GameManager.captureScreen();
+			GameManager.setCurrentState(GameManager.GameState.GEAR_UP_MENU);
 			GameManager.redrawScreen();
 			return;
 		}
 
-		//=========================================================================
+		// =========================================================================
 		if (ball.isRunning())
 			return;
 
@@ -390,7 +418,6 @@ public class Game {
 			double quantum = Parameters.timer / 1000.0;
 			elapsedTime += quantum;
 
-
 			// TODO: this object must be of type Obstacle and then be
 			// type-casted into Segment
 			Segment obstacle = isNextPostAvailable();
@@ -410,7 +437,8 @@ public class Game {
 				if (lives > 0) { // TODO: set lives
 					GameManager.user.setCurrentLives(lives - 1);
 				} else {
-					GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
+					GameManager
+							.setCurrentState(GameManager.GameState.MAIN_MENU);
 				}
 
 				Calendar currentTime = Calendar.getInstance();
@@ -430,9 +458,9 @@ public class Game {
 						+ String.format("%02d", ss);
 				Log.i("DATETIME", strCurrentTime);
 
-				GameManager.user.setLastTime(
-						strCurrentTime);
-				UserWriter.writeUserData(GameManager.user, Parameters.pthUserData);
+				GameManager.user.setLastTime(strCurrentTime);
+				UserWriter.writeUserData(GameManager.user,
+						Parameters.pthUserData);
 
 				this.restart();
 				updateView();
@@ -515,6 +543,7 @@ public class Game {
 			ball.show(canvas, background.getPosition());
 
 		// draw microwave
+		microwave.show(canvas, background.getPosition());
 
 		// draw hearts
 		int lives = GameManager.user.getCurrentLives();
@@ -525,12 +554,21 @@ public class Game {
 			heartBlackArr[i].show(canvas);
 		}
 
+		// draw gear-up button
+		gearUpButton.show(canvas);
+
 		// draw pause button
 		pauseButton.show(canvas);
 
 		// check level up
 		if (Helper.Point_GetDistanceFrom(ball.getPosition(),
 				gameData.getHolePos()) < 0.65 * Parameters.dBallRadius) {
+
+			// capture background screenshot
+			GameManager.captureScreen();
+			GameManager.setCurrentState(GameManager.GameState.FINISH_LVL_MENU);
+			GameManager.redrawScreen();
+
 			// Do a down on the mutex
 			Parameters.mutex.acquire();
 			// Critical region
@@ -730,5 +768,9 @@ public class Game {
 		background.showEx(canvas, -background.getPosition().x,
 				-background.getPosition().y, Parameters.dMaxWidth,
 				Parameters.dMaxHeight);
+	}
+	
+	public void changeGear(Character.gearState gear) {
+		this.ball.resetGear(gear);
 	}
 }

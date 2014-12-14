@@ -8,9 +8,12 @@
         android:minSdkVersion="13"
         android:targetSdkVersion="16" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/dumdumicon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" 
         android:name="fr.eurecom.dumdumgame.App"
@@ -25,6 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        [2:05:47 PM] Hoàng Xuân Quang Nhật: <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
     </application>
 
 </manifest>

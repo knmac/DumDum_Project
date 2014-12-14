@@ -3,11 +3,14 @@ package fr.eurecom.engine;
 import java.util.LinkedList;
 import java.util.List;
 
+import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.DynamicBitmap;
+import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Cutter;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -44,13 +47,14 @@ public class Character {
 		}
 	};
 
-	private enum modeState {
-		NORMAL, DRILL, HELMET, NINJA, TIME, TRACING
+	public static enum gearState {
+		NORMAL, HELMET, DRILL, SCHOLAR, TIME, FEEDER, NINJA, ANGEL
 	};
 
 	Point LastPost = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
 	int count = 0;
 	int delta = 3;
+	public static gearState gear;
 
 	public Character(Point position) {
 		this.position = position;
@@ -65,14 +69,60 @@ public class Character {
 		// this.physics = new Physics(arr);
 
 		// create image for character
+		gear = gearState.NORMAL;
 		this.allImg = new DynamicBitmap[3];
 		this.allImg[motionState.MOVING.getValue()] = new DynamicBitmap(
 				Parameters.bmpRoll, this.position, 0,
 				Parameters.dBallRadius * 2, Parameters.dBallRadius * 2);
-		this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(
-				Parameters.bmpDumDumNormal, this.position);
+		// this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(
+		// Parameters.bmpDumDumNormal, this.position);
 		this.allImg[motionState.DEATH.getValue()] = new DynamicBitmap(
 				Parameters.bmpDumDumAngel, this.position);
+
+		resetGear(this.gear);
+	}
+
+	public void resetGear(gearState newGear) {
+		this.gear = newGear;
+
+		Bitmap bmp = BitmapFactory.decodeResource(App.getMyContext()
+				.getResources(), R.drawable.dumdum_normal);
+
+		switch (gear) {
+		case NORMAL:
+			break;
+		case HELMET:
+			bmp = BitmapFactory.decodeResource(App.getMyContext()
+					.getResources(), R.drawable.dumdum_helmet);
+			break;
+		case DRILL:
+			bmp = BitmapFactory.decodeResource(App.getMyContext()
+					.getResources(), R.drawable.dumdum_drill);
+			break;
+		case SCHOLAR:
+			bmp = BitmapFactory.decodeResource(App.getMyContext()
+					.getResources(), R.drawable.dumdum_tracingray);
+			break;
+		case TIME:
+			bmp = BitmapFactory.decodeResource(App.getMyContext()
+					.getResources(), R.drawable.dumdum_timedelay);
+			break;
+		case FEEDER:
+			bmp = BitmapFactory.decodeResource(App.getMyContext()
+					.getResources(), R.drawable.dumdum_hungryfeeder);
+			break;
+		case NINJA:
+			bmp = BitmapFactory.decodeResource(App.getMyContext()
+					.getResources(), R.drawable.dumdum_ninja);
+			break;
+		case ANGEL:
+			bmp = BitmapFactory.decodeResource(App.getMyContext()
+					.getResources(), R.drawable.dumdum_angel);
+			break;
+		}
+
+		this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(bmp,
+				this.position);
 	}
 
 	// TODO: change the Ray + initialVelocity into 1 variable presenting
@@ -114,9 +164,6 @@ public class Character {
 
 		this.setTrajectoryList(Game.getPhysics().computeTrajectory(temp[0],
 				temp[1]));
-
-		// Log.i("NewPOS", temp[0].toString());
-		// Log.i("NewVEL", temp[1].toString());
 
 		// exhaust the ball
 		if (Math.abs(LastPost.x - temp[0].x) < delta
@@ -384,7 +431,7 @@ public class Character {
 
 		if (this.state == motionState.DEATH) {
 			this.trajectoryList = new LinkedList<Point>();
-			int disp = Parameters.dBallRadius;
+			int disp = Parameters.dBallRadius / 2;
 
 			for (int y = position.y; y >= 0; y -= disp)
 				this.trajectoryList.add(new Point(position.x, y));

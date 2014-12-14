@@ -63,6 +63,7 @@ public class Parameters {
 	static public Bitmap bmpSand;
 	static public Bitmap bmpWater;
 	static public Bitmap bmpTextureWallpaper;
+	static public Bitmap bmpMicrowave;
 	static public Bitmap[] bmpTeleporter;
 	static public Bitmap[] bmpConveyorLeft;
 	static public Bitmap[] bmpConveyorRight;
@@ -131,8 +132,7 @@ public class Parameters {
 	static public Semaphore mutex = new Semaphore(1);
 
 	// Init Macro
-	static public void initParameters(Rect screen)
-			throws Exception {
+	static public void initParameters(Rect screen) throws Exception {
 		Resources res = App.getMyContext().getResources();
 
 		// Step
@@ -177,7 +177,7 @@ public class Parameters {
 		bmpWater = BitmapFactory.decodeResource(res, R.drawable.water);
 		bmpTextureWallpaper = BitmapFactory.decodeResource(res,
 				R.drawable.space_pattern);
-
+		bmpMicrowave = BitmapFactory.decodeResource(res, R.drawable.microwave);
 		resource = res;
 
 		// Step

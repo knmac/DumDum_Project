@@ -130,15 +130,11 @@ public class ShopMenu extends BaseMenu {
 		Helper.drawTextWithMultipleLines(canvas, name, p, paint);
 
 		// draw description
+		paint.setStrokeWidth(2f);
 		String description = descriptions[allDumDumSkin.getCurrentIndex()];
 		p = new Point(Parameters.dMaxWidth / 2, allDumDumSkin.getPosition().y
 				+ skinSize.y + Parameters.dZoomParam);
-		paint = new TextPaint();
 		paint.setTextSize(Parameters.dZoomParam);
-		paint.setColor(Color.DKGRAY);
-		paint.setTypeface(Typeface.DEFAULT_BOLD);
-		paint.setTextAlign(Align.CENTER);
-		paint.setStyle(Style.STROKE);
 		Helper.drawTextWithMultipleLines(canvas, description, p, paint);
 
 		// draw availability

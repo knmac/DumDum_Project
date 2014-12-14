@@ -26,50 +26,55 @@ public class MainMenu extends BaseMenu {
 	public MainMenu(DynamicBitmap bmpBackground) {
 		super(bmpBackground);
 
-		int btnWidth = Parameters.dBtnWidth;
-		int btnHeight = Parameters.dBtnHeight;
 		Bitmap bmp;
+		int w, h;
+		Point pos;
+		int smallSize = Parameters.dZoomParam * 3;
 
 		// Single PLayer Button
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.single_player);
-		Button btnSinglePlayer = new Button(ButtonID.SINGLEPLAYER, bmp,
-				Parameters.posBtnSinglePlayerMenu,
-				Parameters.dBtnSinglePlayerWidth,
-				Parameters.dBtnSinglePlayerHeight);
+		h = Parameters.dMaxHeight / 5;
+		w = h * bmp.getWidth() / bmp.getHeight();
+		pos = new Point(Parameters.dMaxWidth / 4 - w / 2, Parameters.dMaxHeight
+				* 3 / 5 - h / 2);
+		Button btnSinglePlayer = new Button(ButtonID.SINGLEPLAYER, bmp, pos, w,
+				h);
 		AddButton(btnSinglePlayer);
 
 		// MultipLayer Button
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.multi_player);
-		Button btnMultiPlayer = new Button(ButtonID.MULTIPLAYER, bmp,
-				Parameters.posBtnMultiPlayerMenu,
-				Parameters.dBtnMultiPlayerWidth,
-				Parameters.dBtnMultiPlayerHeight);
+		pos = new Point(Parameters.dMaxWidth * 3 / 4 - w / 2,
+				Parameters.dMaxHeight * 3 / 5 - h / 2);
+		Button btnMultiPlayer = new Button(ButtonID.MULTIPLAYER, bmp, pos, w, h);
 		AddButton(btnMultiPlayer);
 
 		// Shop Button
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.shop);
-		Button btnShop = new Button(ButtonID.SHOP, bmp,
-				Parameters.posBtnShopMenu, Parameters.dBtnShopWidth,
-				Parameters.dBtnShopHeight);
+		pos = new Point(smallSize / 2, Parameters.dMaxHeight - smallSize * 5
+				/ 4);
+		Button btnShop = new Button(ButtonID.SHOP, bmp, pos, smallSize,
+				smallSize);
 		AddButton(btnShop);
 
 		// Setting Button
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.setting);
-		Button btnSetting = new Button(ButtonID.SETTING, bmp,
-				Parameters.posBtnSettingMenu, Parameters.dBtnSettingWidth,
-				Parameters.dBtnSettingHeight);
+		pos = new Point((Parameters.dMaxWidth - smallSize) / 2,
+				Parameters.dMaxHeight - smallSize * 5 / 4);
+		Button btnSetting = new Button(ButtonID.SETTING, bmp, pos, smallSize,
+				smallSize);
 		AddButton(btnSetting);
 
 		// Exit Button
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.exit);
-		Button btnExit = new Button(ButtonID.EXIT, bmp,
-				Parameters.posBtnExitMainMenu, Parameters.dBtnExitWidth,
-				Parameters.dBtnExitWidth);
+		pos = new Point(Parameters.dMaxWidth - smallSize * 3 / 2,
+				Parameters.dMaxHeight - smallSize * 5 / 4);
+		Button btnExit = new Button(ButtonID.EXIT, bmp, pos, smallSize,
+				smallSize);
 		AddButton(btnExit);
 	}
 
@@ -173,6 +178,6 @@ public class MainMenu extends BaseMenu {
 
 	private void CallExit(Object o) {
 		GameManager.flushSound();
-		((MainActivity) o).shutdownApp();	// TODO!!
+		((MainActivity) o).shutdownApp(); // TODO!!
 	}
 }
