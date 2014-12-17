@@ -70,7 +70,8 @@ public class Character {
 		// this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(
 		// Parameters.bmpDumDumNormal, this.position);
 		this.allImg[motionState.DEATH.getValue()] = new DynamicBitmap(
-				Parameters.bmpDumDumAngel, this.position);
+				Parameters.bmpDumDumAngel, this.position,
+				Parameters.sizeDumDum.x, Parameters.sizeDumDum.y);
 
 		resetGear(this.gear);
 	}

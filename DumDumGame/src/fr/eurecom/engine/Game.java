@@ -67,8 +67,8 @@ public class Game {
 
 		// Create a background from those data
 		Point boundary = gameData.getMapBottomRight();
-		Bitmap tmpBitmap = Bitmap.createBitmap(boundary.x, boundary.y,
-				Bitmap.Config.ARGB_8888);
+		Bitmap tmpBitmap = Bitmap.createBitmap(boundary.x
+				+ Parameters.dZoomParam, boundary.y, Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(tmpBitmap);
 		Paint paint = new Paint();
 		paint.setStyle(Style.FILL);
@@ -186,9 +186,10 @@ public class Game {
 			GameManager.redrawScreen();
 			return;
 		}
-		
+
 		// click gear-up button
-		if (mouseState == MouseState.MOUSE_DOWN && gearUpButton.isClicked(mousePos)) {
+		if (mouseState == MouseState.MOUSE_DOWN
+				&& gearUpButton.isClicked(mousePos)) {
 			updateView();
 			GameManager.captureScreen();
 			GameManager.setCurrentState(GameManager.GameState.GEAR_UP_MENU);
@@ -769,7 +770,7 @@ public class Game {
 				-background.getPosition().y, Parameters.dMaxWidth,
 				Parameters.dMaxHeight);
 	}
-	
+
 	public void changeGear(Character.gearState gear) {
 		this.ball.resetGear(gear);
 	}
