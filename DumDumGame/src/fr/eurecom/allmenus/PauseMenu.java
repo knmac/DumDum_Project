@@ -74,7 +74,7 @@ public class PauseMenu extends BaseMenu {
 
 		Paint rectPaint = new Paint();
 		rectPaint.setColor(Color.DKGRAY);
-		rectPaint.setAlpha(100);
+		rectPaint.setAlpha(125);
 		canvas.drawRoundRect(rect, Parameters.dZoomParam / 2,
 				Parameters.dZoomParam / 2, rectPaint);
 		

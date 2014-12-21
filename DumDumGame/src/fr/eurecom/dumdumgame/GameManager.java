@@ -21,7 +21,7 @@ public class GameManager {
 	public enum GameState {
 		MAIN_MENU(0), LOAD_MENU(1), MULTIPLAYER_MENU(2), SHOP_MENU(3), SETTING_MENU(
 				4), PAUSE_MENU(5), MSSG_BOX(6), CONGRAT_BOX(7), FINISH_LVL_MENU(
-				8), GEAR_UP_MENU(9), GAME(10);
+				8), GEAR_UP_MENU(9), HOST_MENU(10), CLIENT_MENU(11), GAME(10);
 		private final int value;
 
 		private GameState(int value) {
@@ -106,7 +106,7 @@ public class GameManager {
 				break;
 			case PAUSE_MENU:
 				menuList[menuState.getValue()] = new PauseMenu(
-						new DynamicBitmap(Parameters.bmpBtnHalfTransparent,
+						new DynamicBitmap(Parameters.bmpHalfTransparent,
 								new Point(0, 0), 0, screenSize.x, screenSize.y));
 				break;
 			case MSSG_BOX:
@@ -123,12 +123,22 @@ public class GameManager {
 				break;
 			case FINISH_LVL_MENU:
 				menuList[menuState.getValue()] = new FinishLvlMenu(
-						new DynamicBitmap(Parameters.bmpBtnHalfTransparent,
+						new DynamicBitmap(Parameters.bmpHalfTransparent,
 								new Point(0, 0), 0, screenSize.x, screenSize.y));
 				break;
 			case GEAR_UP_MENU:
 				menuList[menuState.getValue()] = new GearUpMenu(
-						new DynamicBitmap(Parameters.bmpBtnHalfTransparent,
+						new DynamicBitmap(Parameters.bmpHalfTransparent,
+								new Point(0, 0), 0, screenSize.x, screenSize.y));
+				break;
+			case HOST_MENU:
+				menuList[menuState.getValue()] = new HostMenu(
+						new DynamicBitmap(Parameters.bmpBkSubMenu,
+								new Point(0, 0), 0, screenSize.x, screenSize.y));
+				break;
+			case CLIENT_MENU:
+				menuList[menuState.getValue()] = new ClientMenu(
+						new DynamicBitmap(Parameters.bmpBkSubMenu,
 								new Point(0, 0), 0, screenSize.x, screenSize.y));
 				break;
 			default:
@@ -177,6 +187,8 @@ public class GameManager {
 			case MULTIPLAYER_MENU:
 			case SHOP_MENU:
 			case SETTING_MENU:
+			case HOST_MENU:
+			case CLIENT_MENU:
 			case LOAD_MENU:
 				GameManager.spBackground = Helper.stopMediaPlayer(
 						GameManager.spBackground,
@@ -319,6 +331,8 @@ public class GameManager {
 		case MULTIPLAYER_MENU:
 		case SHOP_MENU:
 		case SETTING_MENU:
+		case HOST_MENU:
+		case CLIENT_MENU:
 		case LOAD_MENU:
 			GameManager.spBackground = Helper.stopMediaPlayer(
 					GameManager.spBackground, Parameters.dBackgroundSoundtrack);

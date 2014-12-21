@@ -68,8 +68,8 @@ public class FinishLvlMenu extends BaseMenu {
 		RectF rect = new RectF(w / 4, h / 4, w * 3 / 4, h * 3 / 4);
 
 		Paint rectPaint = new Paint();
-		rectPaint.setAlpha(125);
 		rectPaint.setColor(Color.DKGRAY);
+		rectPaint.setAlpha(125);
 
 		Paint textPaint = new Paint();
 		textPaint.setColor(Color.WHITE);

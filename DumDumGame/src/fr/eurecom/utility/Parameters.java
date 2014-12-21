@@ -15,8 +15,8 @@ public class Parameters {
 
 	// Button Image
 	static public Bitmap bmpBtnReturn;
-	static public Bitmap bmpBtnTransparent;
-	static public Bitmap bmpBtnHalfTransparent;
+	static public Bitmap bmpTransparent;
+	static public Bitmap bmpHalfTransparent;
 
 	// Button Position
 	static public Point posBtnReturn;
@@ -103,9 +103,9 @@ public class Parameters {
 		// Step
 		// 1--------------------------------------------------------------------------
 		bmpBtnReturn = BitmapFactory.decodeResource(res, R.drawable.back_btn);
-		bmpBtnTransparent = BitmapFactory.decodeResource(res,
+		bmpTransparent = BitmapFactory.decodeResource(res,
 				R.drawable.transparent);
-		bmpBtnHalfTransparent = BitmapFactory.decodeResource(res,
+		bmpHalfTransparent = BitmapFactory.decodeResource(res,
 				R.drawable.half_transparent);
 
 		bmpBkMainMenu = BitmapFactory.decodeResource(res, R.drawable.main_menu);

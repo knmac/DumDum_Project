@@ -113,12 +113,7 @@ public class LoadMenu extends BaseMenu {
 				new Point(p2.x + offset.x, p2.y + offset.y));
 	}
 
-	public void Show(Canvas canvas) {
-		// super.Show(canvas);
-		// for (Button btn : buttonList) {
-		// btn.updateToTheNextImage();
-		// }
-		
+	public void Show(Canvas canvas) {		
 		this.bmpBackground.show(canvas);
 
 		// draw glow lines
