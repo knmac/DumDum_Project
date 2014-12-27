@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Paint.Align;
+import android.widget.Toast;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Button;
 import fr.eurecom.dumdumgame.DynamicBitmap;
@@ -190,6 +191,8 @@ public class HostMenu extends BaseMenu {
 
 	private void CallConnect() {
 		// TODO
+		Toast.makeText(App.getMyContext(), "Waiting for opponent...",
+				Toast.LENGTH_LONG).show();
 	}
 
 	private void CallReturn() {
