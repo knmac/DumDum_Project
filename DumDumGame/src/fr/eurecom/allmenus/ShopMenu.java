@@ -131,7 +131,7 @@ public class ShopMenu extends BaseMenu {
 		// buy gear
 		bmp = BitmapFactory.decodeResource(res, R.drawable.buy_btn);
 		btn = new Button(ButtonID.BUY_GEAR, bmp, new Point(screenSize.x / 4
-				- arrowSize / 2, Parameters.dMaxHeight - arrowSize * 3),
+				- arrowSize / 2, Parameters.dMaxHeight - arrowSize * 5 / 2),
 				arrowSize, arrowSize);
 		AddButton(btn);
 
@@ -152,7 +152,7 @@ public class ShopMenu extends BaseMenu {
 		// buy pkg
 		bmp = BitmapFactory.decodeResource(res, R.drawable.buy_btn);
 		btn = new Button(ButtonID.BUY_PKG, bmp, new Point(screenSize.x * 3 / 4
-				- arrowSize / 2, Parameters.dMaxHeight - arrowSize * 3),
+				- arrowSize / 2, Parameters.dMaxHeight - arrowSize * 5 / 2),
 				arrowSize, arrowSize);
 		AddButton(btn);
 

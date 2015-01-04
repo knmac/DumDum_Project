@@ -16,6 +16,8 @@ import com.google.android.youtube.player.YouTubePlayer.PlayerStateChangeListener
 import com.google.android.youtube.player.YouTubePlayer.Provider;
 import com.google.android.youtube.player.YouTubePlayerView;
 
+import fr.eurecom.dumdumgame.GameManager.GameState;
+
 //import com.javatechig.youtubeandroid.R;
 
 public class YoutubeActivity extends YouTubeBaseActivity implements
@@ -24,7 +26,7 @@ public class YoutubeActivity extends YouTubeBaseActivity implements
 	public static final String API_KEY = "AIzaSyDxhYaE-MUZoI1Q3YtliF1TOaYq-Oeb8r0";
 
 	// http://youtu.be/<VIDEO_ID>
-	public static final String VIDEO_ID = "T-Qa2Z4Et98";
+	public static final String VIDEO_ID = "T5wLmU4807w";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

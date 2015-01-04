@@ -19,6 +19,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.util.Log;
 
 public class MainMenu extends BaseMenu {
 	// variables
@@ -134,6 +135,7 @@ public class MainMenu extends BaseMenu {
 	}
 
 	private void CallStory() {
+		GameManager.flushSound();
 		Intent intent = new Intent(App.getMyContext(), YoutubeActivity.class);
 		App.getMyContext().startActivity(intent);
 	}
@@ -145,6 +147,10 @@ public class MainMenu extends BaseMenu {
 
 	private void CallExit() {
 		GameManager.flushSound();
-		((MainActivity) App.getMyContext()).shutdownApp();
+		try {
+			((MainActivity) App.getMyContext()).shutdownApp();
+		} catch (Exception e) {
+			Log.i("EXIT ERROR", e.getMessage().toString());
+		}
 	}
 }

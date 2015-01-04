@@ -79,7 +79,7 @@ public class FinishLvlMenu extends BaseMenu {
 		canvas.drawRoundRect(rect, Parameters.dZoomParam / 2,
 				Parameters.dZoomParam / 2, rectPaint);
 		Helper.drawTextWithMultipleLines(canvas,
-				"Level Completed\n\nScores: \nCandies: ", new Point(w / 2,
+				"Level Completed\n\nCandies: ", new Point(w / 2,
 						h * 2 / 5), textPaint);
 
 		// draw buttons

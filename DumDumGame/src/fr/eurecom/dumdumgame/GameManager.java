@@ -133,13 +133,13 @@ public class GameManager {
 				break;
 			case HOST_MENU:
 				menuList[menuState.getValue()] = new HostMenu(
-						new DynamicBitmap(Parameters.bmpBkSubMenu,
-								new Point(0, 0), 0, screenSize.x, screenSize.y));
+						new DynamicBitmap(Parameters.bmpBkSubMenu, new Point(0,
+								0), 0, screenSize.x, screenSize.y));
 				break;
 			case CLIENT_MENU:
 				menuList[menuState.getValue()] = new ClientMenu(
-						new DynamicBitmap(Parameters.bmpBkSubMenu,
-								new Point(0, 0), 0, screenSize.x, screenSize.y));
+						new DynamicBitmap(Parameters.bmpBkSubMenu, new Point(0,
+								0), 0, screenSize.x, screenSize.y));
 				break;
 			default:
 				break;
@@ -171,54 +171,22 @@ public class GameManager {
 		game = new Game();
 	}
 
+	public static void initSound() {
+		spMenu = MediaPlayer.create(App.getMyContext(),
+				Parameters.dMenuSoundtrack);
+		spBackground = MediaPlayer.create(App.getMyContext(),
+				Parameters.dBackgroundSoundtrack);
+		spVictory = MediaPlayer.create(App.getMyContext(),
+				Parameters.dVictorySoundtrack);
+
+		spMenu.setLooping(true);
+		spBackground.setLooping(true);
+		spVictory.setLooping(false);
+	}
+
 	public static void switchSound() {
 		hasSound = !hasSound;
-
-		if (hasSound == false) {
-			GameManager.spBackground = Helper.stopMediaPlayer(
-					GameManager.spBackground, Parameters.dBackgroundSoundtrack);
-			GameManager.spVictory = Helper.stopMediaPlayer(
-					GameManager.spVictory, Parameters.dVictorySoundtrack);
-			GameManager.spMenu = Helper.stopMediaPlayer(GameManager.spMenu,
-					Parameters.dMenuSoundtrack);
-		} else {
-			switch (GameManager.getCurrentState()) {
-			case MAIN_MENU:
-			case MULTIPLAYER_MENU:
-			case SHOP_MENU:
-			case INFO_MENU:
-			case HOST_MENU:
-			case CLIENT_MENU:
-			case LOAD_MENU:
-				GameManager.spBackground = Helper.stopMediaPlayer(
-						GameManager.spBackground,
-						Parameters.dBackgroundSoundtrack);
-				GameManager.spVictory = Helper.stopMediaPlayer(
-						GameManager.spVictory, Parameters.dVictorySoundtrack);
-				GameManager.spMenu.start();
-				break;
-			case PAUSE_MENU:
-			case FINISH_LVL_MENU:
-			case GEAR_UP_MENU:
-			case GAME:
-				GameManager.spVictory = Helper.stopMediaPlayer(
-						GameManager.spVictory, Parameters.dVictorySoundtrack);
-				GameManager.spMenu = Helper.stopMediaPlayer(GameManager.spMenu,
-						Parameters.dMenuSoundtrack);
-				GameManager.spBackground.start();
-				break;
-			case CONGRAT_BOX:
-				GameManager.spBackground = Helper.stopMediaPlayer(
-						GameManager.spBackground,
-						Parameters.dBackgroundSoundtrack);
-				GameManager.spMenu = Helper.stopMediaPlayer(GameManager.spMenu,
-						Parameters.dMenuSoundtrack);
-				GameManager.spVictory.start();
-				break;
-			default:
-				break;
-			}
-		}
+		checkSound();
 	}
 
 	public static void flushSound() {
@@ -325,41 +293,64 @@ public class GameManager {
 
 	public static void setCurrentState(GameState currentState) {
 		GameManager.currentState = currentState;
+		checkSound();
+	}
+	
+	public static void soundOn() {
+		hasSound = true;
+		checkSound();
+	}
+	
+	public static void soundOff() {
+		hasSound = false;
+		checkSound();
+	}
 
-		switch (GameManager.getCurrentState()) {
-		case MAIN_MENU:
-		case MULTIPLAYER_MENU:
-		case SHOP_MENU:
-		case INFO_MENU:
-		case HOST_MENU:
-		case CLIENT_MENU:
-		case LOAD_MENU:
+	public static void checkSound() {
+		if (hasSound == false) {
 			GameManager.spBackground = Helper.stopMediaPlayer(
 					GameManager.spBackground, Parameters.dBackgroundSoundtrack);
 			GameManager.spVictory = Helper.stopMediaPlayer(
 					GameManager.spVictory, Parameters.dVictorySoundtrack);
-			GameManager.spMenu.start();
-			break;
-		case PAUSE_MENU:
-		case GEAR_UP_MENU:
-		case GAME:
-			GameManager.spVictory = Helper.stopMediaPlayer(
-					GameManager.spVictory, Parameters.dVictorySoundtrack);
 			GameManager.spMenu = Helper.stopMediaPlayer(GameManager.spMenu,
 					Parameters.dMenuSoundtrack);
-			GameManager.spBackground.start();
-			break;
-		case CONGRAT_BOX:
-		case FINISH_LVL_MENU:
-			GameManager.spBackground = Helper.stopMediaPlayer(
-					GameManager.spBackground, Parameters.dBackgroundSoundtrack);
-			GameManager.spMenu = Helper.stopMediaPlayer(GameManager.spMenu,
-					Parameters.dMenuSoundtrack);
-			GameManager.spVictory.start();
-			break;
-		default:
-			break;
+		} else {
+			switch (GameManager.getCurrentState()) {
+			case MAIN_MENU:
+			case MULTIPLAYER_MENU:
+			case SHOP_MENU:
+			case INFO_MENU:
+			case HOST_MENU:
+			case CLIENT_MENU:
+			case LOAD_MENU:
+				GameManager.spBackground = Helper.stopMediaPlayer(
+						GameManager.spBackground,
+						Parameters.dBackgroundSoundtrack);
+				GameManager.spVictory = Helper.stopMediaPlayer(
+						GameManager.spVictory, Parameters.dVictorySoundtrack);
+				GameManager.spMenu.start();
+				break;
+			case PAUSE_MENU:
+			case GEAR_UP_MENU:
+			case GAME:
+				GameManager.spVictory = Helper.stopMediaPlayer(
+						GameManager.spVictory, Parameters.dVictorySoundtrack);
+				GameManager.spMenu = Helper.stopMediaPlayer(GameManager.spMenu,
+						Parameters.dMenuSoundtrack);
+				GameManager.spBackground.start();
+				break;
+			case CONGRAT_BOX:
+			case FINISH_LVL_MENU:
+				GameManager.spBackground = Helper.stopMediaPlayer(
+						GameManager.spBackground,
+						Parameters.dBackgroundSoundtrack);
+				GameManager.spMenu = Helper.stopMediaPlayer(GameManager.spMenu,
+						Parameters.dMenuSoundtrack);
+				GameManager.spVictory.start();
+				break;
+			default:
+				break;
+			}
 		}
-
 	}
 }
