@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence-diagram version="1.1.7" icons="true" automaticImage="PNG">  
+  <object id="1" language="java" name="fr.eurecom.dumdumgame.MainActivity" project="DumDumGame" 
+    file="/DumDumGame/src/fr/eurecom/dumdumgame/MainActivity.java" binary="false" label="mainActivity" type="class" 
+    autoSize="true">    
+    <position height="-1" width="-1" x="159" y="0"/>    
+    <execution id="2">      
+      <position height="63" width="115" x="5" y="130"/>    
+    </execution>    
+    <execution id="5">      
+      <position height="63" width="115" x="5" y="78"/>    
+    </execution>  
+  </object>  
+  <object id="8" language="java" name="fr.eurecom.dumdumgame.GameManager" project="DumDumGame" 
+    file="/DumDumGame/src/fr/eurecom/dumdumgame/GameManager.java" binary="false" label="gameManager" type="class" 
+    autoSize="true">    
+    <position height="-1" width="-1" x="752" y="0"/>    
+    <execution id="4">      
+      <position height="21" width="115" x="124" y="151"/>    
+    </execution>  
+  </object>  
+  <object id="9" language="java" name="fr.eurecom.engine.Game.MouseState" project="DumDumGame" 
+    file="/DumDumGame/src/fr/eurecom/engine/Game.java" binary="false" label="mouseState" type="enumeration" 
+    autoSize="true">    
+    <position height="-1" width="-1" x="289" y="0"/>  
+  </object>  
+  <object id="10" language="java" name="fr.eurecom.dumdumgame.GameView" project="DumDumGame" 
+    file="/DumDumGame/src/fr/eurecom/dumdumgame/GameView.java" binary="false" label="gameView" type="class" 
+    autoSize="true">    
+    <position height="-1" width="-1" x="622" y="0"/>    
+    <execution id="7">      
+      <position height="21" width="115" x="338" y="99"/>    
+    </execution>  
+  </object>  
+  <object id="11" language="java" name="fr.eurecom.engine.Game" project="DumDumGame" 
+    file="/DumDumGame/src/fr/eurecom/engine/Game.java" binary="false" label="game" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="289" y="0"/>  
+  </object>  
+  <object id="12" language="java" name="fr.eurecom.dumdumgame.GameManager.SoundState" project="DumDumGame" 
+    file="/DumDumGame/src/fr/eurecom/dumdumgame/GameManager.java" binary="false" label="soundState" type="enumeration" 
+    autoSize="true">    
+    <position height="-1" width="-1" x="752" y="0"/>  
+  </object>  
+  <object id="13" language="java" name="fr.eurecom.dumdumgame.GameManager.GameState" project="DumDumGame" 
+    file="/DumDumGame/src/fr/eurecom/dumdumgame/GameManager.java" binary="false" label="gameState" type="enumeration" 
+    autoSize="true">    
+    <position height="-1" width="-1" x="752" y="0"/>  
+  </object>  
+  <message id="3" 
+    operation="prepareGame(fr.eurecom.dumdumgame.GameView,android.graphics.Point,fr.eurecom.data.User):void">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="4"/>  
+  </message>  
+  <message id="6">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="7"/>  
+  </message>
+</sequence-diagram>
