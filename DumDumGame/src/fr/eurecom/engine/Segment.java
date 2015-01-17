@@ -9,7 +9,18 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 
-public class Segment {
+public class Segment implements Comparable<Segment> {
+	@Override
+	public int compareTo(Segment another) {
+		int aX = this.getFirstPoint().x;
+		int bX = another.getFirstPoint().x;
+
+		if (aX > bX)
+			return 1;
+		else if (aX < bX)
+			return -1;
+		return 0;
+	} 
 	
 	// with great assumption that first point must have smaller x component than second point
 	private Point firstPoint = new Point(0, 0);
@@ -146,6 +157,5 @@ public class Segment {
         paint.setStrokeWidth(3);
         canvas.drawLine(first.x, first.y, second.x, second.y, paint);
     }
-    
     
 }

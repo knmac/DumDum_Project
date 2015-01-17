@@ -1,4 +1,4 @@
-package fr.eurecom.utility;
+package fr.eurecom.data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,8 +8,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import fr.eurecom.dumdumgame.Obstacles;
+import fr.eurecom.dumdumgame.Platforms;
+import fr.eurecom.engine.Game.ObstacleIdx;
 import fr.eurecom.engine.Polygon;
 import fr.eurecom.engine.Segment;
+import fr.eurecom.utility.Parameters;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -17,8 +21,7 @@ import android.graphics.Point;
 import android.graphics.Shader.TileMode;
 import android.util.Log;
 
-public class MapReader {
-	private LinkedList<Segment> reflectorList = new LinkedList<Segment>();
+public class MapTexture {
 	private LinkedList<Segment> conveyorList = new LinkedList<Segment>();
 	private LinkedList<Point> teleporterList = new LinkedList<Point>();
 	private LinkedList<Polygon> wallList = new LinkedList<Polygon>();
@@ -29,35 +32,216 @@ public class MapReader {
 	private boolean rain = false;
 	private Point startPos = new Point(0, 0);
 	private Point holePos = new Point(0, 0);
-	private Point mapBottomRight = new Point(Integer.MIN_VALUE,
-			Integer.MIN_VALUE);
+	private Point mapBottomRight = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
+	
+	
+	public MapTexture(int fileID) {
+		try {
+			String[] arr;
+			InputStream inputStream = Parameters.resource.openRawResource(fileID);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+			int n;
+			
+			
+			// create temporary variable to read from files
+			LinkedList<Segment> reflectorList = new LinkedList<Segment>();
+			
+
+			// start reading data
+			// read rain status
+			if (Integer.parseInt(reader.readLine()) == 1)
+				rain = true;
+			else
+				rain = false;
+
+			// read start pos
+			arr = reader.readLine().split(" ");
+			startPos = new Point(Integer.parseInt(arr[0]),
+					Integer.parseInt(arr[1]));
+
+			// read hole pos
+			arr = reader.readLine().split(" ");
+			holePos = new Point(Integer.parseInt(arr[0]),
+					Integer.parseInt(arr[1]));
+
+			/************* for engine ***************/
+			// read reflector pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				reflectorList.add(ReadSegment(reader)); // LHAn: old version
+			}
+
+			// read conveyor pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				conveyorList.add(ReadSegment(reader));
+			}
+
+			// read teleporter pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				arr = reader.readLine().split(" ");
+				teleporterList.add(new Point(Integer.parseInt(arr[0]), Integer
+						.parseInt(arr[1])));
+			}
+
+			/************* for graphic ***************/
+			// read wall pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				wallList.add(ReadPolygon(reader));
+			}
+
+			// read internal wall pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				internalWallList.add(ReadPolygon(reader));
+			}
+
+			// read grass pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				grassList.add(ReadPolygon(reader));
+			}
+
+			// read sand pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				sandList.add(ReadPolygon(reader));
+			}
+
+			// read water pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				waterList.add(ReadPolygon(reader));
+			}
+
+			// Shift map downward 1 to nullify negative number
+			ShiftAll(1);
+
+			// zoom
+			ZoomAll(Parameters.dZoomParam);
+
+			// Shift map downward to move the map to the center
+			ShiftAll(Parameters.dShiftParam);
+			
+			
+
+			//Collections.sort(reflectorList, new SegmentComparable());
+
+			reader.close();
+		} catch (Exception ex) {
+			Log.e("Map Reader", ex.getMessage());
+		}
+	}
+
+	
+	public Obstacles[] readMapData(int fileID) {
+		Obstacles[] obstacleList = null;
+		try {
+			String[] arr;
+			InputStream inputStream = Parameters.resource.openRawResource(fileID);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+			int n;
+			
+			
+			// create temporary variable to read from files
+			LinkedList<Segment> reflectorList = new LinkedList<Segment>();
+			
+
+			// start reading data
+			// read rain status
+			reader.readLine();
+
+			// read start pos
+			reader.readLine();
+
+			// read hole pos
+			reader.readLine();
+
+			/************* for engine ***************/
+			// read reflector pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				reflectorList.add(ReadSegment(reader)); // LHAn: old version
+			}
+			
+			// read conveyor pos
+			reader.readLine();
+
+			// read teleporter pos
+			reader.readLine();
+
+			/************* for graphic ***************/
+			// read wall pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				wallList.add(ReadPolygon(reader));
+			}
+
+			// read internal wall pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				internalWallList.add(ReadPolygon(reader));
+			}
+
+			// read grass pos
+			reader.readLine();
+
+			// read sand pos
+			reader.readLine();
+
+			// read water pos
+			reader.readLine();
+
+			// Shift map downward 1 to nullify negative number
+
+			// zoom
+
+			// Shift map downward to move the map to the center			
+			
+
+			reader.close();
+			
+			
+			obstacleList = new Obstacles[ObstacleIdx.numObstacleType()];
+			obstacleList[ObstacleIdx.Platform.getValue()] = new Platforms();
+			obstacleList[ObstacleIdx.Platform.getValue()].addData(reflectorList, Parameters.dZoomParam, Parameters.dShiftParam);
+			mapBottomRight = ((Platforms)(obstacleList[ObstacleIdx.Platform.getValue()])).getBottomRight();
+
+		} catch (Exception ex) {
+			Log.e("Map Reader", ex.getMessage());
+		}
+		
+		return obstacleList;
+		
+	}
+	
+	
 
 	public Point getMapBottomRight() {
 		return mapBottomRight;
 	}
 
-	// public void setReflectorList(LinkedList<Segment> reflectorList) {
-	// this.reflectorList = reflectorList;
-	// }
+//	// public void setReflectorList(LinkedList<Segment> reflectorList) {
+//	// this.reflectorList = reflectorList;
+//	// }
+//
+//	// make sure everytime a reflectorList is created, this function must be
+//	// called
+//	public void addtoReflectorList(Segment reflector) {
+//		for (int i = 0; i < this.reflectorList.size(); ++i)
+//			if ((this.reflectorList.get(i).getFirstPoint().x > reflector
+//					.getFirstPoint().x)
+//					|| (this.reflectorList.get(i).getFirstPoint().x == reflector
+//							.getFirstPoint().x && this.reflectorList.get(i)
+//							.getFirstPoint().y > reflector.getFirstPoint().y)) {
+//				this.reflectorList.add(i, reflector);
+//				return;
+//			}
+//		reflectorList.addLast(reflector);
+//	}
 
-	// make sure everytime a reflectorList is created, this function must be
-	// called
-	public void addtoReflectorList(Segment reflector) {
-		for (int i = 0; i < this.reflectorList.size(); ++i)
-			if ((this.reflectorList.get(i).getFirstPoint().x > reflector
-					.getFirstPoint().x)
-					|| (this.reflectorList.get(i).getFirstPoint().x == reflector
-							.getFirstPoint().x && this.reflectorList.get(i)
-							.getFirstPoint().y > reflector.getFirstPoint().y)) {
-				this.reflectorList.add(i, reflector);
-				return;
-			}
-		reflectorList.addLast(reflector);
-	}
-
-	public LinkedList<Segment> getReflectorList() {
-		return reflectorList;
-	}
 
 	public void setConveyorList(LinkedList<Segment> conveyorList) {
 		this.conveyorList = conveyorList;
@@ -147,18 +331,6 @@ public class MapReader {
 		startPos = ZoomPoint(startPos, zoomParam);
 		holePos = ZoomPoint(holePos, zoomParam);
 
-		for (int i = 0; i < reflectorList.size(); ++i) {
-			Point zoomedFirst = ZoomPoint(reflectorList.get(i).getFirstPoint(),
-					zoomParam);
-			Point zoomedSecond = ZoomPoint(reflectorList.get(i)
-					.getSecondPoint(), zoomParam);
-			// reflectorList.get(i).setFirstPoint(ZoomPoint(reflectorList.get(i).getFirstPoint(),
-			// zoomParam));
-			// reflectorList.get(i).setSecondPoint(ZoomPoint(reflectorList.get(i).getSecondPoint(),
-			// zoomParam));
-			reflectorList.get(i).setPoints(zoomedFirst, zoomedSecond);
-		}
-
 		for (int i = 0; i < conveyorList.size(); ++i) {
 			// conveyorList.get(i).setFirstPoint(ZoomPoint(conveyorList.get(i).getFirstPoint(),
 			// zoomParam));
@@ -221,26 +393,7 @@ public class MapReader {
 		startPos = ShiftPoint(startPos, shiftParam);
 		holePos = ShiftPoint(holePos, shiftParam);
 
-		for (int i = 0; i < reflectorList.size(); ++i) {
-			// reflectorList.get(i).setFirstPoint(ShiftPoint(reflectorList.get(i).getFirstPoint(),
-			// shiftParam));
-			// reflectorList.get(i).setSecondPoint(ShiftPoint(reflectorList.get(i).getSecondPoint(),
-			// shiftParam));
-			reflectorList.get(i)
-					.setPoints(
-							ShiftPoint(reflectorList.get(i).getFirstPoint(),
-									shiftParam),
-							ShiftPoint(reflectorList.get(i).getSecondPoint(),
-									shiftParam));
-		}
 
-		// for (int i = 0; i < conveyorList.size(); ++i)
-		// {
-		// conveyorList.get(i).setFirstPoint(ShiftPoint(conveyorList.get(i).getFirstPoint(),
-		// shiftParam));
-		// conveyorList.get(i).setSecondPoint(ShiftPoint(conveyorList.get(i).getSecondPoint(),
-		// shiftParam));
-		// }
 
 		for (int i = 0; i < teleporterList.size(); ++i) {
 			Point point = ShiftPoint(teleporterList.get(i), shiftParam);
@@ -310,130 +463,19 @@ public class MapReader {
 		return myPolygon;
 	}
 
-	public MapReader(int fileID) {
-		try {
-			String[] arr;
-			InputStream inputStream = Parameters.resource
-					.openRawResource(fileID);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					inputStream));
-			int n;
-
-			// read rain status
-			if (Integer.parseInt(reader.readLine()) == 1)
-				rain = true;
-			else
-				rain = false;
-
-			// read start pos
-			arr = reader.readLine().split(" ");
-			startPos = new Point(Integer.parseInt(arr[0]),
-					Integer.parseInt(arr[1]));
-
-			// read hole pos
-			arr = reader.readLine().split(" ");
-			holePos = new Point(Integer.parseInt(arr[0]),
-					Integer.parseInt(arr[1]));
-
-			/************* for engine ***************/
-			// read reflector pos
-			n = Integer.parseInt(reader.readLine());
-			for (int i = 0; i < n; ++i) {
-				// addtoReflectorList(ReadSegment(reader)); // LHAn: new
-				// version, sort the ReflectorList when creating it
-				reflectorList.add(ReadSegment(reader)); // LHAn: old version
-			}
-
-			// read conveyor pos
-			n = Integer.parseInt(reader.readLine());
-			for (int i = 0; i < n; ++i) {
-				conveyorList.add(ReadSegment(reader));
-			}
-
-			// read teleporter pos
-			n = Integer.parseInt(reader.readLine());
-			for (int i = 0; i < n; ++i) {
-				arr = reader.readLine().split(" ");
-				teleporterList.add(new Point(Integer.parseInt(arr[0]), Integer
-						.parseInt(arr[1])));
-			}
-
-			/************* for graphic ***************/
-			// read wall pos
-			n = Integer.parseInt(reader.readLine());
-			for (int i = 0; i < n; ++i) {
-				wallList.add(ReadPolygon(reader));
-			}
-
-			// read internal wall pos
-			n = Integer.parseInt(reader.readLine());
-			for (int i = 0; i < n; ++i) {
-				internalWallList.add(ReadPolygon(reader));
-			}
-
-			// read grass pos
-			n = Integer.parseInt(reader.readLine());
-			for (int i = 0; i < n; ++i) {
-				grassList.add(ReadPolygon(reader));
-			}
-
-			// read sand pos
-			n = Integer.parseInt(reader.readLine());
-			for (int i = 0; i < n; ++i) {
-				sandList.add(ReadPolygon(reader));
-			}
-
-			// read water pos
-			n = Integer.parseInt(reader.readLine());
-			for (int i = 0; i < n; ++i) {
-				waterList.add(ReadPolygon(reader));
-			}
-
-			// Shift map downward 1 to nullify negative number
-			ShiftAll(1);
-
-			// zoom
-			ZoomAll(Parameters.dZoomParam);
-
-			// Shift map downward to move the map to the center
-			ShiftAll(Parameters.dShiftParam);
-
-			expandMapBound();
-
-			Collections.sort(reflectorList, new SegmentComparable());
-
-			reader.close();
-		} catch (Exception ex) {
-			Log.e("Map Reader", ex.getMessage());
-		}
-	}
-
-	private void expandMapBound() {
-		for (int i = 0; i < reflectorList.size(); i++) {
-			mapBottomRight.x = reflectorList.get(i).getFirstPoint().x > mapBottomRight.x ? reflectorList
-					.get(i).getFirstPoint().x : mapBottomRight.x;
-			mapBottomRight.y = reflectorList.get(i).getFirstPoint().y > mapBottomRight.y ? reflectorList
-					.get(i).getFirstPoint().y : mapBottomRight.y;
-			mapBottomRight.x = reflectorList.get(i).getSecondPoint().x > mapBottomRight.x ? reflectorList
-					.get(i).getSecondPoint().x : mapBottomRight.x;
-			mapBottomRight.y = reflectorList.get(i).getSecondPoint().y > mapBottomRight.y ? reflectorList
-					.get(i).getSecondPoint().y : mapBottomRight.y;
-		}
-	}
-
-	public static class SegmentComparable implements Comparator<Segment> {
-		@Override
-		public int compare(Segment a, Segment b) {
-			int aX = a.getFirstPoint().x;
-			int bX = b.getFirstPoint().x;
-
-			if (aX > bX)
-				return 1;
-			else if (aX < bX)
-				return -1;
-			return 0;
-		}
-	}
+//	public static class SegmentComparable implements Comparator<Segment> {
+//		@Override
+//		public int compare(Segment a, Segment b) {
+//			int aX = a.getFirstPoint().x;
+//			int bX = b.getFirstPoint().x;
+//
+//			if (aX > bX)
+//				return 1;
+//			else if (aX < bX)
+//				return -1;
+//			return 0;
+//		}
+//	}
 
 	public void Show(Canvas canvas) {
 		// Show outer walls
@@ -468,15 +510,7 @@ public class MapReader {
 		// tmp.getSecondPoint().y);
 		// }
 		//
-		// Show reflective surfaces
-		for (int i = 0; i < this.reflectorList.size(); ++i) {
-			Point first = this.reflectorList.get(i).getFirstPoint();
-			Point second = this.reflectorList.get(i).getSecondPoint();
-			Paint paint = new Paint();
-			paint.setColor(Color.BLACK);
-			paint.setStrokeWidth(3);
-			canvas.drawLine(first.x, first.y, second.x, second.y, paint);
-		}
+		
 
 		// Show target hole
 		/*

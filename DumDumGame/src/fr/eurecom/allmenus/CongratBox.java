@@ -1,10 +1,10 @@
 package fr.eurecom.allmenus;
 
+import fr.eurecom.data.MapTexture;
 import fr.eurecom.data.User;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
-import fr.eurecom.utility.MapReader;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
 import android.graphics.Point;
@@ -51,7 +51,7 @@ public class CongratBox extends BaseMenu {
 		// write to buffer
 		// user.setCurrentLevel(1);
 		// user.setCurrentScore(0);
-		MapReader gameData = new MapReader(Parameters.dMapID[0]);
+		MapTexture gameData = new MapTexture(Parameters.dMapID[0]);
 		// user.setCurrentPos(gameData.getHolePos());
 		gameData = null;
 		user.setUnlockedLevel(10);

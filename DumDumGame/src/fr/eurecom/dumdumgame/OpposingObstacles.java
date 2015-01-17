@@ -1,5 +1,5 @@
 package fr.eurecom.dumdumgame;
 
-public class OpposingObstacles extends Obstacles {
+public abstract class OpposingObstacles extends Obstacles {
 
 }

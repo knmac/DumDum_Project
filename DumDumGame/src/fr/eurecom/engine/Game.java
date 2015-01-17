@@ -5,15 +5,17 @@ import java.util.LinkedList;
 import java.util.Random;
 
 import fr.eurecom.data.Map;
+import fr.eurecom.data.MapTexture;
 import fr.eurecom.data.User;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Conveyor;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
+import fr.eurecom.dumdumgame.Obstacles;
+import fr.eurecom.dumdumgame.Platforms;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
-import fr.eurecom.utility.MapReader;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
 import android.graphics.Bitmap;
@@ -33,7 +35,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class Game {
-	private MapReader gameData;
+	private MapTexture mapData;
 	private Map background;
 	private Character ball;
 	private double elapsedTime;
@@ -49,6 +51,8 @@ public class Game {
 	private DynamicBitmap microwave;
 	private DynamicBitmap pauseButton;
 	private DynamicBitmap gearUpButton;
+	
+	public Obstacles[] obstacleList;
 
 	private Environment myEnvironment;
 
@@ -59,14 +63,41 @@ public class Game {
 	public enum MouseState {
 		MOUSE_UP, MOUSE_DOWN, MOUSE_MOVE
 	}
+	
+	public enum ObstacleIdx {
+		Platform(0), Blackhole(1), Spike(2), Conveyor(3), Batman(4);
+		
+		// return number of obstacle types
+		public static int numObstacleType () {
+			return ObstacleIdx.values().length;
+		}
+		
+		private final int value;
+		private ObstacleIdx(int value) {
+			this.value = value;
+		}
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	// game objects compose of 3 types:
+	// 1. fix-screen objects: icons, logos, scores
+	// 2. map-texture: stable objects that stick to the map structures 
+	// 		and has no interaction with game characters
+	// 3. game-character: main character, enemies, and others moving objects 
+	//		that can be interacted (directly like main character or indirectly like blackholes, etc.)
 
 	public Game() {
 		// Load game data from a matrix map
 		int chosenLevel = GameManager.chosenLevel;
-		gameData = new MapReader(Parameters.dMapID[chosenLevel - 1]);
-
+		mapData = new MapTexture(Parameters.dMapID[chosenLevel - 1]);
+		
+		// Initialize the obstacle list
+		obstacleList = mapData.readMapData(Parameters.dMapID[chosenLevel - 1]); // TODO TEST!!
+		
 		// Create a background from those data
-		Point boundary = gameData.getMapBottomRight();
+		Point boundary = mapData.getMapBottomRight();
 		Bitmap tmpBitmap = Bitmap.createBitmap(boundary.x
 				+ Parameters.dZoomParam, boundary.y, Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(tmpBitmap);
@@ -78,32 +109,33 @@ public class Game {
 
 		canvas.drawRect(0, 0, tmpBitmap.getWidth(), tmpBitmap.getHeight(),
 				paint);
-		gameData.Show(canvas);
+		mapData.Show(canvas);
+		obstacleList[ObstacleIdx.Platform.getValue()].show(canvas); // TODO TEST!!
 
 		background = new Map(tmpBitmap, new Point(0, 0), new Rect(0, 0,
 				Parameters.dMaxWidth, Parameters.dMaxHeight));
 
-		ball = new Character(gameData.getStartPos());
+		ball = new Character(mapData.getStartPos());
 		score = 0;
 		elapsedTime = 0.0;
 
 		// Create teleporters
-		teleporters = new DynamicBitmap[gameData.getTeleporterList().size()];
+		teleporters = new DynamicBitmap[mapData.getTeleporterList().size()];
 		int teleRad = Parameters.dTeleRadius;
-		for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
-			Point position = new Point(gameData.getTeleporterList().get(i).x
-					- teleRad, gameData.getTeleporterList().get(i).y - teleRad);
+		for (int i = 0; i < mapData.getTeleporterList().size(); ++i) {
+			Point position = new Point(mapData.getTeleporterList().get(i).x
+					- teleRad, mapData.getTeleporterList().get(i).y - teleRad);
 			teleporters[i] = new DynamicBitmap(Parameters.bmpTeleporter,
 					position, 0, 2 * teleRad, 2 * teleRad);
 		}
 
 		// Create conveyers
-		conveyors = new Conveyor[gameData.getConveyorList().size()];
-		for (int i = 0; i < gameData.getConveyorList().size(); ++i)
-			conveyors[i] = new Conveyor(gameData.getConveyorList().get(i));
+		conveyors = new Conveyor[mapData.getConveyorList().size()];
+		for (int i = 0; i < mapData.getConveyorList().size(); ++i)
+			conveyors[i] = new Conveyor(mapData.getConveyorList().get(i));
 
 		// Create rain
-		if (gameData.isRain())
+		if (mapData.isRain())
 			rain = new DynamicBitmap(Parameters.bmpRain, new Point(0, 0), 0,
 					Parameters.dMaxWidth, Parameters.dMaxHeight);
 		else
@@ -143,8 +175,8 @@ public class Game {
 		w = 4 * Parameters.dBallRadius;
 		h = w * Parameters.bmpMicrowave.getHeight()
 				/ Parameters.bmpMicrowave.getWidth();
-		pos = new Point(gameData.getHolePos().x - w / 2,
-				gameData.getHolePos().y - h / 2);
+		pos = new Point(mapData.getHolePos().x - w / 2,
+				mapData.getHolePos().y - h / 2);
 		microwave = new DynamicBitmap(Parameters.bmpMicrowave, pos, w, h);
 
 		// create pause buttons
@@ -157,7 +189,7 @@ public class Game {
 		updateView();
 
 		myEnvironment = new Earth();
-		this.physics = new Physics(myEnvironment, gameData.getMapBottomRight());
+		this.physics = new Physics(myEnvironment, mapData.getMapBottomRight());
 	}
 
 	private boolean isBallClicked = false;
@@ -213,14 +245,8 @@ public class Game {
 			}
 		} else if (mouseState == MouseState.MOUSE_UP) {
 			if (isBallClicked) {
-				double acceleration = getAccelerationUnderTheBall();
-				double initialVelocity = Helper.Point_GetDistanceFrom(
-						ball.getPosition(), mousePos)
-						* Parameters.forceCoefficient;
-				Ray direction = new Ray(
-						ball.getPosition(),
-						Helper.Point_GetMirrorFrom(mousePos, ball.getPosition()));
-				initBall(initialVelocity, acceleration, direction);
+				Point direction = new Point (ball.getPosition().x - mousePos.x, ball.getPosition().y - mousePos.y);
+				initBall(direction);
 				isBallClicked = false;
 				isDragging = false;
 				isPreviouslyDragging = true;
@@ -252,16 +278,11 @@ public class Game {
 
 	int endGame = 0;
 
-	private Segment isNextPostAvailable() {
-		// TODO with great assumption that wall list is sorted according to the
+	private Obstacles isNextPostAvailable() {
+		// With great assumption that wall list is sorted according to the
 		// x position of first point
 		// and that first point of wall is always smaller than second point in
 		// term of x position
-
-		int reflectorList_len = gameData.getReflectorList().size();
-
-		double minDistance = Double.MAX_VALUE;
-		Segment returnedWall = null;
 
 		Point current = ball.getCurrentPosition();
 
@@ -272,84 +293,12 @@ public class Game {
 
 		// ball gets out of scence
 		// TODO
-		if (next == null) {// || (next.y >= gameData.getMapBottomRight().y) ||
-							// (next.y <= 0)) {
+		if (next == null) {
 			++endGame;
 			return null;
-		}
+		}		
 
-		for (int i = 0; i < reflectorList_len; ++i) {
-			Segment currentReflector = gameData.getReflectorList().get(i);
-
-			if (ball.getTrajectoryList().getFirst().x < currentReflector
-					.getFirstPoint().x
-					&& ball.getTrajectoryList().getLast().x < currentReflector
-							.getFirstPoint().x)
-				break;
-
-			Point wall1 = new Point(currentReflector.getFirstPoint());
-			Point wall2 = new Point(currentReflector.getSecondPoint());
-
-			// equation of the wall
-			double A = wall2.y - wall1.y;
-			double B = -(wall2.x - wall1.x);
-			double C = -wall1.x * (wall2.y - wall1.y) + wall1.y
-					* (wall2.x - wall1.x);
-			double vAB = Math.sqrt(Math.pow(A, 2) + Math.pow(B, 2));
-
-			double distanceNextWall = Math.abs(A * next.x + B * next.y + C)
-					/ (vAB);
-
-			double cPoint = -current.x * (next.y - current.y) + current.y
-					* (next.x - current.x);
-			double cPoint1 = -wall1.x * (wall2.y - wall1.y) + wall1.y
-					* (wall2.x - wall1.x);
-
-			double checkingInq1a = (next.y - current.y) * wall1.x
-					- (next.x - current.x) * wall1.y + cPoint;
-			double checkingInq1b = (next.y - current.y) * wall2.x
-					- (next.x - current.x) * wall2.y + cPoint;
-
-			double checkingIng2a = (wall2.y - wall1.y) * current.x
-					- (wall2.x - wall1.x) * current.y + cPoint1;
-			double checkingIng2b = (wall2.y - wall1.y) * next.x
-					- (wall2.x - wall1.x) * next.y + cPoint1;
-
-			if ((checkingInq1a * checkingInq1b <= 0 && checkingIng2a
-					* checkingIng2b <= 0)) {
-				double distancePointWall = Math.abs(A * current.x + B
-						* current.y + C);
-
-				if (distancePointWall < minDistance) {
-					minDistance = distancePointWall;
-					returnedWall = currentReflector;
-				}
-			} else if (distanceNextWall < Parameters.dBallRadius) {
-				double distNextWall1 = Math.sqrt(Math.pow(next.x - wall1.x, 2)
-						+ Math.pow(next.y - wall1.y, 2));
-				double distNextWall2 = Math.sqrt(Math.pow(next.x - wall2.x, 2)
-						+ Math.pow(next.y - wall2.y, 2));
-				double distWall1Wall2 = Math.sqrt(Math
-						.pow(wall1.x - wall2.x, 2)
-						+ Math.pow(wall1.y - wall2.y, 2));
-
-				double condition1 = Math.sqrt(Math.pow(distNextWall1, 2)
-						- Math.pow(distanceNextWall, 2));
-				double condition2 = Math.sqrt(Math.pow(distNextWall2, 2)
-						- Math.pow(distanceNextWall, 2));
-
-				double epsilon = 1;
-				if (condition1 + condition2 > distWall1Wall2 - epsilon
-						&& condition1 + condition2 < distWall1Wall2 + epsilon) {
-					if (distanceNextWall < minDistance) {
-						minDistance = distanceNextWall;
-						returnedWall = currentReflector;
-					}
-				}
-			}
-		}
-
-		return returnedWall;
+		return obstacleList[ObstacleIdx.Platform.getValue()].ballInRange(next, current, ball.getTrajectoryList().getFirst(), ball.getTrajectoryList().getLast());
 	}
 
 	public void show(Canvas canvas) throws Exception {
@@ -377,14 +326,14 @@ public class Game {
 		}
 
 		// Show teleporters, if any
-		for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
+		for (int i = 0; i < mapData.getTeleporterList().size(); ++i) {
 			teleporters[i].show(canvas, background.getPosition());
 			teleporters[i].updateToTheNextImage();
 		}
 
 		// Show conveyors, if any
 		boolean conveyorInEffect = false;
-		for (int i = 0; i < gameData.getConveyorList().size(); ++i) {
+		for (int i = 0; i < mapData.getConveyorList().size(); ++i) {
 			conveyors[i].show(canvas, background.getPosition());
 			if (updateCounter == 0)
 				conveyors[i].updateToTheNextImage();
@@ -421,7 +370,7 @@ public class Game {
 
 			// TODO: this object must be of type Obstacle and then be
 			// type-casted into Segment
-			Segment obstacle = isNextPostAvailable();
+			Obstacles obstacle = isNextPostAvailable();
 
 			// TODO: DOUBLE CHECK THESE CONDITIONS, change the method or at
 			// least the name
@@ -431,7 +380,7 @@ public class Game {
 				endGame++;
 			} else if (endGame == 2) {
 				ball.update(elapsedTime, quantum);
-			} else if (endGame == 3) { // MUST BE 3 (not 2 nhe)
+			} else if (endGame == 3) {
 				endGame = 0;
 
 				int lives = GameManager.user.getCurrentLives();
@@ -500,23 +449,24 @@ public class Game {
 			ball.show(canvas, background.getPosition());
 
 			// If the ball hits the teleporter, if any
-			boolean isBallSucked = false;
-			double min = (Parameters.dTeleRadius + Parameters.dBallRadius) / 2;
-			for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
-				double distance = Helper
-						.Point_GetDistanceFrom(ball.getPosition(), gameData
-								.getTeleporterList().get(i));
-				if (distance <= min) {
-					isBallSucked = true;
-					if (!amulet) {
-						teleportTheBall(i);
-						amulet = true;
-					}
-					break;
-				}
-			}
-			if (!isBallSucked)
-				amulet = false;
+			// TODO: teleporter
+//			boolean isBallSucked = false;
+//			double min = (Parameters.dTeleRadius + Parameters.dBallRadius) / 2;
+//			for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
+//				double distance = Helper
+//						.Point_GetDistanceFrom(ball.getPosition(), gameData
+//								.getTeleporterList().get(i));
+//				if (distance <= min) {
+//					isBallSucked = true;
+//					if (!amulet) {
+//						teleportTheBall(i);
+//						amulet = true;
+//					}
+//					break;
+//				}
+//			}
+//			if (!isBallSucked)
+//				amulet = false;
 
 			// If the ball stops running
 			// TODO: polish: original is !ball.isRunning()
@@ -563,7 +513,7 @@ public class Game {
 
 		// check level up
 		if (Helper.Point_GetDistanceFrom(ball.getPosition(),
-				gameData.getHolePos()) < 0.65 * Parameters.dBallRadius) {
+				mapData.getHolePos()) < 0.65 * Parameters.dBallRadius) {
 
 			// capture background screenshot
 			GameManager.captureScreen();
@@ -581,11 +531,11 @@ public class Game {
 	}
 
 	public boolean isRunning() {
-		if (gameData.getTeleporterList().size() > 0)
+		if (mapData.getTeleporterList().size() > 0)
 			return true;
-		if (gameData.getConveyorList().size() > 0)
+		if (mapData.getConveyorList().size() > 0)
 			return true;
-		if (gameData.isRain())
+		if (mapData.isRain())
 			return true;
 		if (this.ball.isRunning() || isDragging
 				|| ball.getState() == Character.motionState.DEATH)
@@ -611,7 +561,7 @@ public class Game {
 		}
 		background.recycle();
 		background = null;
-		gameData = null;
+		mapData = null;
 		ball = null;
 		teleporters = null;
 		conveyors = null;
@@ -620,7 +570,7 @@ public class Game {
 
 	public void restart() {
 		this.firstTimeShow = true;
-		ball = new Character(gameData.getStartPos());
+		ball = new Character(mapData.getStartPos());
 		updateView();
 		score = 0;
 	}
@@ -651,36 +601,35 @@ public class Game {
 		return false;
 	}
 
-	private void initBall(double initialVelocity, double acceleration,
-			Ray direction) {
-		ball.init(acceleration, initialVelocity, direction);
+	private void initBall(Point direction) {
+		ball.init(direction);
 		elapsedTime = 0.0;
 	}
 
-	private void teleportTheBall(int currentTeleporter) {
-		Random generator = new Random();
-		int index = 0;
-		while ((index = generator.nextInt(gameData.getTeleporterList().size())) == currentTeleporter)
-			;
-		Point newPosition = gameData.getTeleporterList().get(index);
-
-		double acceleration = Parameters.grassFrictionAcceleration;
-		double velocity = ball.getInstantVelocity(elapsedTime) + 12;
-		ball.setPosition(newPosition);
-
-		int incrementX = 0;
-		int incrementY = 0;
-		while ((incrementX = generator.nextInt(41)) == 20)
-			;
-		while ((incrementY = generator.nextInt(41)) == 20)
-			;
-		incrementX -= 20;
-		incrementY -= 20;
-
-		Ray direction = new Ray(ball.getPosition(), new Point(newPosition.x
-				+ incrementX, newPosition.y + incrementY));
-		initBall(velocity, acceleration, direction);
-	}
+//	private void teleportTheBall(int currentTeleporter) {
+//		Random generator = new Random();
+//		int index = 0;
+//		while ((index = generator.nextInt(gameData.getTeleporterList().size())) == currentTeleporter)
+//			;
+//		Point newPosition = gameData.getTeleporterList().get(index);
+//
+//		double acceleration = Parameters.grassFrictionAcceleration;
+//		double velocity = ball.getInstantVelocity(elapsedTime) + 12;
+//		ball.setPosition(newPosition);
+//
+//		int incrementX = 0;
+//		int incrementY = 0;
+//		while ((incrementX = generator.nextInt(41)) == 20)
+//			;
+//		while ((incrementY = generator.nextInt(41)) == 20)
+//			;
+//		incrementX -= 20;
+//		incrementY -= 20;
+//
+//		Ray direction = new Ray(ball.getPosition(), new Point(newPosition.x
+//				+ incrementX, newPosition.y + incrementY));
+//		initBall(velocity, acceleration, direction);
+//	}
 
 	private void showBackground(Canvas canvas) {
 		// int rad = Parameters.dBallRadius;
@@ -692,7 +641,7 @@ public class Game {
 			firstTimeShow = false;
 			isPreviouslyDragging = false;
 			isPreviouslyBackgroundDragging = false;
-		} else if (gameData.isRain())
+		} else if (mapData.isRain())
 			showFullBackground(canvas);
 		else if (ball.isRunning()) {
 			// background.showEx(canvas, ball.getPosition().x - rad - rad,
@@ -725,27 +674,6 @@ public class Game {
 		paint.setTextAlign(Align.CENTER);
 		canvas.drawText("Turn: " + score, Parameters.dMaxWidth / 2,
 				Parameters.dBallRadius, paint);
-	}
-
-	private double getAccelerationUnderTheBall() {
-		// If the ball is in water puddle
-		for (int i = 0; i < gameData.getWaterList().size(); ++i) {
-			if (gameData.getWaterList().get(i).getBoundRect()
-					.contains(ball.getPosition().x, ball.getPosition().y)) {
-				return Parameters.waterFrictionAcceleration;
-			}
-		}
-
-		// If the ball is in sand region
-		for (int i = 0; i < gameData.getSandList().size(); ++i) {
-			if (gameData.getSandList().get(i).getBoundRect()
-					.contains(ball.getPosition().x, ball.getPosition().y)) {
-				return Parameters.sandFrictionAcceleration;
-			}
-		}
-
-		// Otherwise
-		return Parameters.grassFrictionAcceleration;
 	}
 
 	private void showFullBackground(Canvas canvas) {

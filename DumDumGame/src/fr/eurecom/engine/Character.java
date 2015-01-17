@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.DynamicBitmap;
+import fr.eurecom.dumdumgame.Obstacles;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
@@ -17,9 +18,7 @@ import android.graphics.Paint.Style;
 
 public class Character {
 	private Point position = new Point(0, 0);
-	private double acceleration;
-	private double initialVelocity;
-	private Ray direction;
+	private Point initialVelocity;
 	private motionState state;
 	private LinkedList<Point> trajectoryList;
 	private int positionIndex;
@@ -51,9 +50,8 @@ public class Character {
 
 	public Character(Point position) {
 		this.position = position;
-		this.acceleration = 0.0;
-		this.initialVelocity = 0.0;
-		this.direction = null;
+		//this.initialVelocity = 0.0;
+		this.initialVelocity = null;
 		this.setState(motionState.STANDING);
 		this.setTrajectoryList(null);
 		this.positionIndex = -1;
@@ -123,47 +121,33 @@ public class Character {
 
 	// TODO: change the Ray + initialVelocity into 1 variable presenting
 	// velocity
-	public void init(double acceleration, double initialVelocity, Ray direction) {
-		this.acceleration = acceleration;
+	public void init(Point initialVelocity) {
 		this.initialVelocity = initialVelocity;
-		this.direction = direction;
+		//this.direction = direction;
 		this.setState(motionState.MOVING);
 		this.positionIndex = 0;
 
-		Point initVelocity = new Point(0, 0);
-
-		initVelocity.x = this.direction.getSecondPoint().x
-				- this.direction.getRoot().x;
-		initVelocity.y = this.direction.getSecondPoint().y
-				- this.direction.getRoot().y;
-
-		this.setTrajectoryList(Game.getPhysics().computeTrajectory(position,
-				initVelocity));
+		this.setTrajectoryList(Game.getPhysics().computeTrajectory(position, initialVelocity));
 	}
 
 	// TODO: the name is not really appropriate, find another one!
-	public void bounce(Segment wall) {
+	public void bounce(Obstacles wall) {
 
-		Point initVelocity = new Point(0, 0);
+		// Update new Velocity for DumDum !!!!!!!!!!!!!!!!!!!!!!!!! New new, need to check here
+		//initialVelocity.x = this.direction.getSecondPoint().x - this.direction.getRoot().x;
 
-		initVelocity.x = this.direction.getSecondPoint().x
-				- this.direction.getRoot().x;
-		initVelocity.y = this.direction.getSecondPoint().y
-				- this.direction.getRoot().y;
 
 		// this.setTrajectoryList(physics.computeTrajectory(initVelocity,
 		// getCurrentPosition(), this.positionIndex, wall));
-		Point[] temp = Game.getPhysics().bouncing(initVelocity,
-				getCurrentPosition(), this.positionIndex, wall);
+		
+		Point[] temp = wall.interact(initialVelocity, getCurrentPosition(), this.positionIndex);
 
 		temp[1] = new Point((int) (temp[1].x), (int) (temp[1].y));
 
-		this.setTrajectoryList(Game.getPhysics().computeTrajectory(temp[0],
-				temp[1]));
+		this.setTrajectoryList(Game.getPhysics().computeTrajectory(temp[0], temp[1]));
 
 		// exhaust the ball
-		if (Math.abs(LastPost.x - temp[0].x) < delta
-				&& Math.abs(LastPost.y - temp[0].y) < delta)
+		if (Math.abs(LastPost.x - temp[0].x) < delta && Math.abs(LastPost.y - temp[0].y) < delta)
 			count++;
 		else
 			count = 0;
@@ -178,7 +162,7 @@ public class Character {
 		}
 
 		this.positionIndex = 0;
-		this.direction = new Ray(new Point(0, 0), temp[1]);
+		this.initialVelocity = temp[1];
 	}
 
 	public Point getPosition() {
@@ -203,8 +187,7 @@ public class Character {
 	}
 
 	public Point getCurrentPosition() {
-		if (this.getTrajectoryList() != null && this.positionIndex > -1
-				&& this.positionIndex < this.getTrajectoryList().size())
+		if (this.getTrajectoryList() != null && this.positionIndex > -1 && this.positionIndex < this.getTrajectoryList().size())
 			return this.getTrajectoryList().get(this.positionIndex);
 		return null;
 	}
@@ -217,12 +200,6 @@ public class Character {
 	}
 
 	public void show(Canvas canvas) {
-		// Paint paint = new Paint();
-		// paint.setStyle(Style.FILL_AND_STROKE);
-		// paint.setColor(Color.WHITE);
-		// canvas.drawCircle(position.x, position.y, Parameters.dBallRadius,
-		// paint);
-
 		this.allImg[motionState.MOVING.getValue()].show(canvas);
 		this.allImg[motionState.MOVING.getValue()].updateToTheNextImage();
 	}
@@ -339,26 +316,14 @@ public class Character {
 	// return new Character(points[1]);
 	// }
 
-	public double getInstantVelocity(double elapsedTime) {
-		if (!this.isRunning())
-			return 0.0;
-		return this.initialVelocity + this.acceleration * elapsedTime;
-	}
+//	public double getInstantVelocity(double elapsedTime) {
+//		if (!this.isRunning())
+//			return 0.0;
+//		return this.initialVelocity + this.acceleration * elapsedTime;
+//	}
 
 	public boolean isRunning() {
 		return (this.getState() == motionState.MOVING);
-	}
-
-	public Ray getCurrentDirection() {
-		return this.direction;
-	}
-
-	public double getCurrentAcceleration() {
-		return this.acceleration;
-	}
-
-	public double getInitialVelocity() {
-		return this.initialVelocity;
 	}
 
 	public boolean projectOn(Line line) throws Exception {
@@ -372,8 +337,7 @@ public class Character {
 	}
 
 	public void exhaustTheball() {
-		this.initialVelocity = 0.0;
-		this.direction = null;
+		this.initialVelocity = null;
 		this.setState(motionState.STANDING);
 	}
 

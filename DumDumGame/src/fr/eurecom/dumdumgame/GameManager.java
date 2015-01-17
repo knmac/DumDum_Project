@@ -22,19 +22,20 @@ public class GameManager {
 		MAIN_MENU(0), LOAD_MENU(1), MULTIPLAYER_MENU(2), SHOP_MENU(3), SETTING_MENU(
 				4), PAUSE_MENU(5), MSSG_BOX(6), CONGRAT_BOX(7), FINISH_LVL_MENU(
 				8), GEAR_UP_MENU(9), HOST_MENU(10), CLIENT_MENU(11), GAME(10);
-		private final int value;
+		
 
-		private GameState(int value) {
-			this.value = value;
-		}
-
-		public int getValue() {
-			return value;
-		}
-
+		// return number of Menus in our game states
 		public static int numMenu() {
 			// return 8;
 			return GameState.values().length - 1;
+		}
+		
+		private final int value;
+		private GameState(int value) {
+			this.value = value;
+		}
+		public int getValue() {
+			return value;
 		}
 	}
 
