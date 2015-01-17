@@ -198,7 +198,7 @@ public class Game {
 		}
 
 		// =========================================================================
-		if (ball.isRunning())
+		if (ball.isRunning()) // no interaction with DumDum while running
 			return;
 
 		mousePos.x -= background.getPosition().x;

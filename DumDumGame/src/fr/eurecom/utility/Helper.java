@@ -5,6 +5,7 @@ import fr.eurecom.engine.Line;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -58,4 +59,27 @@ public class Helper {
 		return m1;
 	}
 
+	// hue-range: [0, 360] -> Default = 0
+	public static void changeHue(Bitmap bitmap, float hue) {
+		Bitmap newBitmap = bitmap.copy(bitmap.getConfig(), true);
+		final int width = newBitmap.getWidth();
+		final int height = newBitmap.getHeight();
+		float[] hsv = new float[3];
+
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				int pixel = newBitmap.getPixel(x, y);
+				Color.colorToHSV(pixel, hsv);
+				hsv[0] = hue;
+				newBitmap.setPixel(x, y,
+						Color.HSVToColor(Color.alpha(pixel), hsv));
+			}
+		}
+
+		bitmap.recycle();
+//		bitmap = null;
+		bitmap = newBitmap;
+
+//		return newBitmap;
+	}
 }
