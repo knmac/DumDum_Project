@@ -14,6 +14,7 @@ import com.facebook.widget.FacebookDialog;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
 
+import fr.eurecom.dumdumgame.GameManager.GameState;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserReader;
 import fr.eurecom.utility.UserWriter;
@@ -132,15 +133,8 @@ public class MainActivity extends ActionBarActivity {
 		}
 
 		// Load sound track
-		GameManager.spMenu = MediaPlayer.create(this, Parameters.dMenuSoundtrack);
-		GameManager.spBackground = MediaPlayer.create(this, Parameters.dBackgroundSoundtrack);
-		GameManager.spVictory = MediaPlayer.create(this, Parameters.dVictorySoundtrack);
-
-		GameManager.spMenu.setLooping(true);
-		GameManager.spBackground.setLooping(true);
-		GameManager.spVictory.setLooping(false);
-		
-		
+		GameManager.initSound();
+		GameManager.checkSound();
 		GameManager.prepareGame(new GameView(this), GameManager.screenSize, GameManager.user);
 		
 		//------------------------------------------------------------------------
@@ -225,16 +219,18 @@ public class MainActivity extends ActionBarActivity {
 	protected void onPause() {
 		// TODO Implement onPause functions
 		super.onPause();
-		//for facebook
-		uiHelper.onPause();
+		
+		GameManager.soundOff();
+		uiHelper.onPause();//for facebook
 	}
 	
 	@Override
 	protected void onResume() {
 		// TODO Implement onResume function
 		super.onResume();
-		//for facebook
-		uiHelper.onResume();
+		
+		GameManager.soundOn();		
+		uiHelper.onResume(); //for facebook
 	}
 
 	//for facebook

@@ -100,8 +100,7 @@ public class Parameters {
 	static public void initParameters(Rect screen) throws Exception {
 		Resources res = App.getMyContext().getResources();
 
-		// Step
-		// 1--------------------------------------------------------------------------
+		// Step 1-------------------------------------------------------------
 		bmpBtnReturn = BitmapFactory.decodeResource(res, R.drawable.back_btn);
 		bmpTransparent = BitmapFactory.decodeResource(res,
 				R.drawable.transparent);
@@ -114,18 +113,6 @@ public class Parameters {
 		bmpCongrat = BitmapFactory.decodeResource(res,
 				R.drawable.congratulation);
 
-		posScoreList = new Point[10];
-		posScoreList[0] = new Point(65, 155);
-		posScoreList[1] = new Point(110, 155);
-		posScoreList[2] = new Point(160, 155);
-		posScoreList[3] = new Point(206, 155);
-		posScoreList[4] = new Point(252, 155);
-		posScoreList[5] = new Point(65, 200);
-		posScoreList[6] = new Point(110, 200);
-		posScoreList[7] = new Point(160, 200);
-		posScoreList[8] = new Point(206, 200);
-		posScoreList[9] = new Point(252, 200);
-
 		bmpTextureWall = BitmapFactory.decodeResource(res, R.drawable.block);
 		bmpTextureScenery = BitmapFactory.decodeResource(res,
 				R.drawable.background);
@@ -136,8 +123,7 @@ public class Parameters {
 		bmpMicrowave = BitmapFactory.decodeResource(res, R.drawable.microwave);
 		resource = res;
 
-		// Step
-		// 2---------------------------------------------------------------------------
+		// Step 2--------------------------------------------------------
 		dMaxWidth = screen.width();
 		dMaxHeight = screen.height();
 
@@ -186,21 +172,15 @@ public class Parameters {
 				R.drawable.dumdum_normal_big);
 		bmpDumDumAngel = BitmapFactory.decodeResource(res,
 				R.drawable.dumdum_angel_big);
-		
+
 		// resize DumDum
 		sizeDumDum.y = dBallRadius * 5 / 2;
-		sizeDumDum.x = sizeDumDum.y * bmpDumDumNormal.getWidth() / bmpDumDumNormal.getHeight();
+		sizeDumDum.x = sizeDumDum.y * bmpDumDumNormal.getWidth()
+				/ bmpDumDumNormal.getHeight();
 		pivotDumDum.x = sizeDumDum.x / 60;
 		pivotDumDum.y = sizeDumDum.y * 3 / 10;
 
 		dConveyorWidth = dZoomParam;
 		dTeleRadius = 2 * dBallRadius;
 	}
-
-	// static public void resetMacro(int zoomParam, int ballRadius) {
-	// dZoomParam = zoomParam;
-	// dBallRadius = ballRadius;
-	// dConveyorWidth = dZoomParam;
-	// dTeleRadius = 2 * dBallRadius;
-	// }
 }

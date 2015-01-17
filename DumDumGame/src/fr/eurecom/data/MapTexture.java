@@ -8,9 +8,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+<<<<<<< HEAD:DumDumGame/src/fr/eurecom/data/MapTexture.java
 import fr.eurecom.dumdumgame.Obstacles;
 import fr.eurecom.dumdumgame.Platforms;
 import fr.eurecom.engine.Game.ObstacleIdx;
+=======
+import fr.eurecom.engine.Candy;
+>>>>>>> 3c2b147df562ab398e4d9fc532d7548b68457da9:DumDumGame/src/fr/eurecom/utility/MapReader.java
 import fr.eurecom.engine.Polygon;
 import fr.eurecom.engine.Segment;
 import fr.eurecom.utility.Parameters;
@@ -24,6 +28,7 @@ import android.util.Log;
 public class MapTexture {
 	private LinkedList<Segment> conveyorList = new LinkedList<Segment>();
 	private LinkedList<Point> teleporterList = new LinkedList<Point>();
+	private LinkedList<Candy> candyList = new LinkedList<Candy>();
 	private LinkedList<Polygon> wallList = new LinkedList<Polygon>();
 	private LinkedList<Polygon> internalWallList = new LinkedList<Polygon>();
 	private LinkedList<Polygon> grassList = new LinkedList<Polygon>();
@@ -323,6 +328,14 @@ public class MapTexture {
 		return holePos;
 	}
 
+	public LinkedList<Candy> getCandyList() {
+		return candyList;
+	}
+
+	public void setCandyList(LinkedList<Candy> candyList) {
+		this.candyList = candyList;
+	}
+
 	private Point ZoomPoint(Point p, int zoomParam) {
 		return new Point(p.x * zoomParam, p.y * zoomParam);
 	}
@@ -383,6 +396,11 @@ public class MapTexture {
 				waterList.get(i).getPoints().get(j).set(point.x, point.y);
 			}
 		}
+
+		for (int i = 0; i < candyList.size(); ++i) {
+			Point point = ZoomPoint(candyList.get(i).getPos(), zoomParam);
+			candyList.get(i).getPos().set(point.x, point.y);
+		}
 	}
 
 	private Point ShiftPoint(Point p, int shiftParam) {
@@ -440,6 +458,11 @@ public class MapTexture {
 				waterList.get(i).getPoints().get(j).set(point.x, point.y);
 			}
 		}
+		
+		for (int i = 0; i < candyList.size(); ++i) {
+			Point point = ShiftPoint(candyList.get(i).getPos(), shiftParam);
+			candyList.get(i).getPos().set(point.x, point.y);
+		}
 	}
 
 	private Segment ReadSegment(BufferedReader reader) throws IOException {
@@ -463,6 +486,7 @@ public class MapTexture {
 		return myPolygon;
 	}
 
+<<<<<<< HEAD:DumDumGame/src/fr/eurecom/data/MapTexture.java
 //	public static class SegmentComparable implements Comparator<Segment> {
 //		@Override
 //		public int compare(Segment a, Segment b) {
@@ -476,6 +500,149 @@ public class MapTexture {
 //			return 0;
 //		}
 //	}
+=======
+	private Candy ReadCandy(BufferedReader reader) throws IOException {
+		String[] arr;
+		arr = reader.readLine().split(" ");
+
+		Point pos = new Point(Integer.parseInt(arr[0]),
+				Integer.parseInt(arr[1]));
+		Candy myCandy = new Candy(pos, Integer.parseInt(arr[2]));
+
+		return myCandy;
+	}
+
+	public MapReader(int fileID) {
+		try {
+			String[] arr;
+			InputStream inputStream = Parameters.resource
+					.openRawResource(fileID);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					inputStream));
+			int n;
+
+			// read rain status
+			if (Integer.parseInt(reader.readLine()) == 1)
+				rain = true;
+			else
+				rain = false;
+
+			// read start pos
+			arr = reader.readLine().split(" ");
+			startPos = new Point(Integer.parseInt(arr[0]),
+					Integer.parseInt(arr[1]));
+
+			// read hole pos
+			arr = reader.readLine().split(" ");
+			holePos = new Point(Integer.parseInt(arr[0]),
+					Integer.parseInt(arr[1]));
+
+			/************* for engine ***************/
+			// read reflector pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				// addtoReflectorList(ReadSegment(reader)); // LHAn: new
+				// version, sort the ReflectorList when creating it
+				reflectorList.add(ReadSegment(reader)); // LHAn: old version
+			}
+
+			// read conveyor pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				conveyorList.add(ReadSegment(reader));
+			}
+
+			// read teleporter pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				arr = reader.readLine().split(" ");
+				teleporterList.add(new Point(Integer.parseInt(arr[0]), Integer
+						.parseInt(arr[1])));
+			}
+
+			/************* for graphic ***************/
+			// read wall pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				wallList.add(ReadPolygon(reader));
+			}
+
+			// read internal wall pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				internalWallList.add(ReadPolygon(reader));
+			}
+
+			// read grass pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				grassList.add(ReadPolygon(reader));
+			}
+
+			// read sand pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				sandList.add(ReadPolygon(reader));
+			}
+
+			// read water pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				waterList.add(ReadPolygon(reader));
+			}
+
+			// read candy pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				candyList.add(ReadCandy(reader));
+			}
+
+			// Shift map downward 1 to nullify negative number
+			ShiftAll(1);
+
+			// zoom
+			ZoomAll(Parameters.dZoomParam);
+
+			// Shift map downward to move the map to the center
+			ShiftAll(Parameters.dShiftParam);
+
+			expandMapBound();
+
+			Collections.sort(reflectorList, new SegmentComparable());
+
+			reader.close();
+		} catch (Exception ex) {
+			Log.e("Map Reader", ex.getMessage());
+		}
+	}
+
+	private void expandMapBound() {
+		for (int i = 0; i < reflectorList.size(); i++) {
+			mapBottomRight.x = reflectorList.get(i).getFirstPoint().x > mapBottomRight.x ? reflectorList
+					.get(i).getFirstPoint().x : mapBottomRight.x;
+			mapBottomRight.y = reflectorList.get(i).getFirstPoint().y > mapBottomRight.y ? reflectorList
+					.get(i).getFirstPoint().y : mapBottomRight.y;
+			mapBottomRight.x = reflectorList.get(i).getSecondPoint().x > mapBottomRight.x ? reflectorList
+					.get(i).getSecondPoint().x : mapBottomRight.x;
+			mapBottomRight.y = reflectorList.get(i).getSecondPoint().y > mapBottomRight.y ? reflectorList
+					.get(i).getSecondPoint().y : mapBottomRight.y;
+		}
+	}
+
+	public static class SegmentComparable implements Comparator<Segment> {
+		@Override
+		public int compare(Segment a, Segment b) {
+			int aX = a.getFirstPoint().x;
+			int bX = b.getFirstPoint().x;
+
+			if (aX > bX)
+				return 1;
+			else if (aX < bX)
+				return -1;
+			return 0;
+		}
+	}
+>>>>>>> 3c2b147df562ab398e4d9fc532d7548b68457da9:DumDumGame/src/fr/eurecom/utility/MapReader.java
 
 	public void Show(Canvas canvas) {
 		// Show outer walls
@@ -501,6 +668,10 @@ public class MapTexture {
 		for (int i = 0; i < this.waterList.size(); ++i) {
 			this.waterList.get(i).FillWithImage(Parameters.bmpWater, canvas);
 		}
+		// Show candies
+		for (int i = 0; i < this.candyList.size(); ++i) {
+			this.candyList.get(i).show(canvas);
+		}
 		//
 		// for(Segment tmp : reflectorList) {
 		// System.out.println(reflectorList.indexOf(tmp));
@@ -519,4 +690,5 @@ public class MapTexture {
 		 * canvas.drawCircle(hole.x, hole.y, holeRadius, new Paint());
 		 */
 	}
+
 }

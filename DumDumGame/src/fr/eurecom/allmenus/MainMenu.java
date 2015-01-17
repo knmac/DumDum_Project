@@ -6,8 +6,11 @@ import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.R;
+import fr.eurecom.dumdumgame.YoutubeActivity;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
@@ -16,11 +19,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.util.Log;
+import android.widget.Toast;
 
 public class MainMenu extends BaseMenu {
 	// variables
 	private enum ButtonID {
-		SINGLEPLAYER, MULTIPLAYER, SHOP, SETTING, EXIT
+		SINGLEPLAYER, MULTIPLAYER, SHOP, STORY, INFO, EXIT
 	};
 
 	public MainMenu(DynamicBitmap bmpBackground) {
@@ -29,7 +34,8 @@ public class MainMenu extends BaseMenu {
 		Bitmap bmp;
 		int w, h;
 		Point pos;
-		int smallSize = Parameters.dZoomParam * 3;
+		int btnSize = Parameters.dZoomParam * 2;
+		Button btn;
 
 		// Single PLayer Button
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
@@ -38,61 +44,48 @@ public class MainMenu extends BaseMenu {
 		w = h * bmp.getWidth() / bmp.getHeight();
 		pos = new Point(Parameters.dMaxWidth / 4 - w / 2, Parameters.dMaxHeight
 				* 3 / 5 - h / 2);
-		Button btnSinglePlayer = new Button(ButtonID.SINGLEPLAYER, bmp, pos, w,
-				h);
-		AddButton(btnSinglePlayer);
+		btn = new Button(ButtonID.SINGLEPLAYER, bmp, pos, w, h);
+		AddButton(btn);
 
 		// MultipLayer Button
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.multi_player);
 		pos = new Point(Parameters.dMaxWidth * 3 / 4 - w / 2,
 				Parameters.dMaxHeight * 3 / 5 - h / 2);
-		Button btnMultiPlayer = new Button(ButtonID.MULTIPLAYER, bmp, pos, w, h);
-		AddButton(btnMultiPlayer);
+		btn = new Button(ButtonID.MULTIPLAYER, bmp, pos, w, h);
+		AddButton(btn);
 
 		// Shop Button
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.shop);
-		pos = new Point(smallSize / 2, Parameters.dMaxHeight - smallSize * 5
-				/ 4);
-		Button btnShop = new Button(ButtonID.SHOP, bmp, pos, smallSize,
-				smallSize);
-		AddButton(btnShop);
+		pos = new Point(btnSize / 2, Parameters.dMaxHeight - btnSize * 5 / 4);
+		btn = new Button(ButtonID.SHOP, bmp, pos, btnSize, btnSize);
+		AddButton(btn);
 
-		// Setting Button
+		// Story Button
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
-				R.drawable.setting);
-		pos = new Point((Parameters.dMaxWidth - smallSize) / 2,
-				Parameters.dMaxHeight - smallSize * 5 / 4);
-		Button btnSetting = new Button(ButtonID.SETTING, bmp, pos, smallSize,
-				smallSize);
-		AddButton(btnSetting);
+				R.drawable.book);
+		pos = new Point(Parameters.dMaxWidth / 3 - btnSize / 6,
+				Parameters.dMaxHeight - btnSize * 5 / 4);
+		btn = new Button(ButtonID.STORY, bmp, pos, btnSize, btnSize);
+		AddButton(btn);
+
+		// Info Button
+		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
+				R.drawable.info);
+		pos = new Point(Parameters.dMaxWidth * 2 / 3 - btnSize * 5 / 6,
+				Parameters.dMaxHeight - btnSize * 5 / 4);
+		btn = new Button(ButtonID.INFO, bmp, pos, btnSize, btnSize);
+		AddButton(btn);
 
 		// Exit Button
 		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
 				R.drawable.exit);
-		pos = new Point(Parameters.dMaxWidth - smallSize * 3 / 2,
-				Parameters.dMaxHeight - smallSize * 5 / 4);
-		Button btnExit = new Button(ButtonID.EXIT, bmp, pos, smallSize,
-				smallSize);
-		AddButton(btnExit);
+		pos = new Point(Parameters.dMaxWidth - btnSize * 3 / 2,
+				Parameters.dMaxHeight - btnSize * 5 / 4);
+		btn = new Button(ButtonID.EXIT, bmp, pos, btnSize, btnSize);
+		AddButton(btn);
 	}
-
-	// public void Show(Canvas canvas, String current_user, int current_level) {
-	// super.Show(canvas);
-
-	// show current user
-	// if (current_user != null) {
-	// Paint paint = new Paint();
-	// paint.setTextSize(20);
-	// paint.setColor(Color.WHITE);
-	// paint.setAlpha(100);
-	// paint.setTypeface(Typeface.DEFAULT_BOLD);
-	// Helper.drawTextWithMultipleLines(canvas, "Welcome, " + current_user
-	// + "\nYou were playing level " + current_level, new Point(
-	// 10, Parameters.dMaxHeight - 40), paint);
-	// }
-	// }
 
 	@Override
 	public boolean Action(Point p, Object o) {
@@ -102,32 +95,23 @@ public class MainMenu extends BaseMenu {
 			return false;
 
 		switch (ResultButtonID) {
-		// case START:
-		// CallStart(o);
-		// break;
 		case SINGLEPLAYER:
-			CallSinglePlayer(o);
+			CallSinglePlayer();
 			break;
 		case MULTIPLAYER:
 			CallMultiPlayer();
 			break;
-		// case USER:
-		// CallUser(o);
-		// break;
-		// case HIGHSCORE:
-		// CallHighscore(o);
-		// break;
-		// case HELP:
-		// CallHelp(o);
-		// break;
-		case SETTING:
-			CallSetting();
+		case STORY:
+			CallStory();
+			break;
+		case INFO:
+			CallInfo();
 			break;
 		case SHOP:
 			CallShop();
 			break;
 		case EXIT:
-			CallExit(o);
+			CallExit();
 			break;
 		default:
 			return false;
@@ -136,12 +120,7 @@ public class MainMenu extends BaseMenu {
 		return true;
 	}
 
-	// private void CallStart(Object o) {
-	// ((MainActivity) o).setState(MainActivity.StateList.START_MENU);
-	// ((MainActivity) o).getMainView().invalidate();
-	// }
-
-	private void CallSinglePlayer(Object o) {
+	private void CallSinglePlayer() {
 		GameManager.setCurrentState(GameManager.GameState.LOAD_MENU);
 		GameManager.mainView.invalidate();
 	}
@@ -151,33 +130,29 @@ public class MainMenu extends BaseMenu {
 		GameManager.mainView.invalidate();
 	}
 
-	// private void CallUser(Object o) {
-	// ((MainActivity) o).setState(MainActivity.StateList.USER_MENU);
-	// ((MainActivity) o).getMainView().invalidate();
-	// }
-	//
-	// private void CallHighscore(Object o) {
-	// ((MainActivity) o).setState(MainActivity.StateList.HIGH_SCORE_MENU);
-	// ((MainActivity) o).getMainView().invalidate();
-	// }
-	//
-	// private void CallHelp(Object o) {
-	// ((MainActivity) o).setState(MainActivity.StateList.HELP_MENU);
-	// ((MainActivity) o).getMainView().invalidate();
-	// }
-
 	private void CallShop() {
 		GameManager.setCurrentState(GameManager.GameState.SHOP_MENU);
 		GameManager.mainView.invalidate();
 	}
 
-	private void CallSetting() {
-		GameManager.setCurrentState(GameManager.GameState.SETTING_MENU);
+	private void CallStory() {
+		GameManager.flushSound();
+		Intent intent = new Intent(App.getMyContext(), YoutubeActivity.class);
+		App.getMyContext().startActivity(intent);
+	}
+
+	private void CallInfo() {
+		GameManager.setCurrentState(GameManager.GameState.INFO_MENU);
 		GameManager.mainView.invalidate();
 	}
 
-	private void CallExit(Object o) {
+	private void CallExit() {
 		GameManager.flushSound();
-		((MainActivity) o).shutdownApp(); // TODO!!
+		try {
+			((MainActivity) App.getMyContext()).shutdownApp();
+		} catch (Exception e) {
+			Log.i("EXIT ERROR", e.getMessage().toString());
+			Toast.makeText(App.getMyContext(), e.getMessage().toString(), Toast.LENGTH_LONG).show();
+		}
 	}
 }

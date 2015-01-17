@@ -143,11 +143,11 @@ public class Game {
 
 		// TODO: BOUNCING SOUND
 		bloibs = new MediaPlayer[3];
-		// for (int i = 0; i < bloibs.length; ++i) {
-		// bloibs[i] = MediaPlayer.create((MainActivity) o,
-		// Parameters.dBloibSound);
-		// bloibs[i].setLooping(false);
-		// }
+		for (int i = 0; i < bloibs.length; ++i) {
+			bloibs[i] = MediaPlayer.create(App.getMyContext(),
+					Parameters.dBloibSound);
+			bloibs[i].setLooping(false);
+		}
 		bloibIndex = 0;
 
 		// Create hearts
@@ -230,7 +230,7 @@ public class Game {
 		}
 
 		// =========================================================================
-		if (ball.isRunning())
+		if (ball.isRunning()) // no interaction with DumDum while running
 			return;
 
 		mousePos.x -= background.getPosition().x;
@@ -424,6 +424,8 @@ public class Game {
 													// they have no meaning till
 													// this moment!!!
 			else if (obstacle != null && endGame == 0) {
+				bloibs[bloibIndex].start();
+				bloibIndex = bloibIndex == bloibs.length - 1 ? 0 : bloibIndex+1;
 				ball.bounce(obstacle);
 				ball.update(elapsedTime, quantum);
 			}

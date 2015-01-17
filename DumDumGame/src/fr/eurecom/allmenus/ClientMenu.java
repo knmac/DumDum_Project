@@ -2,6 +2,7 @@ package fr.eurecom.allmenus;
 
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.UUID;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -79,8 +80,8 @@ public class ClientMenu extends BaseMenu {
 		Random rand = new Random();
 		for (int i = 0; i < 5; i++) {
 			HostData data = new HostData();
-			data.id = "aaskjasfhsfjgfjfa";
-			data.bet = Math.abs(rand.nextInt() % 10000) + 1;
+			data.id = (String) (UUID.randomUUID().toString()).split("-")[0]; // "aaskjasfhsfjgfjfa";
+			data.bet = (Math.abs(rand.nextInt() % 100) + 1) * 10;
 			data.level = Math.abs(rand.nextInt() % 8) + 1;
 
 			list.add(data);
@@ -155,7 +156,7 @@ public class ClientMenu extends BaseMenu {
 
 		if (ResultButtonID == null)
 			return false;
-		
+
 		if (ResultButtonID.intValue() == REFRESH) {
 			CallRefresh();
 			return true;
@@ -170,7 +171,7 @@ public class ClientMenu extends BaseMenu {
 		CallConnect(host);
 		return true;
 	}
-	
+
 	private void CallRefresh() {
 		this.hostList = ScanWifiDirect();
 		GameManager.mainView.invalidate();
@@ -182,8 +183,9 @@ public class ClientMenu extends BaseMenu {
 	}
 
 	private void CallConnect(HostData host) {
-		String str = host.id + "-" + host.bet + "-" + host.level;
-		Toast.makeText(App.getMyContext(), str, Toast.LENGTH_SHORT).show();
+		String str = "Connecting to" + host.id + "\nBet: " + host.bet
+				+ " candies\nLevel: " + host.level;
+		Toast.makeText(App.getMyContext(), str, Toast.LENGTH_LONG).show();
 	}
 
 }
