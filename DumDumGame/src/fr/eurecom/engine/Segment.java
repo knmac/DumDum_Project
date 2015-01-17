@@ -153,7 +153,17 @@ public class Segment implements Comparable<Segment> {
         Point first = new Point(firstPoint.x + offset.x, firstPoint.y + offset.y);
         Point second = new Point(secondPoint.x + offset.x, secondPoint.y + offset.y);
         Paint paint = new Paint();
-        paint.setColor(Color.YELLOW);
+        paint.setColor(Color.BLACK);
+        paint.setStrokeWidth(3);
+        canvas.drawLine(first.x, first.y, second.x, second.y, paint);
+    }
+    
+    public void show(Canvas canvas, Point offset, int color)
+    {       
+        Point first = new Point(firstPoint.x + offset.x, firstPoint.y + offset.y);
+        Point second = new Point(secondPoint.x + offset.x, secondPoint.y + offset.y);
+        Paint paint = new Paint();
+        paint.setColor(color);
         paint.setStrokeWidth(3);
         canvas.drawLine(first.x, first.y, second.x, second.y, paint);
     }

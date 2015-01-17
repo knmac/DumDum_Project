@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.Log;
 import fr.eurecom.engine.Game;
+import fr.eurecom.engine.Character;
 import fr.eurecom.engine.Segment;
 import fr.eurecom.utility.Parameters;
 
@@ -87,21 +88,22 @@ public class Platforms extends SupportiveObstacles {
 		}		
 	}
 
+//	@Override
+//	public LinkedList<Point> interact(Point initialVelocity, Point currentPosition, int currPosIdx) {
+//		return Game.getPhysics().bouncing(initialVelocity, currentPosition, currPosIdx, reflectorList.getFirst());
+//	}
 	@Override
-	public Point[] interact(Point initialVelocity, Point currentPosition, int currPosIdx) {
-		return Game.getPhysics().bouncing(initialVelocity, currentPosition, currPosIdx, reflectorList.getFirst());
+	public void interact(Character ball) {
+		Point[] temp = Game.getPhysics().bouncing(ball.getInitialVelocity(), ball.getCurrentPosition(), ball.getPositionIndex(), reflectorList.getFirst());
+		LinkedList<Point> newTraject = Game.getPhysics().computeTrajectory(temp[0], temp[1]);
+		ball.createNewMovement(newTraject, temp[1]);
 	}
 
 	// Show reflective surfaces
 	@Override
-	public void show(Canvas canvas) {		
+	public void show(Canvas canvas, Point offset) {		
 		for (int i = 0; i < this.reflectorList.size(); ++i) {
-			Point first = this.reflectorList.get(i).getFirstPoint();
-			Point second = this.reflectorList.get(i).getSecondPoint();
-			Paint paint = new Paint();
-			paint.setColor(Color.BLACK);
-			paint.setStrokeWidth(3);
-			canvas.drawLine(first.x, first.y, second.x, second.y, paint);
+			this.reflectorList.get(i).show(canvas, offset);
 		}		
 	}
 

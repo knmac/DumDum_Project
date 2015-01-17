@@ -107,7 +107,7 @@ public class Physics {
 			temp[0] = currentPosition;
 			temp[1] = currentVelocity;
 			
-			return temp;		
+			return temp;
 		}
 		
 		// get the new velocity by reflection rule and compute new trajectory

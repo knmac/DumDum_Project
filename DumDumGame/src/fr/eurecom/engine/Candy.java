@@ -75,22 +75,27 @@ public class Candy {
 		this.value = value;
 	}
 
-	public void show(Canvas canvas) {
+	public void show(Canvas canvas, Point offset) {
 		if (this.visible) {
-			Point imgPos = new Point(this.pos.x - candySize / 2, this.pos.y
-					- candySize / 2);
+			Point imgPos = new Point(this.pos.x - candySize / 2 + offset.x,
+					this.pos.y - candySize / 2 + offset.y);
 
 			candyImg.setPosition(imgPos);
 			candyImg.show(canvas);
 		}
 	}
-	
+
 	public void reset() {
 		this.visible = true;
 	}
-	
+
 	public int getEaten() {
 		this.visible = false;
 		return this.value;
+	}
+
+	public Boolean isOver(Point objPos, int range) {
+		return Helper.Point_GetDistanceFrom(objPos, this.pos) < range
+				+ this.candySize / 2 ? true : false;
 	}
 }

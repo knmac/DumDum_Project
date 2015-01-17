@@ -64,7 +64,7 @@ public class Game {
 	}
 
 public enum ObstacleIdx {
-		Platform(0), Blackhole(1), Spike(2), Conveyor(3), Batman(4);
+		Platform(0), Candy(1), Blackhole(2), Spike(3), Conveyor(4), Bat(5);
 		
 		// return number of obstacle types
 		public static int numObstacleType () {
@@ -108,7 +108,7 @@ public enum ObstacleIdx {
 		canvas.drawRect(0, 0, tmpBitmap.getWidth(), tmpBitmap.getHeight(),
 				paint);
 		gameData.Show(canvas);
-		obstacleList[ObstacleIdx.Platform.getValue()].show(canvas); // TODO TEST!!
+		//obstacleList[ObstacleIdx.Platform.getValue()].show(canvas); // TODO Originally here, but moved to Game.Show()
 
 		background = new Map(tmpBitmap, new Point(0, 0), new Rect(0, 0,
 				Parameters.dMaxWidth, Parameters.dMaxHeight));
@@ -309,10 +309,15 @@ public enum ObstacleIdx {
 			++endGame;
 			return null;
 		}
+		
+		
+		
+		
+		return obstacleList[ObstacleIdx.Platform.getValue()].ballInRange(next,
+				current, ball.getTrajectoryList().getFirst(), ball
+						.getTrajectoryList().getLast());
 
-		return obstacleList[ObstacleIdx.Platform.getValue()].ballInRange(next, current, ball.getTrajectoryList().getFirst(), ball.getTrajectoryList().getLast());
-
-/*for (int i = 0; i < reflectorList_len; ++i) {
+		/*for (int i = 0; i < reflectorList_len; ++i) {
 			Segment currentReflector = gameData.getReflectorList().get(i);
 
 			if (ball.getTrajectoryList().getFirst().x < currentReflector
@@ -387,8 +392,11 @@ public enum ObstacleIdx {
 	}
 
 	public void show(Canvas canvas) throws Exception {
+		
 		// Show background
 		showBackground(canvas);
+		obstacleList[ObstacleIdx.Platform.getValue()].show(canvas, background.getPosition());
+		obstacleList[ObstacleIdx.Candy.getValue()].show(canvas, background.getPosition()); 
 
 		if (--updateCounter <= -1)
 			updateCounter = Parameters.updatePeriod;
@@ -511,7 +519,8 @@ public enum ObstacleIdx {
 			else if (obstacle != null && endGame == 0) {
 				bloibs[bloibIndex].start();
 				bloibIndex = bloibIndex == bloibs.length - 1 ? 0 : bloibIndex+1;
-				ball.bounce(obstacle);
+//				ball.bounce(obstacle);
+				obstacle.interact(ball);
 				ball.update(elapsedTime, quantum);
 			}
 

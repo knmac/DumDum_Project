@@ -1,45 +1,73 @@
 package fr.eurecom.dumdumgame;
 
+import java.util.LinkedList;
+
+import fr.eurecom.engine.Candy;
+import fr.eurecom.engine.Character;
+import fr.eurecom.engine.Segment;
+import fr.eurecom.utility.Parameters;
 import android.graphics.Canvas;
 import android.graphics.Point;
+import android.util.Log;
 
 public class Candies extends SupportiveObstacles {
+	LinkedList<Candy> candyList = new LinkedList<Candy>();
+
+	public Candies() {
+	}
+
+	private Candies(Candy aCandy) {
+		candyList.add(aCandy);
+	}
 
 	@Override
 	protected void readData(Object data) {
-		// TODO Auto-generated method stub
-		
+		// TODO check data of exactly type LinkedList<Segment>. How?
+		try {
+			this.candyList = (LinkedList<Candy>) data;
+		} catch (ClassCastException e) {
+			Log.e("ERROR", "Type cast error in class Platform", e);
+		}
 	}
 
 	@Override
 	protected void zoom(int zoomFactor) {
-		// TODO Auto-generated method stub
-
+		for (int i = 0; i < candyList.size(); ++i) {
+			Point point = ZoomPoint(candyList.get(i).getPos(), zoomFactor);
+			candyList.get(i).getPos().set(point.x, point.y);
+		}
 	}
 
 	@Override
 	protected void shift(int shiftDisplacement) {
-		// TODO Auto-generated method stub
-
+		for (int i = 0; i < candyList.size(); ++i) {
+			Point point = ShiftPoint(candyList.get(i).getPos(),
+					shiftDisplacement);
+			candyList.get(i).getPos().set(point.x, point.y);
+		}
 	}
 
 	@Override
-	public Point[] interact(Point initVelocity, Point currentPosition,
-			int currPosIdx) {
+	public void interact(Character ball) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
-	public void show(Canvas canvas) {
-		// TODO Auto-generated method stub
-
+	public void show(Canvas canvas, Point offset) {
+		for (int i = 0; i < this.candyList.size(); ++i) {
+			this.candyList.get(i).show(canvas, offset);
+		}
 	}
 
 	@Override
 	public Obstacles ballInRange(Point posToBeChecked, Point pastPosition,
 			Point rangeStart, Point rangeEnd) {
 		// TODO Auto-generated method stub
+		for (Candy candy : candyList) {
+			if (candy.isOver(pastPosition, Parameters.dBallRadius))
+				return new Candies(candy);
+		}
+
 		return null;
 	}
 

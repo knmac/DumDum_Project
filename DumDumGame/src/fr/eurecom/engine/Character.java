@@ -131,7 +131,7 @@ public class Character {
 	}
 
 	// TODO: the name is not really appropriate, find another one!
-	public void bounce(Obstacles wall) {
+	public void createNewMovement(LinkedList<Point> newTrajectory, Point iniVelocity) {
 
 		// Update new Velocity for DumDum !!!!!!!!!!!!!!!!!!!!!!!!! New new, need to check here
 //		initialVelocity.x = this.direction.getSecondPoint().x
@@ -142,29 +142,29 @@ public class Character {
 		
 		
 		
-		Point[] temp = wall.interact(initialVelocity, getCurrentPosition(), this.positionIndex);
+		//Point[] temp = wall.interact(initialVelocity, getCurrentPosition(), this.positionIndex);
 
-		temp[1] = new Point((int) (temp[1].x), (int) (temp[1].y));
+		//temp[1] = new Point((int) (temp[1].x), (int) (temp[1].y));
 
-		this.setTrajectoryList(Game.getPhysics().computeTrajectory(temp[0], temp[1]));
+		this.setTrajectoryList(newTrajectory);
 
 		// exhaust the ball
-		if (Math.abs(LastPost.x - temp[0].x) < delta && Math.abs(LastPost.y - temp[0].y) < delta)
+		if (Math.abs(LastPost.x - newTrajectory.getFirst().x) < delta && Math.abs(LastPost.y - newTrajectory.getFirst().y) < delta)
 			count++;
 		else
 			count = 0;
 
-		LastPost.x = temp[0].x;
-		LastPost.y = temp[0].y;
+		LastPost.x = newTrajectory.getFirst().x;
+		LastPost.y = newTrajectory.getFirst().y;
 
-		if (count == 10 || temp[1].y == 0) {
+		if (count == 10 || iniVelocity.y == 0) {
 			setState(motionState.STANDING);
-			position = temp[0];
+			position = newTrajectory.getFirst();
 			count = 0;
 		}
 
 		this.positionIndex = 0;
-		this.initialVelocity = temp[1];
+		this.initialVelocity = iniVelocity;
 	}
 
 	public Point getPosition() {
@@ -406,4 +406,13 @@ public class Character {
 
 		}
 	}
+
+	public Point getInitialVelocity() {
+		return initialVelocity;
+	}
+
+	public int getPositionIndex() {
+		return positionIndex;
+	}
+
 }

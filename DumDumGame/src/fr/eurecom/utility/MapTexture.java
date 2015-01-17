@@ -7,7 +7,9 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
+
 import fr.eurecom.engine.Candy;
+import fr.eurecom.dumdumgame.Candies;
 import fr.eurecom.dumdumgame.Obstacles;
 import fr.eurecom.dumdumgame.Platforms;
 import fr.eurecom.engine.Game.ObstacleIdx;
@@ -22,10 +24,9 @@ import android.graphics.Shader.TileMode;
 import android.util.Log;
 
 public class MapTexture {
-	//private LinkedList<Segment> reflectorList = new LinkedList<Segment>();
+	// private LinkedList<Segment> reflectorList = new LinkedList<Segment>();
 	private LinkedList<Segment> conveyorList = new LinkedList<Segment>();
 	private LinkedList<Point> teleporterList = new LinkedList<Point>();
-	private LinkedList<Candy> candyList = new LinkedList<Candy>();
 	private LinkedList<Polygon> wallList = new LinkedList<Polygon>();
 	private LinkedList<Polygon> internalWallList = new LinkedList<Polygon>();
 	private LinkedList<Polygon> grassList = new LinkedList<Polygon>();
@@ -36,6 +37,7 @@ public class MapTexture {
 	private Point holePos = new Point(0, 0);
 	private Point mapBottomRight = new Point(Integer.MIN_VALUE,
 			Integer.MIN_VALUE);
+
 	public MapTexture(int fileID) {
 		try {
 			String[] arr;
@@ -47,6 +49,8 @@ public class MapTexture {
 
 			// create temporary variable to read from files
 			LinkedList<Segment> reflectorList = new LinkedList<Segment>();
+			LinkedList<Candy> candyList = new LinkedList<Candy>();
+
 			// start reading data
 			// read rain status
 			if (Integer.parseInt(reader.readLine()) == 1)
@@ -133,9 +137,9 @@ public class MapTexture {
 			// Shift map downward to move the map to the center
 			ShiftAll(Parameters.dShiftParam);
 
-			//expandMapBound();
+			// expandMapBound();
 
-			//Collections.sort(reflectorList, new SegmentComparable());
+			// Collections.sort(reflectorList, new SegmentComparable());
 
 			reader.close();
 		} catch (Exception ex) {
@@ -143,28 +147,39 @@ public class MapTexture {
 		}
 	}
 
-public Obstacles[] readMapData(int fileID) {
+	public Obstacles[] readMapData(int fileID) {
 		Obstacles[] obstacleList = null;
 		try {
 			String[] arr;
-			InputStream inputStream = Parameters.resource.openRawResource(fileID);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+			InputStream inputStream = Parameters.resource
+					.openRawResource(fileID);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					inputStream));
 			int n;
-			
-			
+			Object a;
+
 			// create temporary variable to read from files
 			LinkedList<Segment> reflectorList = new LinkedList<Segment>();
+			LinkedList<Candy> candyList = new LinkedList<Candy>();
 			
+			
+			LinkedList<Segment> conveyorList = new LinkedList<Segment>();
+			LinkedList<Point> teleporterList = new LinkedList<Point>();
+			LinkedList<Polygon> wallList = new LinkedList<Polygon>();
+			LinkedList<Polygon> internalWallList = new LinkedList<Polygon>();
+			LinkedList<Polygon> grassList = new LinkedList<Polygon>();
+			LinkedList<Polygon> sandList = new LinkedList<Polygon>();
+			LinkedList<Polygon> waterList = new LinkedList<Polygon>();
 
 			// start reading data
 			// read rain status
-			reader.readLine();
+			a = reader.readLine();
 
 			// read start pos
-			reader.readLine();
+			a = reader.readLine();
 
 			// read hole pos
-			reader.readLine();
+			a = reader.readLine();
 
 			/************* for engine ***************/
 			// read reflector pos
@@ -172,12 +187,12 @@ public Obstacles[] readMapData(int fileID) {
 			for (int i = 0; i < n; ++i) {
 				reflectorList.add(ReadSegment(reader)); // LHAn: old version
 			}
-			
+
 			// read conveyor pos
-			reader.readLine();
+			a = reader.readLine();
 
 			// read teleporter pos
-			reader.readLine();
+			a = reader.readLine();
 
 			/************* for graphic ***************/
 			// read wall pos
@@ -193,62 +208,82 @@ public Obstacles[] readMapData(int fileID) {
 			}
 
 			// read grass pos
-			reader.readLine();
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				grassList.add(ReadPolygon(reader));
+			}
 
 			// read sand pos
-			reader.readLine();
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				sandList.add(ReadPolygon(reader));
+			}
 
 			// read water pos
-			reader.readLine();
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				waterList.add(ReadPolygon(reader));
+			}
+
+			// read candy pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				candyList.add(ReadCandy(reader));
+			}
 
 			// Shift map downward 1 to nullify negative number
 
 			// zoom
 
-			// Shift map downward to move the map to the center			
-			
+			// Shift map downward to move the map to the center
 
 			reader.close();
-			
-			
+
 			obstacleList = new Obstacles[ObstacleIdx.numObstacleType()];
+			obstacleList[ObstacleIdx.Candy.getValue()] = new Candies();
+			obstacleList[ObstacleIdx.Candy.getValue()].addData(candyList,
+					Parameters.dZoomParam, Parameters.dShiftParam);
 			obstacleList[ObstacleIdx.Platform.getValue()] = new Platforms();
-			obstacleList[ObstacleIdx.Platform.getValue()].addData(reflectorList, Parameters.dZoomParam, Parameters.dShiftParam);
-			mapBottomRight = ((Platforms)(obstacleList[ObstacleIdx.Platform.getValue()])).getBottomRight();
+			obstacleList[ObstacleIdx.Platform.getValue()].addData(
+					reflectorList, Parameters.dZoomParam,
+					Parameters.dShiftParam);
+			mapBottomRight = ((Platforms) (obstacleList[ObstacleIdx.Platform
+					.getValue()])).getBottomRight();
 
 		} catch (Exception ex) {
 			Log.e("Map Reader", ex.getMessage());
 		}
-		
+
 		return obstacleList;
-		
+
 	}
+
 	public Point getMapBottomRight() {
 		return mapBottomRight;
 	}
 
-//	// public void setReflectorList(LinkedList<Segment> reflectorList) {
-//	// this.reflectorList = reflectorList;
-//	// }
-//
-//	// make sure everytime a reflectorList is created, this function must be
-//	// called
-//	public void addtoReflectorList(Segment reflector) {
-//		for (int i = 0; i < this.reflectorList.size(); ++i)
-//			if ((this.reflectorList.get(i).getFirstPoint().x > reflector
-//					.getFirstPoint().x)
-//					|| (this.reflectorList.get(i).getFirstPoint().x == reflector
-//							.getFirstPoint().x && this.reflectorList.get(i)
-//							.getFirstPoint().y > reflector.getFirstPoint().y)) {
-//				this.reflectorList.add(i, reflector);
-//				return;
-//			}
-//		reflectorList.addLast(reflector);
-//	}
+	// // public void setReflectorList(LinkedList<Segment> reflectorList) {
+	// // this.reflectorList = reflectorList;
+	// // }
+	//
+	// // make sure everytime a reflectorList is created, this function must be
+	// // called
+	// public void addtoReflectorList(Segment reflector) {
+	// for (int i = 0; i < this.reflectorList.size(); ++i)
+	// if ((this.reflectorList.get(i).getFirstPoint().x > reflector
+	// .getFirstPoint().x)
+	// || (this.reflectorList.get(i).getFirstPoint().x == reflector
+	// .getFirstPoint().x && this.reflectorList.get(i)
+	// .getFirstPoint().y > reflector.getFirstPoint().y)) {
+	// this.reflectorList.add(i, reflector);
+	// return;
+	// }
+	// reflectorList.addLast(reflector);
+	// }
 
-/*	public LinkedList<Segment> getReflectorList() {
-		return reflectorList;
-	}*/
+	/*
+	 * public LinkedList<Segment> getReflectorList() { return reflectorList; }
+	 */
 
 	public void setConveyorList(LinkedList<Segment> conveyorList) {
 		this.conveyorList = conveyorList;
@@ -330,13 +365,13 @@ public Obstacles[] readMapData(int fileID) {
 		return holePos;
 	}
 
-	public LinkedList<Candy> getCandyList() {
-		return candyList;
-	}
-
-	public void setCandyList(LinkedList<Candy> candyList) {
-		this.candyList = candyList;
-	}
+	// public LinkedList<Candy> getCandyList() {
+	// return candyList;
+	// }
+	//
+	// public void setCandyList(LinkedList<Candy> candyList) {
+	// this.candyList = candyList;
+	// }
 
 	private Point ZoomPoint(Point p, int zoomParam) {
 		return new Point(p.x * zoomParam, p.y * zoomParam);
@@ -346,17 +381,17 @@ public Obstacles[] readMapData(int fileID) {
 		startPos = ZoomPoint(startPos, zoomParam);
 		holePos = ZoomPoint(holePos, zoomParam);
 
-		/*for (int i = 0; i < reflectorList.size(); ++i) {
-			Point zoomedFirst = ZoomPoint(reflectorList.get(i).getFirstPoint(),
-					zoomParam);
-			Point zoomedSecond = ZoomPoint(reflectorList.get(i)
-					.getSecondPoint(), zoomParam);
-			// reflectorList.get(i).setFirstPoint(ZoomPoint(reflectorList.get(i).getFirstPoint(),
-			// zoomParam));
-			// reflectorList.get(i).setSecondPoint(ZoomPoint(reflectorList.get(i).getSecondPoint(),
-			// zoomParam));
-			reflectorList.get(i).setPoints(zoomedFirst, zoomedSecond);
-		}*/
+		/*
+		 * for (int i = 0; i < reflectorList.size(); ++i) { Point zoomedFirst =
+		 * ZoomPoint(reflectorList.get(i).getFirstPoint(), zoomParam); Point
+		 * zoomedSecond = ZoomPoint(reflectorList.get(i) .getSecondPoint(),
+		 * zoomParam); //
+		 * reflectorList.get(i).setFirstPoint(ZoomPoint(reflectorList
+		 * .get(i).getFirstPoint(), // zoomParam)); //
+		 * reflectorList.get(i).setSecondPoint
+		 * (ZoomPoint(reflectorList.get(i).getSecondPoint(), // zoomParam));
+		 * reflectorList.get(i).setPoints(zoomedFirst, zoomedSecond); }
+		 */
 
 		for (int i = 0; i < conveyorList.size(); ++i) {
 			// conveyorList.get(i).setFirstPoint(ZoomPoint(conveyorList.get(i).getFirstPoint(),
@@ -411,10 +446,6 @@ public Obstacles[] readMapData(int fileID) {
 			}
 		}
 
-		for (int i = 0; i < candyList.size(); ++i) {
-			Point point = ZoomPoint(candyList.get(i).getPos(), zoomParam);
-			candyList.get(i).getPos().set(point.x, point.y);
-		}
 	}
 
 	private Point ShiftPoint(Point p, int shiftParam) {
@@ -425,18 +456,17 @@ public Obstacles[] readMapData(int fileID) {
 		startPos = ShiftPoint(startPos, shiftParam);
 		holePos = ShiftPoint(holePos, shiftParam);
 
-		/*for (int i = 0; i < reflectorList.size(); ++i) {
-			// reflectorList.get(i).setFirstPoint(ShiftPoint(reflectorList.get(i).getFirstPoint(),
-			// shiftParam));
-			// reflectorList.get(i).setSecondPoint(ShiftPoint(reflectorList.get(i).getSecondPoint(),
-			// shiftParam));
-			reflectorList.get(i)
-					.setPoints(
-							ShiftPoint(reflectorList.get(i).getFirstPoint(),
-									shiftParam),
-							ShiftPoint(reflectorList.get(i).getSecondPoint(),
-									shiftParam));
-		}*/
+		/*
+		 * for (int i = 0; i < reflectorList.size(); ++i) { //
+		 * reflectorList.get(
+		 * i).setFirstPoint(ShiftPoint(reflectorList.get(i).getFirstPoint(), //
+		 * shiftParam)); //
+		 * reflectorList.get(i).setSecondPoint(ShiftPoint(reflectorList
+		 * .get(i).getSecondPoint(), // shiftParam)); reflectorList.get(i)
+		 * .setPoints( ShiftPoint(reflectorList.get(i).getFirstPoint(),
+		 * shiftParam), ShiftPoint(reflectorList.get(i).getSecondPoint(),
+		 * shiftParam)); }
+		 */
 
 		// for (int i = 0; i < conveyorList.size(); ++i)
 		// {
@@ -491,11 +521,11 @@ public Obstacles[] readMapData(int fileID) {
 				waterList.get(i).getPoints().get(j).set(point.x, point.y);
 			}
 		}
-		
-		for (int i = 0; i < candyList.size(); ++i) {
-			Point point = ShiftPoint(candyList.get(i).getPos(), shiftParam);
-			candyList.get(i).getPos().set(point.x, point.y);
-		}
+
+		// for (int i = 0; i < candyList.size(); ++i) {
+		// Point point = ShiftPoint(candyList.get(i).getPos(), shiftParam);
+		// candyList.get(i).getPos().set(point.x, point.y);
+		// }
 	}
 
 	private Segment ReadSegment(BufferedReader reader) throws IOException {
@@ -530,34 +560,28 @@ public Obstacles[] readMapData(int fileID) {
 		return myCandy;
 	}
 
+	/*
+	 * private void expandMapBound() { for (int i = 0; i < reflectorList.size();
+	 * i++) { mapBottomRight.x = reflectorList.get(i).getFirstPoint().x >
+	 * mapBottomRight.x ? reflectorList .get(i).getFirstPoint().x :
+	 * mapBottomRight.x; mapBottomRight.y =
+	 * reflectorList.get(i).getFirstPoint().y > mapBottomRight.y ? reflectorList
+	 * .get(i).getFirstPoint().y : mapBottomRight.y; mapBottomRight.x =
+	 * reflectorList.get(i).getSecondPoint().x > mapBottomRight.x ?
+	 * reflectorList .get(i).getSecondPoint().x : mapBottomRight.x;
+	 * mapBottomRight.y = reflectorList.get(i).getSecondPoint().y >
+	 * mapBottomRight.y ? reflectorList .get(i).getSecondPoint().y :
+	 * mapBottomRight.y; } }
+	 */
 
-
-	/*private void expandMapBound() {
-		for (int i = 0; i < reflectorList.size(); i++) {
-			mapBottomRight.x = reflectorList.get(i).getFirstPoint().x > mapBottomRight.x ? reflectorList
-					.get(i).getFirstPoint().x : mapBottomRight.x;
-			mapBottomRight.y = reflectorList.get(i).getFirstPoint().y > mapBottomRight.y ? reflectorList
-					.get(i).getFirstPoint().y : mapBottomRight.y;
-			mapBottomRight.x = reflectorList.get(i).getSecondPoint().x > mapBottomRight.x ? reflectorList
-					.get(i).getSecondPoint().x : mapBottomRight.x;
-			mapBottomRight.y = reflectorList.get(i).getSecondPoint().y > mapBottomRight.y ? reflectorList
-					.get(i).getSecondPoint().y : mapBottomRight.y;
-		}
-	}*/
-
-	/*public static class SegmentComparable implements Comparator<Segment> {
-		@Override
-		public int compare(Segment a, Segment b) {
-			int aX = a.getFirstPoint().x;
-			int bX = b.getFirstPoint().x;
-
-			if (aX > bX)
-				return 1;
-			else if (aX < bX)
-				return -1;
-			return 0;
-		}
-	}*/
+	/*
+	 * public static class SegmentComparable implements Comparator<Segment> {
+	 * 
+	 * @Override public int compare(Segment a, Segment b) { int aX =
+	 * a.getFirstPoint().x; int bX = b.getFirstPoint().x;
+	 * 
+	 * if (aX > bX) return 1; else if (aX < bX) return -1; return 0; } }
+	 */
 
 	public void Show(Canvas canvas) {
 		// Show outer walls
@@ -583,10 +607,7 @@ public Obstacles[] readMapData(int fileID) {
 		for (int i = 0; i < this.waterList.size(); ++i) {
 			this.waterList.get(i).FillWithImage(Parameters.bmpWater, canvas);
 		}
-		// Show candies
-		for (int i = 0; i < this.candyList.size(); ++i) {
-			this.candyList.get(i).show(canvas);
-		}
+
 		//
 		// for(Segment tmp : reflectorList) {
 		// System.out.println(reflectorList.indexOf(tmp));
@@ -597,14 +618,13 @@ public Obstacles[] readMapData(int fileID) {
 		// }
 		//
 		// Show reflective surfaces
-		/*for (int i = 0; i < this.reflectorList.size(); ++i) {
-			Point first = this.reflectorList.get(i).getFirstPoint();
-			Point second = this.reflectorList.get(i).getSecondPoint();
-			Paint paint = new Paint();
-			paint.setColor(Color.BLACK);
-			paint.setStrokeWidth(3);
-			canvas.drawLine(first.x, first.y, second.x, second.y, paint);
-		}*/
+		/*
+		 * for (int i = 0; i < this.reflectorList.size(); ++i) { Point first =
+		 * this.reflectorList.get(i).getFirstPoint(); Point second =
+		 * this.reflectorList.get(i).getSecondPoint(); Paint paint = new
+		 * Paint(); paint.setColor(Color.BLACK); paint.setStrokeWidth(3);
+		 * canvas.drawLine(first.x, first.y, second.x, second.y, paint); }
+		 */
 
 		// Show target hole
 		/*
