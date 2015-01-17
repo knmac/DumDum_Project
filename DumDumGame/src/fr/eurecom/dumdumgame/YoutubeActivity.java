@@ -56,6 +56,9 @@ public class YoutubeActivity extends YouTubeBaseActivity implements
 			YouTubeInitializationResult result) {
 		Toast.makeText(this, "Failured to Initialize!", Toast.LENGTH_LONG)
 				.show();
+		
+		Intent intent = new Intent(App.getMyContext(), MainActivity.class);
+		App.getMyContext().startActivity(intent);
 	}
 
 	@Override

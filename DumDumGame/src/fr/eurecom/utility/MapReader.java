@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import fr.eurecom.engine.Candy;
 import fr.eurecom.engine.Polygon;
 import fr.eurecom.engine.Segment;
 import android.graphics.Canvas;
@@ -21,6 +22,7 @@ public class MapReader {
 	private LinkedList<Segment> reflectorList = new LinkedList<Segment>();
 	private LinkedList<Segment> conveyorList = new LinkedList<Segment>();
 	private LinkedList<Point> teleporterList = new LinkedList<Point>();
+	private LinkedList<Candy> candyList = new LinkedList<Candy>();
 	private LinkedList<Polygon> wallList = new LinkedList<Polygon>();
 	private LinkedList<Polygon> internalWallList = new LinkedList<Polygon>();
 	private LinkedList<Polygon> grassList = new LinkedList<Polygon>();
@@ -139,6 +141,14 @@ public class MapReader {
 		return holePos;
 	}
 
+	public LinkedList<Candy> getCandyList() {
+		return candyList;
+	}
+
+	public void setCandyList(LinkedList<Candy> candyList) {
+		this.candyList = candyList;
+	}
+
 	private Point ZoomPoint(Point p, int zoomParam) {
 		return new Point(p.x * zoomParam, p.y * zoomParam);
 	}
@@ -210,6 +220,11 @@ public class MapReader {
 						zoomParam);
 				waterList.get(i).getPoints().get(j).set(point.x, point.y);
 			}
+		}
+
+		for (int i = 0; i < candyList.size(); ++i) {
+			Point point = ZoomPoint(candyList.get(i).getPos(), zoomParam);
+			candyList.get(i).getPos().set(point.x, point.y);
 		}
 	}
 
@@ -287,6 +302,11 @@ public class MapReader {
 				waterList.get(i).getPoints().get(j).set(point.x, point.y);
 			}
 		}
+		
+		for (int i = 0; i < candyList.size(); ++i) {
+			Point point = ShiftPoint(candyList.get(i).getPos(), shiftParam);
+			candyList.get(i).getPos().set(point.x, point.y);
+		}
 	}
 
 	private Segment ReadSegment(BufferedReader reader) throws IOException {
@@ -308,6 +328,17 @@ public class MapReader {
 					new Point(Integer.parseInt(arr[j]), Integer
 							.parseInt(arr[j + 1])));
 		return myPolygon;
+	}
+
+	private Candy ReadCandy(BufferedReader reader) throws IOException {
+		String[] arr;
+		arr = reader.readLine().split(" ");
+
+		Point pos = new Point(Integer.parseInt(arr[0]),
+				Integer.parseInt(arr[1]));
+		Candy myCandy = new Candy(pos, Integer.parseInt(arr[2]));
+
+		return myCandy;
 	}
 
 	public MapReader(int fileID) {
@@ -389,6 +420,12 @@ public class MapReader {
 				waterList.add(ReadPolygon(reader));
 			}
 
+			// read candy pos
+			n = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < n; ++i) {
+				candyList.add(ReadCandy(reader));
+			}
+
 			// Shift map downward 1 to nullify negative number
 			ShiftAll(1);
 
@@ -459,6 +496,10 @@ public class MapReader {
 		for (int i = 0; i < this.waterList.size(); ++i) {
 			this.waterList.get(i).FillWithImage(Parameters.bmpWater, canvas);
 		}
+		// Show candies
+		for (int i = 0; i < this.candyList.size(); ++i) {
+			this.candyList.get(i).show(canvas);
+		}
 		//
 		// for(Segment tmp : reflectorList) {
 		// System.out.println(reflectorList.indexOf(tmp));
@@ -485,4 +526,5 @@ public class MapReader {
 		 * canvas.drawCircle(hole.x, hole.y, holeRadius, new Paint());
 		 */
 	}
+
 }

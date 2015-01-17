@@ -20,6 +20,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.util.Log;
+import android.widget.Toast;
 
 public class MainMenu extends BaseMenu {
 	// variables
@@ -151,6 +152,7 @@ public class MainMenu extends BaseMenu {
 			((MainActivity) App.getMyContext()).shutdownApp();
 		} catch (Exception e) {
 			Log.i("EXIT ERROR", e.getMessage().toString());
+			Toast.makeText(App.getMyContext(), e.getMessage().toString(), Toast.LENGTH_LONG).show();
 		}
 	}
 }
