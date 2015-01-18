@@ -7,6 +7,7 @@ import java.util.Random;
 import fr.eurecom.data.Map;
 import fr.eurecom.data.User;
 import fr.eurecom.dumdumgame.App;
+import fr.eurecom.dumdumgame.Candies;
 import fr.eurecom.dumdumgame.Conveyor;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.GameManager;
@@ -42,7 +43,7 @@ public class Game {
 	private DynamicBitmap[] teleporters;
 	private Conveyor[] conveyors;
 	private DynamicBitmap rain;
-	private int score;
+	private int turn;
 	private MediaPlayer[] bloibs;
 	private int bloibIndex;
 	private static Physics physics;
@@ -63,36 +64,40 @@ public class Game {
 		MOUSE_UP, MOUSE_DOWN, MOUSE_MOVE
 	}
 
-public enum ObstacleIdx {
+	public enum ObstacleIdx {
 		Platform(0), Candy(1), Blackhole(2), Spike(3), Conveyor(4), Bat(5);
-		
+
 		// return number of obstacle types
-		public static int numObstacleType () {
+		public static int numObstacleType() {
 			return ObstacleIdx.values().length;
 		}
-		
+
 		private final int value;
+
 		private ObstacleIdx(int value) {
 			this.value = value;
 		}
+
 		public int getValue() {
 			return value;
 		}
 	}
-	
+
 	// game objects compose of 3 types:
 	// 1. fix-screen objects: icons, logos, scores
-	// 2. map-texture: stable objects that stick to the map structures 
-	// 		and has no interaction with game characters
-	// 3. game-character: main character, enemies, and others moving objects 
-	//		that can be interacted (directly like main character or indirectly like blackholes, etc.)
+	// 2. map-texture: stable objects that stick to the map structures
+	// and has no interaction with game characters
+	// 3. game-character: main character, enemies, and others moving objects
+	// that can be interacted (directly like main character or indirectly like
+	// blackholes, etc.)
 
 	public Game() {
 		// Load game data from a matrix map
 		int chosenLevel = GameManager.chosenLevel;
 		gameData = new MapTexture(Parameters.dMapID[chosenLevel - 1]);
 		// Initialize the obstacle list
-		obstacleList = gameData.readMapData(Parameters.dMapID[chosenLevel - 1]); // TODO TEST!!
+		obstacleList = gameData.readMapData(Parameters.dMapID[chosenLevel - 1]); // TODO
+																					// TEST!!
 
 		// Create a background from those data
 		Point boundary = gameData.getMapBottomRight();
@@ -108,13 +113,14 @@ public enum ObstacleIdx {
 		canvas.drawRect(0, 0, tmpBitmap.getWidth(), tmpBitmap.getHeight(),
 				paint);
 		gameData.Show(canvas);
-		//obstacleList[ObstacleIdx.Platform.getValue()].show(canvas); // TODO Originally here, but moved to Game.Show()
+		// obstacleList[ObstacleIdx.Platform.getValue()].show(canvas); // TODO
+		// Originally here, but moved to Game.Show()
 
 		background = new Map(tmpBitmap, new Point(0, 0), new Rect(0, 0,
 				Parameters.dMaxWidth, Parameters.dMaxHeight));
 
 		ball = new Character(gameData.getStartPos());
-		score = 0;
+		turn = 0;
 		elapsedTime = 0.0;
 
 		// Create teleporters
@@ -243,21 +249,22 @@ public enum ObstacleIdx {
 			}
 		} else if (mouseState == MouseState.MOUSE_UP) {
 			if (isBallClicked) {
-				//double acceleration = getAccelerationUnderTheBall();
-				//double initialVelocity = Helper.Point_GetDistanceFrom(
-				//		ball.getPosition(), mousePos)
-				//		* Parameters.forceCoefficient;
-				//Ray direction = new Ray(
-				//		ball.getPosition(),
-				//		Helper.Point_GetMirrorFrom(mousePos, ball.getPosition()));
-				//initBall(initialVelocity, acceleration, direction);
+				// double acceleration = getAccelerationUnderTheBall();
+				// double initialVelocity = Helper.Point_GetDistanceFrom(
+				// ball.getPosition(), mousePos)
+				// * Parameters.forceCoefficient;
+				// Ray direction = new Ray(
+				// ball.getPosition(),
+				// Helper.Point_GetMirrorFrom(mousePos, ball.getPosition()));
+				// initBall(initialVelocity, acceleration, direction);
 
-				Point direction = new Point (ball.getPosition().x - mousePos.x, ball.getPosition().y - mousePos.y);
+				Point direction = new Point(ball.getPosition().x - mousePos.x,
+						ball.getPosition().y - mousePos.y);
 				initBall(direction);
 				isBallClicked = false;
 				isDragging = false;
 				isPreviouslyDragging = true;
-				score++;
+				turn++;
 			}
 			if (isBackgroundClicked) {
 				isBackgroundClicked = false;
@@ -285,16 +292,17 @@ public enum ObstacleIdx {
 
 	int endGame = 0;
 
-	private Obstacles isNextPostAvailable() {
+	private LinkedList<Obstacles> isNextPostAvailable() {
 		// TODO with great assumption that wall list is sorted according to the
 		// x position of first point
 		// and that first point of wall is always smaller than second point in
 		// term of x position
 
-		/*int reflectorList_len = gameData.getReflectorList().size();
-
-		double minDistance = Double.MAX_VALUE;
-		Segment returnedWall = null;*/
+		/*
+		 * int reflectorList_len = gameData.getReflectorList().size();
+		 * 
+		 * double minDistance = Double.MAX_VALUE; Segment returnedWall = null;
+		 */
 
 		Point current = ball.getCurrentPosition();
 
@@ -309,94 +317,97 @@ public enum ObstacleIdx {
 			++endGame;
 			return null;
 		}
-		
-		
-		
-		
-		return obstacleList[ObstacleIdx.Platform.getValue()].ballInRange(next,
-				current, ball.getTrajectoryList().getFirst(), ball
-						.getTrajectoryList().getLast());
 
-		/*for (int i = 0; i < reflectorList_len; ++i) {
-			Segment currentReflector = gameData.getReflectorList().get(i);
+		Point rangeStart = ball.getTrajectoryList().getFirst();
+		Point rangeEnd = ball.getTrajectoryList().getLast();
 
-			if (ball.getTrajectoryList().getFirst().x < currentReflector
-					.getFirstPoint().x
-					&& ball.getTrajectoryList().getLast().x < currentReflector
-							.getFirstPoint().x)
-				break;
+		LinkedList<Obstacles> resultObstacles = new LinkedList<Obstacles>();
+		Obstacles tmpObstacle;
 
-			Point wall1 = new Point(currentReflector.getFirstPoint());
-			Point wall2 = new Point(currentReflector.getSecondPoint());
+		// check candy
+		tmpObstacle = obstacleList[ObstacleIdx.Candy.getValue()].ballInRange(
+				next, current, rangeStart, rangeEnd);
+		if (tmpObstacle != null)
+			resultObstacles.add(tmpObstacle);
 
-			// equation of the wall
-			double A = wall2.y - wall1.y;
-			double B = -(wall2.x - wall1.x);
-			double C = -wall1.x * (wall2.y - wall1.y) + wall1.y
-					* (wall2.x - wall1.x);
-			double vAB = Math.sqrt(Math.pow(A, 2) + Math.pow(B, 2));
+		// check platform
+		tmpObstacle = obstacleList[ObstacleIdx.Platform.getValue()]
+				.ballInRange(next, current, rangeStart, rangeEnd);
+		if (tmpObstacle != null)
+			resultObstacles.add(tmpObstacle);
 
-			double distanceNextWall = Math.abs(A * next.x + B * next.y + C)
-					/ (vAB);
+		// return null if there is no obstacles
+		if (resultObstacles.size() == 0)
+			return null;
 
-			double cPoint = -current.x * (next.y - current.y) + current.y
-					* (next.x - current.x);
-			double cPoint1 = -wall1.x * (wall2.y - wall1.y) + wall1.y
-					* (wall2.x - wall1.x);
+		return resultObstacles;
 
-			double checkingInq1a = (next.y - current.y) * wall1.x
-					- (next.x - current.x) * wall1.y + cPoint;
-			double checkingInq1b = (next.y - current.y) * wall2.x
-					- (next.x - current.x) * wall2.y + cPoint;
-
-			double checkingIng2a = (wall2.y - wall1.y) * current.x
-					- (wall2.x - wall1.x) * current.y + cPoint1;
-			double checkingIng2b = (wall2.y - wall1.y) * next.x
-					- (wall2.x - wall1.x) * next.y + cPoint1;
-
-			if ((checkingInq1a * checkingInq1b <= 0 && checkingIng2a
-					* checkingIng2b <= 0)) {
-				double distancePointWall = Math.abs(A * current.x + B
-						* current.y + C);
-
-				if (distancePointWall < minDistance) {
-					minDistance = distancePointWall;
-					returnedWall = currentReflector;
-				}
-			} else if (distanceNextWall < Parameters.dBallRadius) {
-				double distNextWall1 = Math.sqrt(Math.pow(next.x - wall1.x, 2)
-						+ Math.pow(next.y - wall1.y, 2));
-				double distNextWall2 = Math.sqrt(Math.pow(next.x - wall2.x, 2)
-						+ Math.pow(next.y - wall2.y, 2));
-				double distWall1Wall2 = Math.sqrt(Math
-						.pow(wall1.x - wall2.x, 2)
-						+ Math.pow(wall1.y - wall2.y, 2));
-
-				double condition1 = Math.sqrt(Math.pow(distNextWall1, 2)
-						- Math.pow(distanceNextWall, 2));
-				double condition2 = Math.sqrt(Math.pow(distNextWall2, 2)
-						- Math.pow(distanceNextWall, 2));
-
-				double epsilon = 1;
-				if (condition1 + condition2 > distWall1Wall2 - epsilon
-						&& condition1 + condition2 < distWall1Wall2 + epsilon) {
-					if (distanceNextWall < minDistance) {
-						minDistance = distanceNextWall;
-						returnedWall = currentReflector;
-					}
-				}
-			}
-		}
-
-		return returnedWall;*/
+		/*
+		 * for (int i = 0; i < reflectorList_len; ++i) { Segment
+		 * currentReflector = gameData.getReflectorList().get(i);
+		 * 
+		 * if (ball.getTrajectoryList().getFirst().x < currentReflector
+		 * .getFirstPoint().x && ball.getTrajectoryList().getLast().x <
+		 * currentReflector .getFirstPoint().x) break;
+		 * 
+		 * Point wall1 = new Point(currentReflector.getFirstPoint()); Point
+		 * wall2 = new Point(currentReflector.getSecondPoint());
+		 * 
+		 * // equation of the wall double A = wall2.y - wall1.y; double B =
+		 * -(wall2.x - wall1.x); double C = -wall1.x * (wall2.y - wall1.y) +
+		 * wall1.y (wall2.x - wall1.x); double vAB = Math.sqrt(Math.pow(A, 2) +
+		 * Math.pow(B, 2));
+		 * 
+		 * double distanceNextWall = Math.abs(A * next.x + B * next.y + C) /
+		 * (vAB);
+		 * 
+		 * double cPoint = -current.x * (next.y - current.y) + current.y (next.x
+		 * - current.x); double cPoint1 = -wall1.x * (wall2.y - wall1.y) +
+		 * wall1.y (wall2.x - wall1.x);
+		 * 
+		 * double checkingInq1a = (next.y - current.y) * wall1.x - (next.x -
+		 * current.x) * wall1.y + cPoint; double checkingInq1b = (next.y -
+		 * current.y) * wall2.x - (next.x - current.x) * wall2.y + cPoint;
+		 * 
+		 * double checkingIng2a = (wall2.y - wall1.y) * current.x - (wall2.x -
+		 * wall1.x) * current.y + cPoint1; double checkingIng2b = (wall2.y -
+		 * wall1.y) * next.x - (wall2.x - wall1.x) * next.y + cPoint1;
+		 * 
+		 * if ((checkingInq1a * checkingInq1b <= 0 && checkingIng2a
+		 * checkingIng2b <= 0)) { double distancePointWall = Math.abs(A *
+		 * current.x + B current.y + C);
+		 * 
+		 * if (distancePointWall < minDistance) { minDistance =
+		 * distancePointWall; returnedWall = currentReflector; } } else if
+		 * (distanceNextWall < Parameters.dBallRadius) { double distNextWall1 =
+		 * Math.sqrt(Math.pow(next.x - wall1.x, 2) + Math.pow(next.y - wall1.y,
+		 * 2)); double distNextWall2 = Math.sqrt(Math.pow(next.x - wall2.x, 2) +
+		 * Math.pow(next.y - wall2.y, 2)); double distWall1Wall2 =
+		 * Math.sqrt(Math .pow(wall1.x - wall2.x, 2) + Math.pow(wall1.y -
+		 * wall2.y, 2));
+		 * 
+		 * double condition1 = Math.sqrt(Math.pow(distNextWall1, 2) -
+		 * Math.pow(distanceNextWall, 2)); double condition2 =
+		 * Math.sqrt(Math.pow(distNextWall2, 2) - Math.pow(distanceNextWall,
+		 * 2));
+		 * 
+		 * double epsilon = 1; if (condition1 + condition2 > distWall1Wall2 -
+		 * epsilon && condition1 + condition2 < distWall1Wall2 + epsilon) { if
+		 * (distanceNextWall < minDistance) { minDistance = distanceNextWall;
+		 * returnedWall = currentReflector; } } } }
+		 * 
+		 * return returnedWall;
+		 */
 	}
 
 	public void show(Canvas canvas) throws Exception {
-		
+
 		// Show background
 		showBackground(canvas);
-		obstacleList[ObstacleIdx.Platform.getValue()].show(canvas, background.getPosition());
-		obstacleList[ObstacleIdx.Candy.getValue()].show(canvas, background.getPosition()); 
+		obstacleList[ObstacleIdx.Platform.getValue()].show(canvas,
+				background.getPosition());
+		obstacleList[ObstacleIdx.Candy.getValue()].show(canvas,
+				background.getPosition());
 
 		if (--updateCounter <= -1)
 			updateCounter = Parameters.updatePeriod;
@@ -463,7 +474,7 @@ public enum ObstacleIdx {
 
 			// TODO: this object must be of type Obstacle and then be
 			// type-casted into Segment
-			Obstacles obstacle = isNextPostAvailable();
+			LinkedList<Obstacles> obstacleList = isNextPostAvailable();
 
 			// TODO: DOUBLE CHECK THESE CONDITIONS, change the method or at
 			// least the name
@@ -511,16 +522,20 @@ public enum ObstacleIdx {
 				return;
 			}
 
-			else if (obstacle == null)
+			else if (obstacleList == null)
 				ball.update(elapsedTime, quantum); // these parameters are only
 													// for placeholder purpose,
 													// they have no meaning till
 													// this moment!!!
-			else if (obstacle != null && endGame == 0) {
+			else if (obstacleList != null && endGame == 0) {
 				bloibs[bloibIndex].start();
-				bloibIndex = bloibIndex == bloibs.length - 1 ? 0 : bloibIndex+1;
-//				ball.bounce(obstacle);
-				obstacle.interact(ball);
+				bloibIndex = bloibIndex == bloibs.length - 1 ? 0
+						: bloibIndex + 1;
+				// ball.bounce(obstacle);
+				for (Obstacles obstacle : obstacleList) {
+					obstacle.interact(ball);
+				}
+
 				ball.update(elapsedTime, quantum);
 			}
 
@@ -546,23 +561,24 @@ public enum ObstacleIdx {
 
 			// If the ball hits the teleporter, if any
 			// TODO: teleporter
-//			boolean isBallSucked = false;
-//			double min = (Parameters.dTeleRadius + Parameters.dBallRadius) / 2;
-//			for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
-//				double distance = Helper
-//						.Point_GetDistanceFrom(ball.getPosition(), gameData
-//								.getTeleporterList().get(i));
-//				if (distance <= min) {
-//					isBallSucked = true;
-//					if (!amulet) {
-//						teleportTheBall(i);
-//						amulet = true;
-//					}
-//					break;
-//				}
-//			}
-//			if (!isBallSucked)
-//				amulet = false;
+			// boolean isBallSucked = false;
+			// double min = (Parameters.dTeleRadius + Parameters.dBallRadius) /
+			// 2;
+			// for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
+			// double distance = Helper
+			// .Point_GetDistanceFrom(ball.getPosition(), gameData
+			// .getTeleporterList().get(i));
+			// if (distance <= min) {
+			// isBallSucked = true;
+			// if (!amulet) {
+			// teleportTheBall(i);
+			// amulet = true;
+			// }
+			// break;
+			// }
+			// }
+			// if (!isBallSucked)
+			// amulet = false;
 
 			// If the ball stops running
 			// TODO: polish: original is !ball.isRunning()
@@ -619,7 +635,7 @@ public enum ObstacleIdx {
 			// Do a down on the mutex
 			Parameters.mutex.acquire();
 			// Critical region
-			GameManager.levelUp(score);
+			GameManager.levelUp(turn);
 			// ------------------
 			// Do an up on the mutex
 			Parameters.mutex.release();
@@ -668,11 +684,11 @@ public enum ObstacleIdx {
 		this.firstTimeShow = true;
 		ball = new Character(gameData.getStartPos());
 		updateView();
-		score = 0;
+		turn = 0;
 	}
 
 	public int getScore() {
-		return this.score;
+		return this.turn;
 	}
 
 	public Point getBallPos() {
@@ -701,30 +717,32 @@ public enum ObstacleIdx {
 		ball.init(direction);
 		elapsedTime = 0.0;
 	}
-//	private void teleportTheBall(int currentTeleporter) {
-//		Random generator = new Random();
-//		int index = 0;
-//		while ((index = generator.nextInt(gameData.getTeleporterList().size())) == currentTeleporter)
-//			;
-//		Point newPosition = gameData.getTeleporterList().get(index);
-//
-//		double acceleration = Parameters.grassFrictionAcceleration;
-//		double velocity = ball.getInstantVelocity(elapsedTime) + 12;
-//		ball.setPosition(newPosition);
-//
-//		int incrementX = 0;
-//		int incrementY = 0;
-//		while ((incrementX = generator.nextInt(41)) == 20)
-//			;
-//		while ((incrementY = generator.nextInt(41)) == 20)
-//			;
-//		incrementX -= 20;
-//		incrementY -= 20;
-//
-//		Ray direction = new Ray(ball.getPosition(), new Point(newPosition.x
-//				+ incrementX, newPosition.y + incrementY));
-//		initBall(velocity, acceleration, direction);
-//	}
+
+	// private void teleportTheBall(int currentTeleporter) {
+	// Random generator = new Random();
+	// int index = 0;
+	// while ((index = generator.nextInt(gameData.getTeleporterList().size()))
+	// == currentTeleporter)
+	// ;
+	// Point newPosition = gameData.getTeleporterList().get(index);
+	//
+	// double acceleration = Parameters.grassFrictionAcceleration;
+	// double velocity = ball.getInstantVelocity(elapsedTime) + 12;
+	// ball.setPosition(newPosition);
+	//
+	// int incrementX = 0;
+	// int incrementY = 0;
+	// while ((incrementX = generator.nextInt(41)) == 20)
+	// ;
+	// while ((incrementY = generator.nextInt(41)) == 20)
+	// ;
+	// incrementX -= 20;
+	// incrementY -= 20;
+	//
+	// Ray direction = new Ray(ball.getPosition(), new Point(newPosition.x
+	// + incrementX, newPosition.y + incrementY));
+	// initBall(velocity, acceleration, direction);
+	// }
 
 	private void showBackground(Canvas canvas) {
 		// int rad = Parameters.dBallRadius;
@@ -760,38 +778,37 @@ public enum ObstacleIdx {
 			showFullBackground(canvas);
 		}
 
-		// Show score
+		// Show turn and score
 		Paint paint = new Paint();
 		paint.setTextAlign(Paint.Align.LEFT);
 		paint.setTextSize(Parameters.dZoomParam / 2);
 		paint.setColor(Color.LTGRAY);
 		paint.setTypeface(Typeface.DEFAULT_BOLD);
 		paint.setTextAlign(Align.CENTER);
-		canvas.drawText("Turn: " + score, Parameters.dMaxWidth / 2,
-				Parameters.dBallRadius, paint);
+
+		int score = ((Candies) obstacleList[ObstacleIdx.Candy.getValue()])
+				.computeScore();
+
+		canvas.drawText(
+				"Turn: " + turn + "\t\t Candies: " + Integer.toString(score),
+				Parameters.dMaxWidth / 2, Parameters.dBallRadius, paint);
 	}
 
-/*	private double getAccelerationUnderTheBall() {
-		// If the ball is in water puddle
-		for (int i = 0; i < gameData.getWaterList().size(); ++i) {
-			if (gameData.getWaterList().get(i).getBoundRect()
-					.contains(ball.getPosition().x, ball.getPosition().y)) {
-				return Parameters.waterFrictionAcceleration;
-			}
-		}
-
-		// If the ball is in sand region
-		for (int i = 0; i < gameData.getSandList().size(); ++i) {
-			if (gameData.getSandList().get(i).getBoundRect()
-					.contains(ball.getPosition().x, ball.getPosition().y)) {
-				return Parameters.sandFrictionAcceleration;
-			}
-		}
-
-		// Otherwise
-		return Parameters.grassFrictionAcceleration;
-	}
-*/
+	/*
+	 * private double getAccelerationUnderTheBall() { // If the ball is in water
+	 * puddle for (int i = 0; i < gameData.getWaterList().size(); ++i) { if
+	 * (gameData.getWaterList().get(i).getBoundRect()
+	 * .contains(ball.getPosition().x, ball.getPosition().y)) { return
+	 * Parameters.waterFrictionAcceleration; } }
+	 * 
+	 * // If the ball is in sand region for (int i = 0; i <
+	 * gameData.getSandList().size(); ++i) { if
+	 * (gameData.getSandList().get(i).getBoundRect()
+	 * .contains(ball.getPosition().x, ball.getPosition().y)) { return
+	 * Parameters.sandFrictionAcceleration; } }
+	 * 
+	 * // Otherwise return Parameters.grassFrictionAcceleration; }
+	 */
 	private void showFullBackground(Canvas canvas) {
 		Paint paint = new Paint();
 		paint.setStyle(Style.FILL);

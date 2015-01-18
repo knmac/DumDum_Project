@@ -93,9 +93,16 @@ public class Candy {
 		this.visible = false;
 		return this.value;
 	}
+	
+	public Boolean isAvailable() {
+		return this.visible;
+	}
 
-	public Boolean isOver(Point objPos, int range) {
+	public Boolean isOverlapped(Point objPos, int range) {
+		if (this.visible == false)
+			return false;
+		
 		return Helper.Point_GetDistanceFrom(objPos, this.pos) < range
-				+ this.candySize / 2 ? true : false;
+				+ this.candySize / 4 ? true : false;
 	}
 }

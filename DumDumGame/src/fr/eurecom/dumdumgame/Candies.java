@@ -49,7 +49,7 @@ public class Candies extends SupportiveObstacles {
 
 	@Override
 	public void interact(Character ball) {
-		// TODO Auto-generated method stub
+		this.candyList.getFirst().getEaten();
 	}
 
 	@Override
@@ -62,13 +62,22 @@ public class Candies extends SupportiveObstacles {
 	@Override
 	public Obstacles ballInRange(Point posToBeChecked, Point pastPosition,
 			Point rangeStart, Point rangeEnd) {
-		// TODO Auto-generated method stub
 		for (Candy candy : candyList) {
-			if (candy.isOver(pastPosition, Parameters.dBallRadius))
-				return new Candies(candy);
+			if (candy.isOverlapped(pastPosition, Parameters.dBallRadius))
+				return new Candies(candy); // only 1 candy at a time
 		}
 
 		return null;
+	}
+
+	public int computeScore() {
+		int score = 0;
+		for (Candy candy : candyList) {
+			if (!candy.isAvailable())
+				score += candy.getValue();
+		}
+
+		return score;
 	}
 
 }
