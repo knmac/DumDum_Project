@@ -2,21 +2,17 @@ package fr.eurecom.engine;
 
 import java.util.Calendar;
 import java.util.LinkedList;
-import java.util.Random;
 
 import fr.eurecom.data.Map;
-import fr.eurecom.data.User;
+import fr.eurecom.data.MapTexture;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Candies;
 import fr.eurecom.dumdumgame.Conveyor;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.GameManager;
-import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.Obstacles;
-import fr.eurecom.dumdumgame.Platforms;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
-import fr.eurecom.utility.MapTexture;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
 import android.graphics.Bitmap;
@@ -33,7 +29,6 @@ import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.util.Log;
-import android.widget.Toast;
 
 public class Game {
 	private MapTexture gameData;
@@ -124,14 +119,14 @@ public class Game {
 		elapsedTime = 0.0;
 
 		// Create teleporters
-		teleporters = new DynamicBitmap[gameData.getTeleporterList().size()];
-		int teleRad = Parameters.dTeleRadius;
-		for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
-			Point position = new Point(gameData.getTeleporterList().get(i).x
-					- teleRad, gameData.getTeleporterList().get(i).y - teleRad);
-			teleporters[i] = new DynamicBitmap(Parameters.bmpTeleporter,
-					position, 0, 2 * teleRad, 2 * teleRad);
-		}
+		// teleporters = new DynamicBitmap[gameData.getTeleporterList().size()];
+		// int teleRad = Parameters.dTeleRadius;
+		// for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
+		// Point position = new Point(gameData.getTeleporterList().get(i).x -
+		// teleRad, gameData.getTeleporterList().get(i).y - teleRad);
+		// teleporters[i] = new DynamicBitmap(Parameters.bmpTeleporter,
+		// position, 0, 2 * teleRad, 2 * teleRad);
+		// }
 
 		// Create conveyers
 		conveyors = new Conveyor[gameData.getConveyorList().size()];
@@ -336,6 +331,14 @@ public class Game {
 		if (tmpObstacle != null)
 			resultObstacles.add(tmpObstacle);
 
+		// check blackhole, make this one the LAST!!!!
+		tmpObstacle = obstacleList[ObstacleIdx.Blackhole.getValue()]
+				.ballInRange(next, current, rangeStart, rangeEnd);
+		if (tmpObstacle != null) { // overwrite everything else
+			resultObstacles = new LinkedList<Obstacles>();
+			resultObstacles.add(tmpObstacle);
+		}
+
 		// return null if there is no obstacles
 		if (resultObstacles.size() == 0)
 			return null;
@@ -408,6 +411,8 @@ public class Game {
 				background.getPosition());
 		obstacleList[ObstacleIdx.Candy.getValue()].show(canvas,
 				background.getPosition());
+		obstacleList[ObstacleIdx.Blackhole.getValue()].show(canvas,
+				background.getPosition());
 
 		if (--updateCounter <= -1)
 			updateCounter = Parameters.updatePeriod;
@@ -430,10 +435,10 @@ public class Game {
 		}
 
 		// Show teleporters, if any
-		for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
-			teleporters[i].show(canvas, background.getPosition());
-			teleporters[i].updateToTheNextImage();
-		}
+		// for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
+		// teleporters[i].show(canvas, background.getPosition());
+		// teleporters[i].updateToTheNextImage();
+		// }
 
 		// Show conveyors, if any
 		boolean conveyorInEffect = false;
@@ -454,7 +459,7 @@ public class Game {
 			}
 		}
 
-		// Show ruler, if any
+		// Show pulling line, if any
 		if (isDragging) {
 			Paint paint = new Paint();
 			paint.setColor(Color.GRAY);
@@ -474,7 +479,7 @@ public class Game {
 
 			// TODO: this object must be of type Obstacle and then be
 			// type-casted into Segment
-			LinkedList<Obstacles> obstacleList = isNextPostAvailable();
+			LinkedList<Obstacles> resultObstacles = isNextPostAvailable();
 
 			// TODO: DOUBLE CHECK THESE CONDITIONS, change the method or at
 			// least the name
@@ -501,7 +506,7 @@ public class Game {
 				int mm = currentTime.get(Calendar.MINUTE);
 				int hh = currentTime.get(Calendar.HOUR_OF_DAY);
 				int yyyy = currentTime.get(Calendar.YEAR);
-				int MM = currentTime.get(Calendar.MONTH);
+				int MM = currentTime.get(Calendar.MONTH) + 1;
 				int dd = currentTime.get(Calendar.DAY_OF_MONTH);
 
 				String strCurrentTime = String.format("%04d", yyyy) + "-"
@@ -522,17 +527,18 @@ public class Game {
 				return;
 			}
 
-			else if (obstacleList == null)
+			else if (resultObstacles == null)
 				ball.update(elapsedTime, quantum); // these parameters are only
 													// for placeholder purpose,
 													// they have no meaning till
 													// this moment!!!
-			else if (obstacleList != null && endGame == 0) {
+			else if (resultObstacles != null && endGame == 0) {
 				bloibs[bloibIndex].start();
 				bloibIndex = bloibIndex == bloibs.length - 1 ? 0
 						: bloibIndex + 1;
 				// ball.bounce(obstacle);
-				for (Obstacles obstacle : obstacleList) {
+				
+				for (Obstacles obstacle : resultObstacles) {
 					obstacle.interact(ball);
 				}
 
@@ -643,7 +649,9 @@ public class Game {
 	}
 
 	public boolean isRunning() {
-		if (gameData.getTeleporterList().size() > 0)
+		// if (gameData.getTeleporterList().size() > 0)
+		// return true;
+		if (obstacleList[ObstacleIdx.Blackhole.getValue()] != null)
 			return true;
 		if (gameData.getConveyorList().size() > 0)
 			return true;
@@ -790,7 +798,7 @@ public class Game {
 				.computeScore();
 
 		canvas.drawText(
-				"Turn: " + turn + "\t\t Candies: " + Integer.toString(score),
+				"Turn: " + turn + "     Candies: " + Integer.toString(score),
 				Parameters.dMaxWidth / 2, Parameters.dBallRadius, paint);
 	}
 

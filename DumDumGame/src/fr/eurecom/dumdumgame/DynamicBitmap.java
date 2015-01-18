@@ -117,19 +117,14 @@ public class DynamicBitmap {
 	}
 
 	public void show(Canvas canvas) {
-		Rect srcRect = new Rect(0, 0, images[_currentIndex].getWidth(),
-				images[_currentIndex].getHeight());
-		Rect dstRect = new Rect(_position.x, _position.y, _position.x + _width,
-				_position.y + _height);
+		Rect srcRect = new Rect(0, 0, images[_currentIndex].getWidth(), images[_currentIndex].getHeight());
+		Rect dstRect = new Rect(_position.x, _position.y, _position.x + _width, _position.y + _height);
 		canvas.drawBitmap(images[_currentIndex], srcRect, dstRect, new Paint());
 	}
 
 	public void show(Canvas canvas, Point offset) {
-		Rect srcRect = new Rect(0, 0, images[_currentIndex].getWidth(),
-				images[_currentIndex].getHeight());
-		Rect dstRect = new Rect(_position.x + offset.x, _position.y + offset.y,
-				_position.x + offset.x + _width, _position.y + offset.y
-						+ _height);
+		Rect srcRect = new Rect(0, 0, images[_currentIndex].getWidth(), images[_currentIndex].getHeight());
+		Rect dstRect = new Rect(_position.x + offset.x, _position.y + offset.y, _position.x + offset.x + _width, _position.y + offset.y + _height);
 		canvas.drawBitmap(images[_currentIndex], srcRect, dstRect, new Paint());
 	}
 

@@ -181,6 +181,6 @@ public class Parameters {
 		pivotDumDum.y = sizeDumDum.y * 3 / 10;
 
 		dConveyorWidth = dZoomParam;
-		dTeleRadius = 2 * dBallRadius;
+		dTeleRadius = dBallRadius*3/2;
 	}
 }

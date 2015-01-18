@@ -1,5 +1,9 @@
 package fr.eurecom.allmenus;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Button;
 import fr.eurecom.dumdumgame.DynamicBitmap;
@@ -21,6 +25,8 @@ import android.graphics.Typeface;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
+import android.util.Log;
+import android.widget.Toast;
 
 public class LoadMenu extends BaseMenu {
 	private Point[] posList = new Point[] { new Point(150, 250),
@@ -113,7 +119,7 @@ public class LoadMenu extends BaseMenu {
 				new Point(p2.x + offset.x, p2.y + offset.y));
 	}
 
-	public void Show(Canvas canvas) {		
+	public void Show(Canvas canvas) {
 		this.bmpBackground.show(canvas);
 
 		// draw glow lines
@@ -125,7 +131,7 @@ public class LoadMenu extends BaseMenu {
 		drawGlowLine(canvas, posList[4], posList[5], offset);
 		drawGlowLine(canvas, posList[5], posList[6], offset);
 		drawGlowLine(canvas, posList[5], posList[7], offset);
-		
+
 		// draw level
 		for (Button btn : buttonList) {
 			btn.show(canvas);
@@ -175,6 +181,47 @@ public class LoadMenu extends BaseMenu {
 	}
 
 	private void CallGame(Object o, int chosenLevel) {
+		int currentLives = GameManager.user.getCurrentLives();
+		int maxLives = GameManager.user.getMaxLives();
+		int remainTime = -1;
+
+		if (currentLives <= maxLives) {
+			// Get the current time
+			Calendar now = Calendar.getInstance();
+
+			// Get the last time the user played by convert it from String to
+			// Calendar type
+			Calendar lastTime = Calendar.getInstance();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			try {
+				lastTime.setTime(sdf.parse(GameManager.user.getLastTime()));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				Log.e("Convert error",
+						"Cannot convert from String to Calendar in Load Menu");
+				e.printStackTrace();
+			}
+
+			// Calculate the distance between last time and current time in
+			// minutes
+			// Detail for the parameters below: 1000: from Millisecond to
+			// second; 60: from second to min
+			long distInSec = (now.getTimeInMillis() - lastTime
+					.getTimeInMillis()) / (1000);
+			int lives = (int) (distInSec / (GameManager.user.getRefillTime()));
+
+			// if don't refill any lives, calculate the remaining time for
+			// refill a life.
+			if (lives == 0)
+				remainTime = (int) (GameManager.user.getRefillTime() - distInSec / 60);
+
+			// Fill lives if any
+			if (lives + currentLives <= maxLives)
+				GameManager.user.setCurrentLives(lives + currentLives);
+			else
+				GameManager.user.setCurrentLives(maxLives);
+		}
+
 		// Do a down on the mutex
 		try {
 			Parameters.mutex.acquire();
@@ -182,10 +229,20 @@ public class LoadMenu extends BaseMenu {
 			e.printStackTrace();
 		}
 		// Critical Region--------------------------------------------
-		GameManager.setCurrentState(GameManager.GameState.GAME);
-		GameManager.chosenLevel = chosenLevel;
-		GameManager.initGame();
-		GameManager.mainView.invalidate();
+		if (GameManager.user.getCurrentLives() < 1) {
+			Toast.makeText(
+					App.getMyContext(),
+					"Not enough life to play, please wait for "
+							+ String.valueOf(remainTime) + " minute(s)",
+					Toast.LENGTH_SHORT).show();
+			GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
+			GameManager.mainView.invalidate();
+		} else {
+			GameManager.setCurrentState(GameManager.GameState.GAME);
+			GameManager.chosenLevel = chosenLevel;
+			GameManager.initGame();
+			GameManager.mainView.invalidate();
+		}
 		// ------------------------------------------------------------
 		// Do an up on the mutex
 		Parameters.mutex.release();

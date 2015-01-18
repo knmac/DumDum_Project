@@ -2,7 +2,7 @@ package fr.eurecom.dumdumgame;
 
 import java.util.LinkedList;
 
-import fr.eurecom.engine.Candy;
+import fr.eurecom.data.Candy;
 import fr.eurecom.engine.Character;
 import fr.eurecom.engine.Segment;
 import fr.eurecom.utility.Parameters;
@@ -26,24 +26,24 @@ public class Candies extends SupportiveObstacles {
 		try {
 			this.candyList = (LinkedList<Candy>) data;
 		} catch (ClassCastException e) {
-			Log.e("ERROR", "Type cast error in class Platform", e);
+			Log.e("ERROR", "Type cast error in class Candies", e);
 		}
 	}
 
 	@Override
 	protected void zoom(int zoomFactor) {
 		for (int i = 0; i < candyList.size(); ++i) {
-			Point point = ZoomPoint(candyList.get(i).getPos(), zoomFactor);
-			candyList.get(i).getPos().set(point.x, point.y);
+			Point point = ZoomPoint(candyList.get(i).getCenter(), zoomFactor);
+			candyList.get(i).setCenter(new Point(point.x, point.y));
 		}
 	}
 
 	@Override
 	protected void shift(int shiftDisplacement) {
 		for (int i = 0; i < candyList.size(); ++i) {
-			Point point = ShiftPoint(candyList.get(i).getPos(),
+			Point point = ShiftPoint(candyList.get(i).getCenter(),
 					shiftDisplacement);
-			candyList.get(i).getPos().set(point.x, point.y);
+			candyList.get(i).setCenter(new Point(point.x, point.y));
 		}
 	}
 
