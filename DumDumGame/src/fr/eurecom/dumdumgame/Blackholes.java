@@ -15,6 +15,7 @@ import fr.eurecom.utility.Parameters;
 public class Blackholes extends SupportiveObstacles {
 
 	private LinkedList<Blackhole> teleporterList = new LinkedList<Blackhole>();
+	Random rand = new Random(System.currentTimeMillis());
 
 	@Override
 	protected void readData(Object data) {
@@ -49,7 +50,6 @@ public class Blackholes extends SupportiveObstacles {
 
 	@Override
 	public void interact(Character ball) {
-		Random rand = new Random(System.currentTimeMillis());
 		int exitBlackHole = 0;
 		while (exitBlackHole <= 0 || exitBlackHole >= teleporterList.size()) {
 			exitBlackHole = rand.nextInt(teleporterList.size());
@@ -62,8 +62,12 @@ public class Blackholes extends SupportiveObstacles {
 
 		int range = Math.max(Math.abs(ball.getInitialVelocity().x),
 				Math.abs(ball.getInitialVelocity().y));
-		Point initVelocity = new Point(rand.nextInt(2 * range) - range,
+		Point initVelocity = new Point(); 
+		while (Math.abs(initVelocity.x) <= Parameters.dTeleRadius || 
+				Math.abs(initVelocity.y) <= Parameters.dTeleRadius) {
+		initVelocity = new Point(rand.nextInt(2 * range) - range,
 				rand.nextInt(2 * range) - range);
+		}
 		LinkedList<Point> newTraject = Game.getPhysics().computeTrajectory(
 				exitPoint, initVelocity);
 

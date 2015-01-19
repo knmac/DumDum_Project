@@ -320,23 +320,29 @@ public class Game {
 		Obstacles tmpObstacle;
 
 		// check candy
-		tmpObstacle = obstacleList[ObstacleIdx.Candy.getValue()].ballInRange(
-				next, current, rangeStart, rangeEnd);
-		if (tmpObstacle != null)
-			resultObstacles.add(tmpObstacle);
+		if (obstacleList[ObstacleIdx.Candy.getValue()] != null) {
+			tmpObstacle = obstacleList[ObstacleIdx.Candy.getValue()]
+					.ballInRange(next, current, rangeStart, rangeEnd);
+			if (tmpObstacle != null)
+				resultObstacles.add(tmpObstacle);
+		}
 
 		// check platform
-		tmpObstacle = obstacleList[ObstacleIdx.Platform.getValue()]
-				.ballInRange(next, current, rangeStart, rangeEnd);
-		if (tmpObstacle != null)
-			resultObstacles.add(tmpObstacle);
+		if (obstacleList[ObstacleIdx.Platform.getValue()] != null) {
+			tmpObstacle = obstacleList[ObstacleIdx.Platform.getValue()]
+					.ballInRange(next, current, rangeStart, rangeEnd);
+			if (tmpObstacle != null)
+				resultObstacles.add(tmpObstacle);
+		}
 
 		// check blackhole, make this one the LAST!!!!
-		tmpObstacle = obstacleList[ObstacleIdx.Blackhole.getValue()]
-				.ballInRange(next, current, rangeStart, rangeEnd);
-		if (tmpObstacle != null) { // overwrite everything else
-			resultObstacles = new LinkedList<Obstacles>();
-			resultObstacles.add(tmpObstacle);
+		if (obstacleList[ObstacleIdx.Blackhole.getValue()] != null) {
+			tmpObstacle = obstacleList[ObstacleIdx.Blackhole.getValue()]
+					.ballInRange(next, current, rangeStart, rangeEnd);
+			if (tmpObstacle != null) { // overwrite everything else
+				resultObstacles = new LinkedList<Obstacles>();
+				resultObstacles.add(tmpObstacle);
+			}
 		}
 
 		// return null if there is no obstacles
@@ -404,15 +410,17 @@ public class Game {
 	}
 
 	public void show(Canvas canvas) throws Exception {
-
 		// Show background
 		showBackground(canvas);
-		obstacleList[ObstacleIdx.Platform.getValue()].show(canvas,
-				background.getPosition());
-		obstacleList[ObstacleIdx.Candy.getValue()].show(canvas,
-				background.getPosition());
-		obstacleList[ObstacleIdx.Blackhole.getValue()].show(canvas,
-				background.getPosition());
+		if (obstacleList[ObstacleIdx.Platform.getValue()] != null)
+			obstacleList[ObstacleIdx.Platform.getValue()].show(canvas,
+					background.getPosition());
+		if (obstacleList[ObstacleIdx.Candy.getValue()] != null)
+			obstacleList[ObstacleIdx.Candy.getValue()].show(canvas,
+					background.getPosition());
+		if (obstacleList[ObstacleIdx.Blackhole.getValue()] != null)
+			obstacleList[ObstacleIdx.Blackhole.getValue()].show(canvas,
+					background.getPosition());
 
 		if (--updateCounter <= -1)
 			updateCounter = Parameters.updatePeriod;
@@ -537,7 +545,7 @@ public class Game {
 				bloibIndex = bloibIndex == bloibs.length - 1 ? 0
 						: bloibIndex + 1;
 				// ball.bounce(obstacle);
-				
+
 				for (Obstacles obstacle : resultObstacles) {
 					obstacle.interact(ball);
 				}
