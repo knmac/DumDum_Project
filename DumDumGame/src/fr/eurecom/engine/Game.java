@@ -12,6 +12,7 @@ import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.Obstacles;
 import fr.eurecom.dumdumgame.R;
+import fr.eurecom.engine.Character.gearState;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
@@ -207,6 +208,7 @@ public class Game {
 	private LinkedList<Segment> previousObstacles = null; // for highlighting
 															// obstacles
 	private int highlightCounter = 0; // for highlighting obstacles
+	private Point savedMousPos = new Point();
 
 	public void Action(Point mousePos, Object o, MouseState mouseState) {
 		// click pause button
@@ -233,6 +235,7 @@ public class Game {
 
 		mousePos.x -= background.getPosition().x;
 		mousePos.y -= background.getPosition().y;
+		savedMousPos = mousePos; // for scholar DumDum
 
 		if (mouseState == MouseState.MOUSE_DOWN) {
 			if (Helper.Point_GetDistanceFrom(mousePos, ball.getPosition()) <= Parameters.dBallRadius) {
@@ -284,8 +287,6 @@ public class Game {
 		}
 	}
 
-	int endGame = 0;
-
 	private LinkedList<Obstacles> isNextPostAvailable() {
 		// TODO with great assumption that wall list is sorted according to the
 		// x position of first point
@@ -299,7 +300,6 @@ public class Game {
 		 */
 
 		Point current = ball.getCurrentPosition();
-
 		Point next = ball.getNextPosition();
 
 		if (current == null)
@@ -308,9 +308,20 @@ public class Game {
 		// ball gets out of scence
 		// TODO
 		if (next == null) {
-			++endGame;
+			
+			if (ball.getState() != Character.motionState.DEATH)
+				ball.setState(Character.motionState.DEATH);
+			else
+			{
+				decreaseLives();
+				this.restart();
+				updateView();
+				GameManager.mainView.invalidate();
+			}
+			//++endGame;
 			return null;
-		}
+		} else if (ball.getState() == Character.motionState.DEATH)
+			return null;
 
 		Point rangeStart = ball.getTrajectoryList().getFirst();
 		Point rangeEnd = ball.getTrajectoryList().getLast();
@@ -415,6 +426,38 @@ public class Game {
 		 * return returnedWall;
 		 */
 	}
+	
+	private void decreaseLives() {
+		int lives = GameManager.user.getCurrentLives();
+		if (lives > 0) { // TODO: set lives
+			GameManager.user.setCurrentLives(lives - 1);
+		} else {
+			GameManager
+					.setCurrentState(GameManager.GameState.MAIN_MENU);
+		}
+
+		Calendar currentTime = Calendar.getInstance();
+
+		int ss = currentTime.get(Calendar.SECOND);
+		int mm = currentTime.get(Calendar.MINUTE);
+		int hh = currentTime.get(Calendar.HOUR_OF_DAY);
+		int yyyy = currentTime.get(Calendar.YEAR);
+		int MM = currentTime.get(Calendar.MONTH) + 1;
+		int dd = currentTime.get(Calendar.DAY_OF_MONTH);
+
+		String strCurrentTime = String.format("%04d", yyyy) + "-"
+				+ String.format("%02d", MM) + "-"
+				+ String.format("%02d", dd) + " "
+				+ String.format("%02d", hh) + ":"
+				+ String.format("%02d", mm) + ":"
+				+ String.format("%02d", ss);
+		Log.i("DATETIME", strCurrentTime);
+
+		GameManager.user.setLastTime(strCurrentTime);
+		UserWriter.writeUserData(GameManager.user,
+				Parameters.pthUserData);
+
+	}
 
 	public void show(Canvas canvas) throws Exception {
 		// Show background
@@ -486,6 +529,16 @@ public class Game {
 			canvas.drawLine(ball.getPosition().x + background.getPosition().x,
 					ball.getPosition().y + background.getPosition().y,
 					junction.x, junction.y, paint);
+			
+			if (ball.gear == gearState.SCHOLAR) {
+				Point iniVel = new Point(ball.getPosition().x - savedMousPos.x,
+						ball.getPosition().y - savedMousPos.y);
+				LinkedList<Point> traj = getPhysics().computeTrajectory(ball.getPosition(), iniVel);
+				
+				for (Point point : traj) {
+					Helper.drawBlurCircle(canvas, point, background.getPosition(), 125, Parameters.dZoomParam/10);
+				}
+			}
 		}
 
 		// Show ball
@@ -501,56 +554,12 @@ public class Game {
 
 			// TODO: DOUBLE CHECK THESE CONDITIONS, change the method or at
 			// least the name
-			if (endGame == 1) {
-				ball.setState(Character.motionState.DEATH);
-				ball.update(elapsedTime, quantum);
-				endGame++;
-			} else if (endGame == 2) {
-				ball.update(elapsedTime, quantum);
-			} else if (endGame == 3) { // MUST BE 3 (not 2 nhe)
-				endGame = 0;
-
-				int lives = GameManager.user.getCurrentLives();
-				if (lives > 0) { // TODO: set lives
-					GameManager.user.setCurrentLives(lives - 1);
-				} else {
-					GameManager
-							.setCurrentState(GameManager.GameState.MAIN_MENU);
-				}
-
-				Calendar currentTime = Calendar.getInstance();
-
-				int ss = currentTime.get(Calendar.SECOND);
-				int mm = currentTime.get(Calendar.MINUTE);
-				int hh = currentTime.get(Calendar.HOUR_OF_DAY);
-				int yyyy = currentTime.get(Calendar.YEAR);
-				int MM = currentTime.get(Calendar.MONTH) + 1;
-				int dd = currentTime.get(Calendar.DAY_OF_MONTH);
-
-				String strCurrentTime = String.format("%04d", yyyy) + "-"
-						+ String.format("%02d", MM) + "-"
-						+ String.format("%02d", dd) + " "
-						+ String.format("%02d", hh) + ":"
-						+ String.format("%02d", mm) + ":"
-						+ String.format("%02d", ss);
-				Log.i("DATETIME", strCurrentTime);
-
-				GameManager.user.setLastTime(strCurrentTime);
-				UserWriter.writeUserData(GameManager.user,
-						Parameters.pthUserData);
-
-				this.restart();
-				updateView();
-				GameManager.mainView.invalidate();
-				return;
-			}
-
-			else if (resultObstacles == null)
+			if (resultObstacles == null)
 				ball.update(elapsedTime, quantum); // these parameters are only
 													// for placeholder purpose,
 													// they have no meaning till
 													// this moment!!!
-			else if (resultObstacles != null && endGame == 0) {
+			else if (resultObstacles != null) {
 				bloibs[bloibIndex].start();
 				bloibIndex = bloibIndex == bloibs.length - 1 ? 0
 						: bloibIndex + 1;
@@ -647,7 +656,7 @@ public class Game {
 
 		// check level up
 		if (Helper.Point_GetDistanceFrom(ball.getPosition(),
-				gameData.getHolePos()) < 0.65 * Parameters.dBallRadius) {
+				gameData.getHolePos()) < /*0.65 **/ Parameters.dBallRadius) {
 
 			// capture background screenshot
 			GameManager.captureScreen();

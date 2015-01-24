@@ -1,5 +1,7 @@
 package fr.eurecom.data;
 
+import java.util.Random;
+
 import android.graphics.Canvas;
 import android.graphics.Point;
 import fr.eurecom.dumdumgame.DynamicBitmap;
@@ -11,6 +13,7 @@ public class Spike {
 	private Point center;
 	private DynamicBitmap bhImg;
 	private int radius;
+	private Random rand = new Random();
 
 	public Spike(Point center) {
 		this(center, Parameters.dZoomParam);
@@ -20,7 +23,7 @@ public class Spike {
 		this.center = center;
 		this.radius = radius;
 		Point imgTopLeft = new Point(center.x - radius, center.y - radius);
-		bhImg = new DynamicBitmap(Parameters.bmpSpike, imgTopLeft, 0,
+		bhImg = new DynamicBitmap(Parameters.bmpSpike, imgTopLeft, rand.nextInt(8),
 				2 * radius, 2 * radius);
 	}
 

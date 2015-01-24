@@ -57,7 +57,8 @@ public class Spikes extends SupportiveObstacles {
 
 	@Override
 	public void interact(Character ball) {
-		
+		if (Character.gear != Character.gearState.HELMET)
+			ball.setState(Character.motionState.DEATH);
 	}
 
 	@Override

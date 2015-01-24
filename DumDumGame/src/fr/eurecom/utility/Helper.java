@@ -85,11 +85,15 @@ public class Helper {
 	}
 
 	static public void drawBlurCircle(Canvas canvas, Point position, Point offset, int alpha) {
+		drawBlurCircle(canvas, position, offset, alpha, Parameters.dBallRadius);
+	}
+	
+	static public void drawBlurCircle(Canvas canvas, Point position, Point offset, int alpha, int radius) {
 		Point tmp = new Point(position.x + offset.x, position.y + offset.y);
 		Paint paint = new Paint();
 		paint.setStyle(Style.FILL_AND_STROKE);
 		paint.setColor(Color.WHITE);
 		paint.setAlpha(alpha);
-		canvas.drawCircle(tmp.x, tmp.y, Parameters.dBallRadius, paint);
+		canvas.drawCircle(tmp.x, tmp.y, radius, paint);
 	}
 }

@@ -430,9 +430,12 @@ public class Character {
 		}
 	}
 	
-	
 	protected void exhaustTheBall() {
 		setState(motionState.STANDING);
 		count = 0;
+	}
+	
+	protected void killTheBall() {
+		
 	}
 }
