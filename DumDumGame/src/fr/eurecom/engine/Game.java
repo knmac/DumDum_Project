@@ -195,8 +195,8 @@ public class Game {
 	private boolean isBallClicked = false;
 	private boolean isDragging = false; // for ball (ruler)
 	private Point junction = new Point(0, 0); // for ruler
-	private boolean amulet = false; // for teleporters
-	private int numOfCollisions = 0;// for multi-reflection
+//	private boolean amulet = false; // for teleporters
+//	private int numOfCollisions = 0;// for multi-reflection
 	private int updateCounter = 1; // for conveyors, rain
 	private Point clickedPoint = new Point(0, 0); // for dragging background
 	private boolean isBackgroundClicked = false;
@@ -479,14 +479,14 @@ public class Game {
 			updateCounter = Parameters.updatePeriod;
 
 		// Highlight previous obstacles
-		if (highlightCounter < 3 && previousObstacles != null) {
-			if (ball.isRunning()) {
-				for (int i = 0; i < previousObstacles.size(); ++i)
-					previousObstacles.get(i).show(canvas,
-							background.getPosition());
-				highlightCounter++;
-			}
-		}
+//		if (highlightCounter < 3 && previousObstacles != null) {
+//			if (ball.isRunning()) {
+//				for (int i = 0; i < previousObstacles.size(); ++i)
+//					previousObstacles.get(i).show(canvas,
+//							background.getPosition());
+//				highlightCounter++;
+//			}
+//		}
 
 		// Show rain, if any
 		if (rain != null) {
@@ -494,12 +494,6 @@ public class Game {
 			if (updateCounter == 0 || updateCounter == 3)
 				rain.updateToTheNextImage();
 		}
-
-		// Show teleporters, if any
-		// for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
-		// teleporters[i].show(canvas, background.getPosition());
-		// teleporters[i].updateToTheNextImage();
-		// }
 
 		// Show conveyors, if any
 //		boolean conveyorInEffect = false;
@@ -530,6 +524,7 @@ public class Game {
 					ball.getPosition().y + background.getPosition().y,
 					junction.x, junction.y, paint);
 			
+			// draw tracjectory for scholar
 			if (ball.gear == gearState.SCHOLAR) {
 				Point iniVel = new Point(ball.getPosition().x - savedMousPos.x,
 						ball.getPosition().y - savedMousPos.y);
@@ -616,7 +611,7 @@ public class Game {
 			if (ball.getState() == Character.motionState.STANDING) {
 				elapsedTime = 0.0;
 				updateView();
-				numOfCollisions = 0;
+//				numOfCollisions = 0;
 				//
 				Paint paint = new Paint();
 				paint.setStyle(Style.FILL);

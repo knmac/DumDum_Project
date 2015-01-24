@@ -52,7 +52,7 @@ public class Character {
 
 	public Character(Point position) {
 		this.position = position;
-		//this.initialVelocity = 0.0;
+		// this.initialVelocity = 0.0;
 		this.initialVelocity = null;
 		this.setState(motionState.STANDING);
 		this.setTrajectoryList(null);
@@ -64,9 +64,10 @@ public class Character {
 		// create image for character
 		gear = gearState.NORMAL;
 		this.allImg = new DynamicBitmap[3];
-		this.allImg[motionState.MOVING.getValue()] = new DynamicBitmap(
-				Parameters.bmpRoll, this.position, 0,
-				Parameters.dBallRadius * 2, Parameters.dBallRadius * 2);
+		// this.allImg[motionState.MOVING.getValue()] = new DynamicBitmap(
+		// Parameters.bmpRoll, this.position, 0,
+		// Parameters.dBallRadius * 2, Parameters.dBallRadius * 2);
+		
 		// this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(
 		// Parameters.bmpDumDumNormal, this.position);
 		this.allImg[motionState.DEATH.getValue()] = new DynamicBitmap(
@@ -79,79 +80,92 @@ public class Character {
 	public void resetGear(gearState newGear) {
 		this.gear = newGear;
 
-		Bitmap bmp = BitmapFactory.decodeResource(App.getMyContext()
+		Bitmap bmpStand = BitmapFactory.decodeResource(App.getMyContext()
 				.getResources(), R.drawable.dumdum_normal_big);
+		Bitmap[] bmpRoll = Parameters.bmpRoll;
 
 		switch (gear) {
 		case NORMAL:
 			break;
 		case HELMET:
-			bmp = BitmapFactory.decodeResource(App.getMyContext()
+			bmpStand = BitmapFactory.decodeResource(App.getMyContext()
 					.getResources(), R.drawable.dumdum_helmet_big);
+			bmpRoll = Parameters.bmpRollGreen;
 			break;
 		case DRILL:
-			bmp = BitmapFactory.decodeResource(App.getMyContext()
+			bmpStand = BitmapFactory.decodeResource(App.getMyContext()
 					.getResources(), R.drawable.dumdum_drill_big);
+			bmpRoll = Parameters.bmpRollRed;
 			break;
 		case SCHOLAR:
-			bmp = BitmapFactory.decodeResource(App.getMyContext()
+			bmpStand = BitmapFactory.decodeResource(App.getMyContext()
 					.getResources(), R.drawable.dumdum_tracingray_big);
+			bmpRoll = Parameters.bmpRollWhite;
 			break;
 		case TIME:
-			bmp = BitmapFactory.decodeResource(App.getMyContext()
+			bmpStand = BitmapFactory.decodeResource(App.getMyContext()
 					.getResources(), R.drawable.dumdum_timedelay_big);
+			bmpRoll = Parameters.bmpRollYellow;
 			break;
 		case FEEDER:
-			bmp = BitmapFactory.decodeResource(App.getMyContext()
+			bmpStand = BitmapFactory.decodeResource(App.getMyContext()
 					.getResources(), R.drawable.dumdum_hungryfeeder_big);
 			break;
 		case NINJA:
-			bmp = BitmapFactory.decodeResource(App.getMyContext()
+			bmpStand = BitmapFactory.decodeResource(App.getMyContext()
 					.getResources(), R.drawable.dumdum_ninja_big);
+			bmpRoll = Parameters.bmpRollBlue;
 			break;
 		case ANGEL:
-			bmp = BitmapFactory.decodeResource(App.getMyContext()
+			bmpStand = BitmapFactory.decodeResource(App.getMyContext()
 					.getResources(), R.drawable.dumdum_angel_big);
 			break;
 		}
 
 		// this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(bmp,
 		// this.position);
-		this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(bmp,
-				this.position, Parameters.sizeDumDum.x, Parameters.sizeDumDum.y);
+		this.allImg[motionState.STANDING.getValue()] = new DynamicBitmap(
+				bmpStand, this.position, Parameters.sizeDumDum.x,
+				Parameters.sizeDumDum.y);
+		this.allImg[motionState.MOVING.getValue()] = new DynamicBitmap(bmpRoll,
+				this.position, 0, Parameters.dBallRadius * 2,
+				Parameters.dBallRadius * 2);
 	}
 
 	// TODO: change the Ray + initialVelocity into 1 variable presenting
 	// velocity
 	public void init(Point initialVelocity) {
 		this.initialVelocity = initialVelocity;
-		//this.direction = direction;
+		// this.direction = direction;
 		this.setState(motionState.MOVING);
 		this.positionIndex = 0;
 
-		this.setTrajectoryList(Game.getPhysics().computeTrajectory(position, initialVelocity));
+		this.setTrajectoryList(Game.getPhysics().computeTrajectory(position,
+				initialVelocity));
 	}
 
 	// TODO: the name is not really appropriate, find another one!
-	public void createNewMovement(LinkedList<Point> newTrajectory, Point iniVelocity) {
+	public void createNewMovement(LinkedList<Point> newTrajectory,
+			Point iniVelocity) {
 
-		// Update new Velocity for DumDum !!!!!!!!!!!!!!!!!!!!!!!!! New new, need to check here
-//		initialVelocity.x = this.direction.getSecondPoint().x
-//				- this.direction.getRoot().x;
+		// Update new Velocity for DumDum !!!!!!!!!!!!!!!!!!!!!!!!! New new,
+		// need to check here
+		// initialVelocity.x = this.direction.getSecondPoint().x
+		// - this.direction.getRoot().x;
 
 		// this.setTrajectoryList(physics.computeTrajectory(initVelocity,
 		// getCurrentPosition(), this.positionIndex, wall));
-		
-		
-		
-		//Point[] temp = wall.interact(initialVelocity, getCurrentPosition(), this.positionIndex);
 
-		//temp[1] = new Point((int) (temp[1].x), (int) (temp[1].y));
+		// Point[] temp = wall.interact(initialVelocity, getCurrentPosition(),
+		// this.positionIndex);
+
+		// temp[1] = new Point((int) (temp[1].x), (int) (temp[1].y));
 
 		this.setTrajectoryList(newTrajectory);
 
 		// exhaust the ball
-		if (Math.abs(LastPost.x - newTrajectory.getFirst().x) < delta && Math.abs(LastPost.y - newTrajectory.getFirst().y) < delta)
+		if (Math.abs(LastPost.x - newTrajectory.getFirst().x) < delta
+				&& Math.abs(LastPost.y - newTrajectory.getFirst().y) < delta)
 			count++;
 		else
 			count = 0;
@@ -167,7 +181,6 @@ public class Character {
 		this.positionIndex = 0;
 		this.initialVelocity = iniVelocity;
 	}
-
 
 	public Point getPosition() {
 		return position;
@@ -191,7 +204,8 @@ public class Character {
 	}
 
 	public Point getCurrentPosition() {
-		if (this.getTrajectoryList() != null && this.positionIndex > -1 && this.positionIndex < this.getTrajectoryList().size())
+		if (this.getTrajectoryList() != null && this.positionIndex > -1
+				&& this.positionIndex < this.getTrajectoryList().size())
 			return this.getTrajectoryList().get(this.positionIndex);
 		return null;
 	}
@@ -204,7 +218,7 @@ public class Character {
 	}
 
 	public void show(Canvas canvas) {
-	// Paint paint = new Paint();
+		// Paint paint = new Paint();
 		// paint.setStyle(Style.FILL_AND_STROKE);
 		// paint.setColor(Color.WHITE);
 		// canvas.drawCircle(position.x, position.y, Parameters.dBallRadius,
@@ -215,7 +229,7 @@ public class Character {
 	}
 
 	public void show(Canvas canvas, Point offset) { // offset of the background
-//		showShadow(canvas, offset, 100);
+	// showShadow(canvas, offset, 100);
 
 		Point pivot = Parameters.pivotDumDum;
 		Point nonRollPos = new Point(this.position.x - 2
@@ -242,14 +256,14 @@ public class Character {
 		}
 	}
 
-//	public void showShadow(Canvas canvas, Point offset, int alpha) {
-//		Point tmp = new Point(position.x + offset.x, position.y + offset.y);
-//		Paint paint = new Paint();
-//		paint.setStyle(Style.FILL_AND_STROKE);
-//		paint.setColor(Color.WHITE);
-//		paint.setAlpha(alpha);
-//		canvas.drawCircle(tmp.x, tmp.y, Parameters.dBallRadius, paint);
-//	}
+	// public void showShadow(Canvas canvas, Point offset, int alpha) {
+	// Point tmp = new Point(position.x + offset.x, position.y + offset.y);
+	// Paint paint = new Paint();
+	// paint.setStyle(Style.FILL_AND_STROKE);
+	// paint.setColor(Color.WHITE);
+	// paint.setAlpha(alpha);
+	// canvas.drawCircle(tmp.x, tmp.y, Parameters.dBallRadius, paint);
+	// }
 
 	public boolean update(double elapsedTime, double quantum) throws Exception {
 
@@ -326,11 +340,11 @@ public class Character {
 	// return new Character(points[1]);
 	// }
 
-//	public double getInstantVelocity(double elapsedTime) {
-//		if (!this.isRunning())
-//			return 0.0;
-//		return this.initialVelocity + this.acceleration * elapsedTime;
-//	}
+	// public double getInstantVelocity(double elapsedTime) {
+	// if (!this.isRunning())
+	// return 0.0;
+	// return this.initialVelocity + this.acceleration * elapsedTime;
+	// }
 
 	public boolean isRunning() {
 		return (this.getState() == motionState.MOVING);
@@ -346,10 +360,10 @@ public class Character {
 		return true;
 	}
 
-//	public void exhaustTheball() {
-//		this.initialVelocity = null;
-//		this.setState(motionState.STANDING);
-//	}
+	// public void exhaustTheball() {
+	// this.initialVelocity = null;
+	// this.setState(motionState.STANDING);
+	// }
 
 	public LinkedList<Segment> isOverWalls(LinkedList<Segment> wallList)
 			throws Exception {
@@ -417,25 +431,25 @@ public class Character {
 		return positionIndex;
 	}
 
-	
-	public void bounce(Segment aPlatform)
-	{
+	public void bounce(Segment aPlatform) {
 		if (this.gear == gearState.NINJA)
 			exhaustTheBall();
-		else
-		{
-			Point[] temp = Game.getPhysics().bouncing(this.getInitialVelocity(), this.getCurrentPosition(), this.getPositionIndex(), aPlatform);
-			LinkedList<Point> newTraject = Game.getPhysics().computeTrajectory(temp[0], temp[1]);
+		else {
+			Point[] temp = Game.getPhysics().bouncing(
+					this.getInitialVelocity(), this.getCurrentPosition(),
+					this.getPositionIndex(), aPlatform);
+			LinkedList<Point> newTraject = Game.getPhysics().computeTrajectory(
+					temp[0], temp[1]);
 			this.createNewMovement(newTraject, temp[1]);
 		}
 	}
-	
+
 	protected void exhaustTheBall() {
 		setState(motionState.STANDING);
 		count = 0;
 	}
-	
+
 	protected void killTheBall() {
-		
+
 	}
 }

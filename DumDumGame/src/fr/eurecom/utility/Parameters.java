@@ -44,6 +44,11 @@ public class Parameters {
 	static public Bitmap[] bmpConveyorDown;
 	static public Bitmap[] bmpRain;
 	static public Bitmap[] bmpRoll;
+	static public Bitmap[] bmpRollBlue;
+	static public Bitmap[] bmpRollGreen;
+	static public Bitmap[] bmpRollRed;
+	static public Bitmap[] bmpRollWhite;
+	static public Bitmap[] bmpRollYellow;
 
 	static public Bitmap bmpHeartRed;
 	static public Bitmap bmpHeartBlack;
@@ -172,6 +177,21 @@ public class Parameters {
 
 		bmpRoll = Cutter.cutBitmap(
 				BitmapFactory.decodeResource(res, R.drawable.roll_sprite), 8,
+				Cutter.CutStyle.VERTICAL);
+		bmpRollBlue = Cutter.cutBitmap(
+				BitmapFactory.decodeResource(res, R.drawable.roll_sprite_blue), 8,
+				Cutter.CutStyle.VERTICAL);
+		bmpRollGreen = Cutter.cutBitmap(
+				BitmapFactory.decodeResource(res, R.drawable.roll_sprite_green), 8,
+				Cutter.CutStyle.VERTICAL);
+		bmpRollRed = Cutter.cutBitmap(
+				BitmapFactory.decodeResource(res, R.drawable.roll_sprite_red), 8,
+				Cutter.CutStyle.VERTICAL);
+		bmpRollWhite = Cutter.cutBitmap(
+				BitmapFactory.decodeResource(res, R.drawable.roll_sprite_white), 8,
+				Cutter.CutStyle.VERTICAL);
+		bmpRollYellow = Cutter.cutBitmap(
+				BitmapFactory.decodeResource(res, R.drawable.roll_sprite_yellow), 8,
 				Cutter.CutStyle.VERTICAL);
 		bmpDumDumNormal = BitmapFactory.decodeResource(res,
 				R.drawable.dumdum_normal_big);
