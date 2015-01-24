@@ -37,6 +37,7 @@ public class Parameters {
 	static public Bitmap bmpTextureWallpaper;
 	static public Bitmap bmpMicrowave;
 	static public Bitmap[] bmpTeleporter;
+	static public Bitmap[] bmpSpike;
 	static public Bitmap[] bmpConveyorLeft;
 	static public Bitmap[] bmpConveyorRight;
 	static public Bitmap[] bmpConveyorUp;
@@ -142,6 +143,10 @@ public class Parameters {
 
 		bmpTeleporter = Cutter.cutBitmap(
 				BitmapFactory.decodeResource(res, R.drawable.black_hole), 5,
+				Cutter.CutStyle.VERTICAL);
+		
+		bmpSpike = Cutter.cutBitmap(
+				BitmapFactory.decodeResource(res, R.drawable.spike_sprite), 8,
 				Cutter.CutStyle.VERTICAL);
 
 		bmpConveyorLeft = Cutter.cutBitmap(
