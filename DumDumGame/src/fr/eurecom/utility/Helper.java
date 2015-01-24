@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Paint.Style;
 import android.media.MediaPlayer;
 
 public class Helper {
@@ -83,4 +84,12 @@ public class Helper {
 //		return newBitmap;
 	}
 
+	static public void drawBlurCircle(Canvas canvas, Point position, Point offset, int alpha) {
+		Point tmp = new Point(position.x + offset.x, position.y + offset.y);
+		Paint paint = new Paint();
+		paint.setStyle(Style.FILL_AND_STROKE);
+		paint.setColor(Color.WHITE);
+		paint.setAlpha(alpha);
+		canvas.drawCircle(tmp.x, tmp.y, Parameters.dBallRadius, paint);
+	}
 }

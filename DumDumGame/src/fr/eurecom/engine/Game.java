@@ -35,7 +35,7 @@ public class Game {
 	private Map background;
 	private Character ball;
 	private double elapsedTime;
-	private DynamicBitmap[] teleporters;
+//	private DynamicBitmap[] teleporters;
 	private Conveyor[] conveyors;
 	private DynamicBitmap rain;
 	private int turn;
@@ -219,8 +219,7 @@ public class Game {
 		}
 
 		// click gear-up button
-		if (mouseState == MouseState.MOUSE_DOWN
-				&& gearUpButton.isClicked(mousePos)) {
+		if (mouseState == MouseState.MOUSE_DOWN && gearUpButton.isClicked(mousePos)) {
 			updateView();
 			GameManager.captureScreen();
 			GameManager.setCurrentState(GameManager.GameState.GEAR_UP_MENU);
@@ -334,6 +333,14 @@ public class Game {
 			if (tmpObstacle != null)
 				resultObstacles.add(tmpObstacle);
 		}
+		
+		// check spikes
+		if (obstacleList[ObstacleIdx.Spike.getValue()] != null) {
+			tmpObstacle = obstacleList[ObstacleIdx.Spike.getValue()]
+					.ballInRange(next, current, rangeStart, rangeEnd);
+			if (tmpObstacle != null)
+				resultObstacles.add(tmpObstacle);
+		}
 
 		// check blackhole, make this one the LAST!!!!
 		if (obstacleList[ObstacleIdx.Blackhole.getValue()] != null) {
@@ -418,6 +425,9 @@ public class Game {
 		if (obstacleList[ObstacleIdx.Candy.getValue()] != null)
 			obstacleList[ObstacleIdx.Candy.getValue()].show(canvas,
 					background.getPosition());
+		if (obstacleList[ObstacleIdx.Spike.getValue()] != null)
+			obstacleList[ObstacleIdx.Spike.getValue()].show(canvas,
+					background.getPosition());
 		if (obstacleList[ObstacleIdx.Blackhole.getValue()] != null)
 			obstacleList[ObstacleIdx.Blackhole.getValue()].show(canvas,
 					background.getPosition());
@@ -449,23 +459,23 @@ public class Game {
 		// }
 
 		// Show conveyors, if any
-		boolean conveyorInEffect = false;
-		for (int i = 0; i < gameData.getConveyorList().size(); ++i) {
-			conveyors[i].show(canvas, background.getPosition());
-			if (updateCounter == 0)
-				conveyors[i].updateToTheNextImage();
-			if (conveyors[i].contains(ball.getPosition()) && !conveyorInEffect) {
-				conveyorInEffect = true;
-				Point increment = conveyors[i].getIncrement();
-				if (!ball.isRunning()) {
-					ball.projectOn(conveyors[i].getCenterLine());
-					Point newPosition = new Point(ball.getPosition().x
-							+ increment.x, ball.getPosition().y + increment.y);
-					ball.setPosition(newPosition);
-				} else
-					ball.exhaustTheball();
-			}
-		}
+//		boolean conveyorInEffect = false;
+//		for (int i = 0; i < gameData.getConveyorList().size(); ++i) {
+//			conveyors[i].show(canvas, background.getPosition());
+//			if (updateCounter == 0)
+//				conveyors[i].updateToTheNextImage();
+//			if (conveyors[i].contains(ball.getPosition()) && !conveyorInEffect) {
+//				conveyorInEffect = true;
+//				Point increment = conveyors[i].getIncrement();
+//				if (!ball.isRunning()) {
+//					ball.projectOn(conveyors[i].getCenterLine());
+//					Point newPosition = new Point(ball.getPosition().x
+//							+ increment.x, ball.getPosition().y + increment.y);
+//					ball.setPosition(newPosition);
+//				} else
+//					ball.exhaustTheball();
+//			}
+//		}
 
 		// Show pulling line, if any
 		if (isDragging) {
@@ -563,11 +573,9 @@ public class Game {
 			// Show ball's shadow
 			if (ball.getState() == Character.motionState.MOVING) {
 				Point temp = new Point(ball.getPosition());
-				Point shadowPos2 = Helper.Point_GetMirrorFrom(temp, shadowPos1);
-				(new Character(shadowPos2)).showShadow(canvas,
-						background.getPosition(), 50);
-				(new Character(shadowPos1)).showShadow(canvas,
-						background.getPosition(), 100);
+				Point shadowPos2 = Helper.Point_GetMirrorFrom(temp, shadowPos1);				
+				Helper.drawBlurCircle(canvas, shadowPos2, background.getPosition(), 50);
+				Helper.drawBlurCircle(canvas, shadowPos1, background.getPosition(), 100);
 			}
 
 			// Show ball
@@ -691,7 +699,7 @@ public class Game {
 		background = null;
 		gameData = null;
 		ball = null;
-		teleporters = null;
+//		teleporters = null;
 		conveyors = null;
 		rain = null;
 	}

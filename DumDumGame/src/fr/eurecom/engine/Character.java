@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.Obstacles;
+import fr.eurecom.dumdumgame.Platforms;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
@@ -15,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Paint.Style;
+import android.net.NetworkInfo.State;
 
 public class Character {
 	private Point position = new Point(0, 0);
@@ -158,14 +160,14 @@ public class Character {
 		LastPost.y = newTrajectory.getFirst().y;
 
 		if (count == 10 || iniVelocity.y == 0) {
-			setState(motionState.STANDING);
-			position = newTrajectory.getFirst();
-			count = 0;
+			setPosition(newTrajectory.getFirst());
+			exhaustTheBall();
 		}
 
 		this.positionIndex = 0;
 		this.initialVelocity = iniVelocity;
 	}
+
 
 	public Point getPosition() {
 		return position;
@@ -213,7 +215,7 @@ public class Character {
 	}
 
 	public void show(Canvas canvas, Point offset) { // offset of the background
-		showShadow(canvas, offset, 100);
+//		showShadow(canvas, offset, 100);
 
 		Point pivot = Parameters.pivotDumDum;
 		Point nonRollPos = new Point(this.position.x - 2
@@ -240,14 +242,14 @@ public class Character {
 		}
 	}
 
-	public void showShadow(Canvas canvas, Point offset, int alpha) {
-		Point tmp = new Point(position.x + offset.x, position.y + offset.y);
-		Paint paint = new Paint();
-		paint.setStyle(Style.FILL_AND_STROKE);
-		paint.setColor(Color.WHITE);
-		paint.setAlpha(alpha);
-		canvas.drawCircle(tmp.x, tmp.y, Parameters.dBallRadius, paint);
-	}
+//	public void showShadow(Canvas canvas, Point offset, int alpha) {
+//		Point tmp = new Point(position.x + offset.x, position.y + offset.y);
+//		Paint paint = new Paint();
+//		paint.setStyle(Style.FILL_AND_STROKE);
+//		paint.setColor(Color.WHITE);
+//		paint.setAlpha(alpha);
+//		canvas.drawCircle(tmp.x, tmp.y, Parameters.dBallRadius, paint);
+//	}
 
 	public boolean update(double elapsedTime, double quantum) throws Exception {
 
@@ -344,10 +346,10 @@ public class Character {
 		return true;
 	}
 
-	public void exhaustTheball() {
-		this.initialVelocity = null;
-		this.setState(motionState.STANDING);
-	}
+//	public void exhaustTheball() {
+//		this.initialVelocity = null;
+//		this.setState(motionState.STANDING);
+//	}
 
 	public LinkedList<Segment> isOverWalls(LinkedList<Segment> wallList)
 			throws Exception {
@@ -415,4 +417,22 @@ public class Character {
 		return positionIndex;
 	}
 
+	
+	public void bounce(Segment aPlatform)
+	{
+		if (this.gear == gearState.NINJA)
+			exhaustTheBall();
+		else
+		{
+			Point[] temp = Game.getPhysics().bouncing(this.getInitialVelocity(), this.getCurrentPosition(), this.getPositionIndex(), aPlatform);
+			LinkedList<Point> newTraject = Game.getPhysics().computeTrajectory(temp[0], temp[1]);
+			this.createNewMovement(newTraject, temp[1]);
+		}
+	}
+	
+	
+	protected void exhaustTheBall() {
+		setState(motionState.STANDING);
+		count = 0;
+	}
 }

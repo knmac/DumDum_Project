@@ -94,9 +94,10 @@ public class Platforms extends SupportiveObstacles {
 //	}
 	@Override
 	public void interact(Character ball) {
-		Point[] temp = Game.getPhysics().bouncing(ball.getInitialVelocity(), ball.getCurrentPosition(), ball.getPositionIndex(), reflectorList.getFirst());
-		LinkedList<Point> newTraject = Game.getPhysics().computeTrajectory(temp[0], temp[1]);
-		ball.createNewMovement(newTraject, temp[1]);
+//		Point[] temp = Game.getPhysics().bouncing(ball.getInitialVelocity(), ball.getCurrentPosition(), ball.getPositionIndex(), reflectorList.getFirst());
+//		LinkedList<Point> newTraject = Game.getPhysics().computeTrajectory(temp[0], temp[1]);
+//		ball.createNewMovement(newTraject, temp[1]);
+		ball.bounce(this.reflectorList.getFirst());
 	}
 
 	// Show reflective surfaces

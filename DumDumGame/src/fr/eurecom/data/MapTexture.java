@@ -12,6 +12,7 @@ import fr.eurecom.dumdumgame.Blackholes;
 import fr.eurecom.dumdumgame.Candies;
 import fr.eurecom.dumdumgame.Obstacles;
 import fr.eurecom.dumdumgame.Platforms;
+import fr.eurecom.dumdumgame.Spikes;
 import fr.eurecom.engine.Game.ObstacleIdx;
 import fr.eurecom.engine.Polygon;
 import fr.eurecom.engine.Segment;
@@ -162,6 +163,7 @@ public class MapTexture {
 			LinkedList<Segment> reflectorList = new LinkedList<Segment>();
 			LinkedList<Candy> candyList = new LinkedList<Candy>();
 			LinkedList<Point> teleporterList = new LinkedList<Point>();
+			LinkedList<Point> spikeList = new LinkedList<Point>();
 			
 			LinkedList<Segment> conveyorList = new LinkedList<Segment>();			
 			LinkedList<Polygon> wallList = new LinkedList<Polygon>();
@@ -236,6 +238,13 @@ public class MapTexture {
 			for (int i = 0; i < n; ++i) {
 				candyList.add(ReadCandy(reader));
 			}
+			
+			// read spike pos
+			int numSpikes = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < numSpikes; ++i) {
+				arr = reader.readLine().split(" ");
+				spikeList.add(new Point(Integer.parseInt(arr[0]), Integer.parseInt(arr[1])));
+			}
 
 			reader.close();
 
@@ -256,6 +265,13 @@ public class MapTexture {
 				obstacleList[ObstacleIdx.Blackhole.getValue()] = new Blackholes();
 				obstacleList[ObstacleIdx.Blackhole.getValue()].addData(
 						teleporterList, Parameters.dZoomParam, Parameters.dShiftParam);
+			}
+			
+			if (numSpikes > 0)
+			{
+				obstacleList[ObstacleIdx.Spike.getValue()] = new Spikes();
+				obstacleList[ObstacleIdx.Spike.getValue()].addData(
+						spikeList, Parameters.dZoomParam, Parameters.dShiftParam);
 			}
 			
 			mapBottomRight = ((Platforms) (obstacleList[ObstacleIdx.Platform
