@@ -339,8 +339,8 @@ public class Game {
 		if (obstacleList[ObstacleIdx.Blackhole.getValue()] != null) {
 			tmpObstacle = obstacleList[ObstacleIdx.Blackhole.getValue()]
 					.ballInRange(next, current, rangeStart, rangeEnd);
-			if (tmpObstacle != null) { // overwrite everything else
-				resultObstacles = new LinkedList<Obstacles>();
+			if (tmpObstacle != null) { 
+//				resultObstacles = new LinkedList<Obstacles>(); // overwrite everything else
 				resultObstacles.add(tmpObstacle);
 			}
 		}

@@ -12,6 +12,7 @@ import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Cutter;
 import fr.eurecom.utility.Parameters;
+import fr.eurecom.utility.UserWriter;
 import android.graphics.BitmapFactory;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Path;
@@ -183,7 +184,7 @@ public class LoadMenu extends BaseMenu {
 	private void CallGame(Object o, int chosenLevel) {
 		int currentLives = GameManager.user.getCurrentLives();
 		int maxLives = GameManager.user.getMaxLives();
-		int remainTime = -1;
+		long remainTime = -1;
 
 		if (currentLives <= maxLives) {
 			// Get the current time
@@ -213,13 +214,19 @@ public class LoadMenu extends BaseMenu {
 			// if don't refill any lives, calculate the remaining time for
 			// refill a life.
 			if (lives == 0)
-				remainTime = (int) (GameManager.user.getRefillTime() - distInSec / 60);
+				remainTime = (GameManager.user.getRefillTime() - distInSec);
 
 			// Fill lives if any
-			if (lives + currentLives <= maxLives)
+			if (lives + currentLives <= maxLives) {
 				GameManager.user.setCurrentLives(lives + currentLives);
-			else
+				UserWriter.writeUserData(GameManager.user,
+						Parameters.pthUserData);
+
+			} else {
 				GameManager.user.setCurrentLives(maxLives);
+				UserWriter.writeUserData(GameManager.user,
+						Parameters.pthUserData);
+			}				
 		}
 
 		// Do a down on the mutex
@@ -233,8 +240,9 @@ public class LoadMenu extends BaseMenu {
 			Toast.makeText(
 					App.getMyContext(),
 					"Not enough life to play, please wait for "
-							+ String.valueOf(remainTime) + " minute(s)",
-					Toast.LENGTH_SHORT).show();
+							+ String.valueOf((int) (remainTime / 60)) + ":"
+							+ String.valueOf((int) (remainTime % 60))
+							+ " minute(s)", Toast.LENGTH_SHORT).show();
 			GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
 			GameManager.mainView.invalidate();
 		} else {
