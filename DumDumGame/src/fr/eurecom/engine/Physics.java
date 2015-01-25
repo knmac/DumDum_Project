@@ -14,7 +14,7 @@ public class Physics {
 
 	private Point[] forceArr;
 	private Point netForce;
-	static private double interval = Parameters.timer / 1000.0;
+	static private double interval = Parameters.timer / 500.0;
 	private Point mapBottomRight = null; 
 	private double coeff;
 	

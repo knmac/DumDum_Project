@@ -1,7 +1,5 @@
 package fr.eurecom.data;
 
-import java.util.Random;
-
 import android.graphics.Canvas;
 import android.graphics.Point;
 import fr.eurecom.dumdumgame.DynamicBitmap;
@@ -11,9 +9,8 @@ import fr.eurecom.utility.Parameters;
 public class Spike {
 
 	private Point center;
-	private DynamicBitmap bhImg;
+	private DynamicBitmap spikeImg;
 	private int radius;
-	private Random rand = new Random();
 
 	public Spike(Point center) {
 		this(center, Parameters.dZoomParam);
@@ -23,7 +20,8 @@ public class Spike {
 		this.center = center;
 		this.radius = radius;
 		Point imgTopLeft = new Point(center.x - radius, center.y - radius);
-		bhImg = new DynamicBitmap(Parameters.bmpSpike, imgTopLeft, rand.nextInt(8),
+		spikeImg = new DynamicBitmap(Parameters.bmpSpike, imgTopLeft,
+				Parameters.randomGenerator.nextInt(Parameters.bmpSpike.length),
 				2 * radius, 2 * radius);
 	}
 
@@ -36,12 +34,12 @@ public class Spike {
 		this.center.y = centerY;
 
 		Point imgTopLeft = new Point(center.x - radius, center.y - radius);
-		this.bhImg.setPosition(imgTopLeft);
+		this.spikeImg.setPosition(imgTopLeft);
 	}
 
 	public void show(Canvas canvas, Point offset) {
-		bhImg.show(canvas, offset);
-		bhImg.updateToTheNextImage();
+		spikeImg.show(canvas, offset);
+		spikeImg.updateToTheNextImage();
 	}
 
 	public Boolean isOverlapped(Point objPos, int range) {

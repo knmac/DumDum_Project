@@ -61,7 +61,7 @@ public class Game {
 	}
 
 	public enum ObstacleIdx {
-		Platform(0), Candy(1), Blackhole(2), Spike(3), Conveyor(4), Bat(5);
+		Platform(0), Candy(1), Blackhole(2), Spike(3), Conveyor(4), Bee(5);
 
 		// return number of obstacle types
 		public static int numObstacleType() {
@@ -352,6 +352,14 @@ public class Game {
 			if (tmpObstacle != null)
 				resultObstacles.add(tmpObstacle);
 		}
+		
+		// check bees
+		if (obstacleList[ObstacleIdx.Bee.getValue()] != null) {
+			tmpObstacle = obstacleList[ObstacleIdx.Bee.getValue()]
+					.ballInRange(next, current, rangeStart, rangeEnd);
+			if (tmpObstacle != null)
+				resultObstacles.add(tmpObstacle);
+		}
 
 		// check blackhole, make this one the LAST!!!!
 		if (obstacleList[ObstacleIdx.Blackhole.getValue()] != null) {
@@ -470,6 +478,9 @@ public class Game {
 					background.getPosition());
 		if (obstacleList[ObstacleIdx.Spike.getValue()] != null)
 			obstacleList[ObstacleIdx.Spike.getValue()].show(canvas,
+					background.getPosition());
+		if (obstacleList[ObstacleIdx.Bee.getValue()] != null)
+			obstacleList[ObstacleIdx.Bee.getValue()].show(canvas,
 					background.getPosition());
 		if (obstacleList[ObstacleIdx.Blackhole.getValue()] != null)
 			obstacleList[ObstacleIdx.Blackhole.getValue()].show(canvas,

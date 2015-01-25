@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import fr.eurecom.dumdumgame.Bees;
 import fr.eurecom.dumdumgame.Blackholes;
 import fr.eurecom.dumdumgame.Candies;
 import fr.eurecom.dumdumgame.Obstacles;
@@ -51,7 +52,7 @@ public class MapTexture {
 			LinkedList<Segment> reflectorList = new LinkedList<Segment>();
 			LinkedList<Candy> candyList = new LinkedList<Candy>();
 			LinkedList<Point> teleporterList = new LinkedList<Point>();
-			
+
 			// start reading data
 			// read rain status
 			if (Integer.parseInt(reader.readLine()) == 1)
@@ -164,8 +165,9 @@ public class MapTexture {
 			LinkedList<Candy> candyList = new LinkedList<Candy>();
 			LinkedList<Point> teleporterList = new LinkedList<Point>();
 			LinkedList<Point> spikeList = new LinkedList<Point>();
-			
-			LinkedList<Segment> conveyorList = new LinkedList<Segment>();			
+			LinkedList<Bee> beeList = new LinkedList<Bee>();
+
+			LinkedList<Segment> conveyorList = new LinkedList<Segment>();
 			LinkedList<Polygon> wallList = new LinkedList<Polygon>();
 			LinkedList<Polygon> internalWallList = new LinkedList<Polygon>();
 			LinkedList<Polygon> grassList = new LinkedList<Polygon>();
@@ -199,7 +201,8 @@ public class MapTexture {
 			int numBlackHole = Integer.parseInt(reader.readLine());
 			for (int i = 0; i < numBlackHole; ++i) {
 				arr = reader.readLine().split(" ");
-				teleporterList.add(new Point(Integer.parseInt(arr[0]), Integer.parseInt(arr[1])));
+				teleporterList.add(new Point(Integer.parseInt(arr[0]), Integer
+						.parseInt(arr[1])));
 			}
 
 			/************* for graphic ***************/
@@ -233,17 +236,25 @@ public class MapTexture {
 				waterList.add(ReadPolygon(reader));
 			}
 
+			/************** new items!!! ***************/
 			// read candy pos
 			n = Integer.parseInt(reader.readLine());
 			for (int i = 0; i < n; ++i) {
 				candyList.add(ReadCandy(reader));
 			}
-			
+
 			// read spike pos
 			int numSpikes = Integer.parseInt(reader.readLine());
 			for (int i = 0; i < numSpikes; ++i) {
 				arr = reader.readLine().split(" ");
-				spikeList.add(new Point(Integer.parseInt(arr[0]), Integer.parseInt(arr[1])));
+				spikeList.add(new Point(Integer.parseInt(arr[0]), Integer
+						.parseInt(arr[1])));
+			}
+
+			// read bee pos
+			int numBees = Integer.parseInt(reader.readLine());
+			for (int i = 0; i < numBees; ++i) {
+				beeList.add(new Bee(ReadBee(reader)));
 			}
 
 			reader.close();
@@ -253,27 +264,35 @@ public class MapTexture {
 			for (int i = 0; i < ObstacleIdx.numObstacleType(); i++) {
 				obstacleList[i] = null;
 			}
-			
+
 			obstacleList[ObstacleIdx.Candy.getValue()] = new Candies();
-			obstacleList[ObstacleIdx.Candy.getValue()].addData(candyList, Parameters.dZoomParam, Parameters.dShiftParam);
-			
+			obstacleList[ObstacleIdx.Candy.getValue()].addData(candyList,
+					Parameters.dZoomParam, Parameters.dShiftParam);
+
 			obstacleList[ObstacleIdx.Platform.getValue()] = new Platforms();
-			obstacleList[ObstacleIdx.Platform.getValue()].addData(reflectorList, Parameters.dZoomParam, Parameters.dShiftParam);
-			
-			if (numBlackHole > 0)
-			{
+			obstacleList[ObstacleIdx.Platform.getValue()].addData(
+					reflectorList, Parameters.dZoomParam,
+					Parameters.dShiftParam);
+
+			if (numBlackHole > 0) {
 				obstacleList[ObstacleIdx.Blackhole.getValue()] = new Blackholes();
 				obstacleList[ObstacleIdx.Blackhole.getValue()].addData(
-						teleporterList, Parameters.dZoomParam, Parameters.dShiftParam);
+						teleporterList, Parameters.dZoomParam,
+						Parameters.dShiftParam);
 			}
-			
-			if (numSpikes > 0)
-			{
+
+			if (numSpikes > 0) {
 				obstacleList[ObstacleIdx.Spike.getValue()] = new Spikes();
-				obstacleList[ObstacleIdx.Spike.getValue()].addData(
-						spikeList, Parameters.dZoomParam, Parameters.dShiftParam);
+				obstacleList[ObstacleIdx.Spike.getValue()].addData(spikeList,
+						Parameters.dZoomParam, Parameters.dShiftParam);
 			}
 			
+			if (numBees > 0) {
+				obstacleList[ObstacleIdx.Bee.getValue()] = new Bees();
+				obstacleList[ObstacleIdx.Bee.getValue()].addData(beeList,
+						Parameters.dZoomParam, Parameters.dShiftParam);
+			}
+
 			mapBottomRight = ((Platforms) (obstacleList[ObstacleIdx.Platform
 					.getValue()])).getBottomRight();
 
@@ -319,13 +338,13 @@ public class MapTexture {
 		return conveyorList;
 	}
 
-//	public void setTeleporterList(LinkedList<Point> teleporterList) {
-//		this.teleporterList = teleporterList;
-//	}
-//
-//	public LinkedList<Point> getTeleporterList() {
-//		return teleporterList;
-//	}
+	// public void setTeleporterList(LinkedList<Point> teleporterList) {
+	// this.teleporterList = teleporterList;
+	// }
+	//
+	// public LinkedList<Point> getTeleporterList() {
+	// return teleporterList;
+	// }
 
 	public void setWallList(LinkedList<Polygon> wallList) {
 		this.wallList = wallList;
@@ -418,10 +437,10 @@ public class MapTexture {
 			// zoomParam));
 		}
 
-//		for (int i = 0; i < teleporterList.size(); ++i) {
-//			Point point = ZoomPoint(teleporterList.get(i), zoomParam);
-//			teleporterList.get(i).set(point.x, point.y);
-//		}
+		// for (int i = 0; i < teleporterList.size(); ++i) {
+		// Point point = ZoomPoint(teleporterList.get(i), zoomParam);
+		// teleporterList.get(i).set(point.x, point.y);
+		// }
 
 		for (int i = 0; i < wallList.size(); ++i) {
 			for (int j = 0; j < wallList.get(i).getPoints().size(); ++j) {
@@ -494,10 +513,10 @@ public class MapTexture {
 		// shiftParam));
 		// }
 
-//		for (int i = 0; i < teleporterList.size(); ++i) {
-//			Point point = ShiftPoint(teleporterList.get(i), shiftParam);
-//			teleporterList.get(i).set(point.x, point.y);
-//		}
+		// for (int i = 0; i < teleporterList.size(); ++i) {
+		// Point point = ShiftPoint(teleporterList.get(i), shiftParam);
+		// teleporterList.get(i).set(point.x, point.y);
+		// }
 
 		for (int i = 0; i < wallList.size(); ++i) {
 			for (int j = 0; j < wallList.get(i).getPoints().size(); ++j) {
@@ -576,6 +595,18 @@ public class MapTexture {
 		Candy myCandy = new Candy(pos, Integer.parseInt(arr[2]));
 
 		return myCandy;
+	}
+
+	private LinkedList<Point> ReadBee(BufferedReader reader) throws IOException {
+		String[] arr;
+		arr = reader.readLine().split(" ");
+
+		LinkedList<Point> pointList = new LinkedList<Point>();
+		for (int i = 0; i < arr.length; i += 2)
+			pointList.add(new Point(Integer.parseInt(arr[i]), Integer
+					.parseInt(arr[i + 1])));
+
+		return pointList;
 	}
 
 	/*

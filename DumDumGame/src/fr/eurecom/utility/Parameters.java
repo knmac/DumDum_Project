@@ -1,5 +1,6 @@
 package fr.eurecom.utility;
 
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 import fr.eurecom.dumdumgame.*;
@@ -10,6 +11,8 @@ import android.graphics.Point;
 import android.graphics.Rect;
 
 public class Parameters {
+	static public Random randomGenerator = new Random(System.currentTimeMillis());
+	
 	// sprite number
 	static public int numSprtActiveLevel = 6;
 
@@ -38,6 +41,7 @@ public class Parameters {
 	static public Bitmap bmpMicrowave;
 	static public Bitmap[] bmpTeleporter;
 	static public Bitmap[] bmpSpike;
+	static public Bitmap[] bmpBee;
 	static public Bitmap[] bmpConveyorLeft;
 	static public Bitmap[] bmpConveyorRight;
 	static public Bitmap[] bmpConveyorUp;
@@ -152,6 +156,9 @@ public class Parameters {
 		
 		bmpSpike = Cutter.cutBitmap(
 				BitmapFactory.decodeResource(res, R.drawable.spike_sprite), 8,
+				Cutter.CutStyle.VERTICAL);
+		bmpBee = Cutter.cutBitmap(
+				BitmapFactory.decodeResource(res, R.drawable.bee_sprite), 6,
 				Cutter.CutStyle.VERTICAL);
 
 		bmpConveyorLeft = Cutter.cutBitmap(

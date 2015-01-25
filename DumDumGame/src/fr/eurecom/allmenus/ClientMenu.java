@@ -1,9 +1,10 @@
 package fr.eurecom.allmenus;
 
 import java.util.LinkedList;
-import java.util.Random;
-import java.util.UUID;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,7 +13,16 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Paint.Align;
+import android.net.wifi.WpsInfo;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.WifiP2pManager.ActionListener;
+import android.net.wifi.p2p.WifiP2pManager.Channel;
+import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
+import android.util.Log;
 import android.widget.Toast;
+import fr.eurecom.connectivity.DeviceListFragment.DeviceActionListener;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Button;
 import fr.eurecom.dumdumgame.DynamicBitmap;
@@ -20,173 +30,303 @@ import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
+import fr.eurecom.connectivity.*;
 
-public class ClientMenu extends BaseMenu {
+public class ClientMenu extends BaseMenu implements ChannelListener, DeviceActionListener {
 
-	private class HostData {
-		String id;
-		int bet;
-		int level;
-	}
+    private class HostData {
+        String id;
+        int bet;
+        int level;
+    }
 
-	private LinkedList<HostData> hostList;
+    protected static final int CHOOSE_FILE_RESULT_CODE = 20;
 
-	private final Integer RETURN = 1000;
-	private final Integer REFRESH = 2000;
+    private LinkedList<HostData> hostList = null;
 
-	public ClientMenu(DynamicBitmap bmpBackground) {
-		super(bmpBackground);
+    private final Integer RETURN = 1000;
+    private final Integer REFRESH = 2000;
 
-		// Get the list of all hosts
-		hostList = ScanWifiDirect();
+    public static final String TAG = "wifidirectdemo";
+    private WifiP2pManager manager;
+    private boolean isWifiP2pEnabled = false;
+    private boolean retryChannel = false;
 
-		// add button for each item
-		Button btn;
-		Bitmap bmp = BitmapFactory.decodeResource(App.getMyContext()
-				.getResources(), R.drawable.connect);
-		int w, h;
-		Point pos;
+    private final IntentFilter intentFilter = new IntentFilter();
+    private Channel channel;
+    private BroadcastReceiver receiver = null;
 
-		w = h = Parameters.dZoomParam;
-		for (int i = 0; i < hostList.size(); i++) {
-			pos = new Point(Parameters.dMaxWidth * 5 / 7 - w,
-					Parameters.dMaxHeight / 4 + (i + 1) * (h * 3 / 2) + h / 3);
-			btn = new Button((Integer) i, bmp, pos, w, h);
-			AddButton(btn);
-		}
+    private DeviceListFragment dlf = new DeviceListFragment();
 
-		// return buttons
-		bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(),
-				R.drawable.restart);
-		pos = new Point(Parameters.dZoomParam / 2, Parameters.dMaxHeight
-				- Parameters.bmpBtnReturn.getHeight() - Parameters.dZoomParam
-				/ 2);
-		btn = new Button(REFRESH, bmp, pos, Parameters.bmpBtnReturn.getWidth(),
-				Parameters.bmpBtnReturn.getHeight());
-		AddButton(btn);
+    /**
+     * @param isWifiP2pEnabled
+     *            the isWifiP2pEnabled to set
+     */
+    public void setIsWifiP2pEnabled(boolean isWifiP2pEnabled) {
+        this.isWifiP2pEnabled = isWifiP2pEnabled;
+    }
 
-		// return buttons
-		Button btnReturn = new Button(RETURN, Parameters.bmpBtnReturn,
-				Parameters.posBtnReturn, Parameters.bmpBtnReturn.getWidth(),
-				Parameters.bmpBtnReturn.getHeight());
-		AddButton(btnReturn);
-	}
+    public DeviceListFragment getDLF() {
+        return this.dlf;
+    }
 
-	private LinkedList<HostData> ScanWifiDirect() {
-		// TODO: add data
+    public ClientMenu(DynamicBitmap bmpBackground) {
+        super(bmpBackground);
 
-		// dummy list
-		LinkedList<HostData> list = new LinkedList<HostData>();
-		Random rand = new Random();
-		for (int i = 0; i < 5; i++) {
-			HostData data = new HostData();
-			data.id = (String) (UUID.randomUUID().toString()).split("-")[0]; // "aaskjasfhsfjgfjfa";
-			data.bet = (Math.abs(rand.nextInt() % 100) + 1) * 10;
-			data.level = Math.abs(rand.nextInt() % 8) + 1;
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
-			list.add(data);
-		}
-		return list;
-	}
+        manager = (WifiP2pManager) (App.getMyContext()).getSystemService(Context.WIFI_P2P_SERVICE);
+        channel = manager.initialize(App.getMyContext(), (App.getMyContext()).getMainLooper(), null);
+        
+        // App.getMyContext().startActivity(new
+        // Intent(Settings.ACTION_WIRELESS_SETTINGS));
 
-	@Override
-	public void Show(Canvas canvas) {
-		bmpBackground.show(canvas);
+        receiver = new WiFiDirectBroadcastReceiver(manager, channel, App.getMyContext(), this);
+        (App.getMyContext()).registerReceiver(receiver, intentFilter);
 
-		int w = Parameters.dMaxWidth;
-		int h = Parameters.dMaxHeight;
+        // setDeviceName("HOANG XUAN QUANG NHAT");
 
-		RectF rect = new RectF(w / 6, h / 6, w * 5 / 6, h * 5 / 6);
+        // Get the list of all hosts
+        //hostList = ScanWifiDirect();
 
-		Paint rectPaint = new Paint();
-		rectPaint.setColor(Color.DKGRAY);
-		rectPaint.setAlpha(125);
+        // add button for each item
+        Button btn;
+        Bitmap bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(), R.drawable.connect);
+        int w, h;
+        Point pos;
 
-		Paint textPaint = new Paint();
-		textPaint.setColor(Color.WHITE);
-		textPaint.setTextAlign(Align.LEFT);
-		textPaint.setTextSize(Parameters.dZoomParam * 3 / 4);
+        w = h = Parameters.dZoomParam;
 
-		canvas.drawRoundRect(rect, Parameters.dZoomParam / 2,
-				Parameters.dZoomParam / 2, rectPaint);
+        // return buttons
+        bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(), R.drawable.restart);
+        pos = new Point(Parameters.dZoomParam / 2, Parameters.dMaxHeight - Parameters.bmpBtnReturn.getHeight()
+                - Parameters.dZoomParam / 2);
+        btn = new Button(REFRESH, bmp, pos, Parameters.bmpBtnReturn.getWidth(), Parameters.bmpBtnReturn.getHeight());
+        AddButton(btn);
 
-		// write table header
-		Helper.drawTextWithMultipleLines(canvas, "Host", new Point(w / 4,
-				Parameters.dMaxHeight / 6 + 2 * Parameters.dZoomParam),
-				textPaint);
-		Helper.drawTextWithMultipleLines(canvas, "Bet", new Point(w / 2,
-				Parameters.dMaxHeight / 6 + 2 * Parameters.dZoomParam),
-				textPaint);
-		Helper.drawTextWithMultipleLines(canvas, "Stage", new Point(w * 3 / 5,
-				Parameters.dMaxHeight / 6 + 2 * Parameters.dZoomParam),
-				textPaint);
+        // return buttons
+        Button btnReturn = new Button(RETURN, Parameters.bmpBtnReturn, Parameters.posBtnReturn, Parameters.bmpBtnReturn
+                .getWidth(), Parameters.bmpBtnReturn.getHeight());
+        AddButton(btnReturn);
+    }
 
-		canvas.drawLine(w / 5, Parameters.dMaxHeight / 4
-				+ Parameters.dZoomParam, w * 4 / 5, Parameters.dMaxHeight / 4
-				+ Parameters.dZoomParam, textPaint);
+    /**
+     * Remove all peers and clear all fields. This is called on
+     * BroadcastReceiver receiving a state change event.
+     */
+    public void resetData() {
+        dlf.clearPeers();
+    }
 
-		// write content of each host
-		Point pos;
-		for (int i = 0; i < hostList.size(); i++) {
-			pos = new Point(w / 4, Parameters.dMaxHeight / 4 + (i + 1)
-					* (Parameters.dZoomParam * 3 / 2) + Parameters.dZoomParam);
-			Helper.drawTextWithMultipleLines(canvas, hostList.get(i).id, pos,
-					textPaint);
+    private LinkedList<HostData> ScanWifiDirect() {
+        // TODO: add data
+        // scan
+        // dummy list
+        LinkedList<HostData> list = new LinkedList<HostData>();
+        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
 
-			pos = new Point(w / 2, Parameters.dMaxHeight / 4 + (i + 1)
-					* (Parameters.dZoomParam * 3 / 2) + Parameters.dZoomParam);
-			Helper.drawTextWithMultipleLines(canvas,
-					Integer.toString(hostList.get(i).bet), pos, textPaint);
+            @Override
+            public void onSuccess() {
+                Toast.makeText(App.getMyContext(), "Discovery Initiated", Toast.LENGTH_SHORT).show();
+                Toast.makeText(App.getMyContext(), "Size: " + dlf.peers.size(), Toast.LENGTH_SHORT).show();
+            }
 
-			pos = new Point(w * 3 / 5, Parameters.dMaxHeight / 4 + (i + 1)
-					* (Parameters.dZoomParam * 3 / 2) + Parameters.dZoomParam);
-			Helper.drawTextWithMultipleLines(canvas,
-					Integer.toString(hostList.get(i).level), pos, textPaint);
-		}
+            @Override
+            public void onFailure(int reasonCode) {
+                Toast.makeText(App.getMyContext(), "Discovery Failed : " + reasonCode, Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        for (int i = 0; i < dlf.peers.size(); i++) {
+            HostData data = new HostData();
+            String info = dlf.peers.get(i).deviceName;
+            String splitted[] = info.split("_");
+            if (splitted.length > 1) {
+                data.id = splitted[0];
+                data.bet = Integer.parseInt(splitted[1]);
+                data.level = Integer.parseInt(splitted[2]);
+            } else
+                data.id = dlf.peers.get(i).deviceName;
+            list.add(data);
+        }
+        return list;
+    }
 
-		// draw buttons
-		for (Button btn : buttonList) {
-			btn.show(canvas);
-		}
-	}
+    @Override
+    public void Show(Canvas canvas) {
+        bmpBackground.show(canvas);
 
-	@Override
-	public boolean Action(Point p, Object o) {
-		Integer ResultButtonID = (Integer) ClickedButton(p);
+        int w = Parameters.dMaxWidth;
+        int h = Parameters.dMaxHeight;
 
-		if (ResultButtonID == null)
-			return false;
+        RectF rect = new RectF(w / 6, h / 6, w * 5 / 6, h * 5 / 6);
 
-		if (ResultButtonID.intValue() == REFRESH) {
-			CallRefresh();
-			return true;
-		}
+        Paint rectPaint = new Paint();
+        rectPaint.setColor(Color.DKGRAY);
+        rectPaint.setAlpha(125);
 
-		if (ResultButtonID.intValue() == RETURN) {
-			CallReturn();
-			return true;
-		}
+        Paint textPaint = new Paint();
+        textPaint.setColor(Color.WHITE);
+        textPaint.setTextAlign(Align.LEFT);
+        textPaint.setTextSize(Parameters.dZoomParam * 3 / 4);
 
-		HostData host = hostList.get(ResultButtonID.intValue());
-		CallConnect(host);
-		return true;
-	}
+        canvas.drawRoundRect(rect, Parameters.dZoomParam / 2, Parameters.dZoomParam / 2, rectPaint);
 
-	private void CallRefresh() {
-		this.hostList = ScanWifiDirect();
-		GameManager.mainView.invalidate();
-	}
+        // write table header
+        Helper.drawTextWithMultipleLines(canvas, "Host", new Point(w / 4, Parameters.dMaxHeight / 6 + 2
+                * Parameters.dZoomParam), textPaint);
+        Helper.drawTextWithMultipleLines(canvas, "Bet", new Point(w / 2, Parameters.dMaxHeight / 6 + 2
+                * Parameters.dZoomParam), textPaint);
+        Helper.drawTextWithMultipleLines(canvas, "Stage", new Point(w * 3 / 5, Parameters.dMaxHeight / 6 + 2
+                * Parameters.dZoomParam), textPaint);
 
-	private void CallReturn() {
-		GameManager.setCurrentState(GameManager.GameState.MULTIPLAYER_MENU);
-		GameManager.mainView.invalidate();
-	}
+        canvas.drawLine(w / 5, Parameters.dMaxHeight / 4 + Parameters.dZoomParam, w * 4 / 5, Parameters.dMaxHeight / 4
+                + Parameters.dZoomParam, textPaint);
 
-	private void CallConnect(HostData host) {
-		// TODO
-		String str = "Connecting to" + host.id + "\nBet: " + host.bet
-				+ " candies\nLevel: " + host.level;
-		Toast.makeText(App.getMyContext(), str, Toast.LENGTH_LONG).show();
-	}
+        // write content of each host
+        Point pos;
+        if (hostList!=null)
+        for (int i = 0; i < hostList.size(); i++) {
+            pos = new Point(w / 4, Parameters.dMaxHeight / 4 + (i + 1) * (Parameters.dZoomParam * 3 / 2)
+                    + Parameters.dZoomParam);
+            Helper.drawTextWithMultipleLines(canvas, hostList.get(i).id, pos, textPaint);
 
+            pos = new Point(w / 2, Parameters.dMaxHeight / 4 + (i + 1) * (Parameters.dZoomParam * 3 / 2)
+                    + Parameters.dZoomParam);
+            Helper.drawTextWithMultipleLines(canvas, Integer.toString(hostList.get(i).bet), pos, textPaint);
+
+            pos = new Point(w * 3 / 5, Parameters.dMaxHeight / 4 + (i + 1) * (Parameters.dZoomParam * 3 / 2)
+                    + Parameters.dZoomParam);
+            Helper.drawTextWithMultipleLines(canvas, Integer.toString(hostList.get(i).level), pos, textPaint);
+        }
+
+        // draw buttons
+        for (Button btn : buttonList) {
+            btn.show(canvas);
+        }
+    }
+
+    @Override
+    public boolean Action(Point p, Object o) {
+        Integer ResultButtonID = (Integer) ClickedButton(p);
+
+        if (ResultButtonID == null)
+            return false;
+
+        if (ResultButtonID.intValue() == REFRESH) {
+            CallRefresh();
+            return true;
+        }
+
+        if (ResultButtonID.intValue() == RETURN) {
+            CallReturn();
+            return true;
+        }
+
+        HostData host = hostList.get(ResultButtonID.intValue());
+        CallConnect(host);
+        return true;
+    }
+
+    private void CallRefresh() {
+        this.hostList = ScanWifiDirect();
+        GameManager.mainView.invalidate();
+        Button btn;
+        Bitmap bmp = BitmapFactory.decodeResource(App.getMyContext().getResources(), R.drawable.connect);
+        int w, h;
+        Point pos;
+        w = h = Parameters.dZoomParam;
+        if (hostList.size() != 0) {
+            for (int i = 0; i < hostList.size(); i++) {
+                pos = new Point(Parameters.dMaxWidth * 5 / 7 - w, Parameters.dMaxHeight / 4 + (i + 1) * (h * 3 / 2) + h
+                        / 3);
+                btn = new Button((Integer) i, bmp, pos, w, h);
+                AddButton(btn);
+            }
+        }
+    }
+
+    private void CallReturn() {
+        GameManager.setCurrentState(GameManager.GameState.MULTIPLAYER_MENU);
+        (App.getMyContext()).unregisterReceiver(receiver);
+        GameManager.mainView.invalidate();
+    }
+
+    private void CallConnect(HostData host) {
+        // Connect to master
+        final WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = dlf.peers.get(0).deviceAddress;
+        config.wps.setup = WpsInfo.PBC;
+        manager.connect(channel, config, new ActionListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText((App.getMyContext()), "Connected", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                Toast.makeText((App.getMyContext()), "Connect failed. Retry.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void showDetails(WifiP2pDevice device) {
+
+    }
+
+    @Override
+    public void connect(WifiP2pConfig config) {
+        manager.connect(channel, config, new ActionListener() {
+
+            @Override
+            public void onSuccess() {
+                // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                Toast.makeText((App.getMyContext()), "Connect failed. Retry.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void disconnect() {
+        manager.removeGroup(channel, new ActionListener() {
+
+            @Override
+            public void onFailure(int reasonCode) {
+                Log.d(TAG, "Disconnect failed. Reason :" + reasonCode);
+            }
+
+            @Override
+            public void onSuccess() {
+
+            }
+
+        });
+    }
+
+    @Override
+    public void onChannelDisconnected() {
+        // we will try once more
+        if (manager != null && !retryChannel) {
+            Toast.makeText(App.getMyContext(), "Channel lost. Trying again", Toast.LENGTH_LONG).show();
+            resetData();
+            retryChannel = true;
+            manager.initialize(App.getMyContext(), App.getMyContext().getMainLooper(), this);
+        } else {
+            Toast.makeText(App.getMyContext(),
+                    "Severe! Channel is probably lost premanently. Try Disable/Re-Enable P2P.", Toast.LENGTH_LONG)
+                    .show();
+        }
+    }
+
+    @Override
+    public void cancelDisconnect() {
+    }
 }
