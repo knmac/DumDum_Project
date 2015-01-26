@@ -127,6 +127,14 @@ public class DynamicBitmap {
 		Rect dstRect = new Rect(_position.x + offset.x, _position.y + offset.y, _position.x + offset.x + _width, _position.y + offset.y + _height);
 		canvas.drawBitmap(images[_currentIndex], srcRect, dstRect, new Paint());
 	}
+	
+	public void showWithAlpha(Canvas canvas, Point offset, int alpha) {
+		Rect srcRect = new Rect(0, 0, images[_currentIndex].getWidth(), images[_currentIndex].getHeight());
+		Rect dstRect = new Rect(_position.x + offset.x, _position.y + offset.y, _position.x + offset.x + _width, _position.y + offset.y + _height);
+		Paint paint = new Paint();
+		paint.setAlpha(alpha);
+		canvas.drawBitmap(images[_currentIndex], srcRect, dstRect, paint);
+	}
 
 	public void showEx(Canvas canvas, int srcX, int srcY, int srcWidth,
 			int srcHeight) {

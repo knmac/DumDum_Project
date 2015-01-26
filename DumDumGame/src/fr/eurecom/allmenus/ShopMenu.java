@@ -44,8 +44,8 @@ public class ShopMenu extends BaseMenu {
 
 	private String[] gearDes = new String[] { "Give you another life",
 			"Invulnerable against spikes", "Destroy walls",
-			"Make the trajectory available", "Slow down everything",
-			"Destroy all enemies", "Stick to walls",
+			"Make the trajectory available", "Slow down enemies",
+			"Attack enemies", "Stick to walls",
 			"Make you feel less guilty :))" };
 	private int[] pkgDes = new int[] { 1000, 7000, 15000 };
 

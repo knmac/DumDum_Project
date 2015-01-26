@@ -97,7 +97,7 @@ public class Parameters {
 	static public int dUserData = R.raw.user_data;
 	static public int[] dMapID = new int[] { R.raw.map1, R.raw.map2,
 			R.raw.map3, R.raw.map4, R.raw.map5, R.raw.map6, R.raw.map7,
-			R.raw.map8, R.raw.map9, R.raw.map10 };
+			R.raw.map8 };
 	static public int dMenuSoundtrack = R.raw.menu;
 	static public int dBackgroundSoundtrack = R.raw.background;
 	static public int dVictorySoundtrack = R.raw.victory;

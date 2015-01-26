@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import fr.eurecom.dumdumgame.DynamicBitmap;
+import fr.eurecom.engine.Character;
+import fr.eurecom.engine.Character.gearState;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
 
@@ -12,8 +14,10 @@ public class Bee {
 	private LinkedList<Point> orbitVertices;
 	private LinkedList<Point> orbit;
 	private int orbitIdx;
+	private int savedIdx;
 	private DynamicBitmap beeImg;
 	private int radius;
+	private Boolean isVisible;
 
 	// a segment (A,B) is divided into many subsegments, each with the length of
 	// subSegLen
@@ -27,7 +31,8 @@ public class Bee {
 		this.orbitVertices = orbitVertices;
 		this.radius = radius;
 		this.orbitIdx = 0;
-		this.subSegLen = Parameters.dZoomParam / 2;
+		this.subSegLen = Parameters.dZoomParam / 10;
+		this.isVisible = true;
 
 		// dummmy point
 		Point imgTopLeft = new Point(orbitVertices.getFirst().x - radius,
@@ -49,13 +54,26 @@ public class Bee {
 		Point imgTopLeft = new Point(orbit.get(orbitIdx).x - radius,
 				orbit.get(orbitIdx).y - radius);
 		beeImg.setPosition(imgTopLeft);
-		beeImg.show(canvas, offset);
+		
+		if (isVisible) {
+			beeImg.show(canvas, offset);
+		} else if (orbitIdx == savedIdx) { // finish 1 period being invisible
+			isVisible = true;
+			beeImg.show(canvas, offset);
+		} else { // being invisible
+			beeImg.showWithAlpha(canvas, offset, 100);
+		}
+		
+		// continue the period even if invisible
 		beeImg.updateToTheNextImage();
-
-		orbitIdx = (orbitIdx == (orbit.size() - 1)) ? 0 : orbitIdx + 1;
+		int skipIdx = (Character.gear == gearState.TIME) ? 1 : 5;
+		orbitIdx = (orbitIdx + skipIdx >= orbit.size()) ? 0 : orbitIdx + skipIdx;
 	}
 
 	public Boolean isOverlapped(Point objPos, int range) {
+		if (!isVisible) // no interaction while being invisible
+			return false;
+		
 		return Helper.Point_GetDistanceFrom(objPos, this.orbit.get(orbitIdx)) < range
 				+ radius / 2 ? true : false;
 	}
@@ -102,8 +120,20 @@ public class Bee {
 
 		return points;
 	}
-
-	public void swithSpeed() {
-
+	
+	public void hide() {
+		isVisible = false;
+		
+		// make the be invisible for 1 period
+		savedIdx = 0;
+		
+		/*
+		if (Character.gear == gearState.TIME) {
+			savedIdx = orbitIdx - 5;
+		} else {
+			savedIdx = orbitIdx - 1;
+		}
+		
+		savedIdx = (savedIdx < 0) ? 0 : savedIdx;*/
 	}
 }

@@ -68,6 +68,8 @@ public class Bees extends SupportiveObstacles {
 	public void interact(Character ball) {
 		if (Character.gear != Character.gearState.FEEDER)
 			ball.setState(Character.motionState.DEATH);
+		else
+			beeList.getFirst().hide();
 	}
 
 	@Override
@@ -81,8 +83,9 @@ public class Bees extends SupportiveObstacles {
 	public Obstacles ballInRange(Point posToBeChecked, Point pastPosition,
 			Point rangeStart, Point rangeEnd) {
 		for (Bee bee : beeList) {
-			if (bee.isOverlapped(pastPosition, Parameters.dBallRadius))
+			if (bee.isOverlapped(pastPosition, Parameters.dBallRadius)) {
 				return new Bees(bee);
+			}
 		}
 
 		return null;

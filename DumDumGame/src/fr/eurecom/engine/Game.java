@@ -205,9 +205,9 @@ public class Game {
 	private boolean firstTimeShow = true;
 	private boolean isPreviouslyDragging = false; // dragging the ball
 	private boolean isPreviouslyBackgroundDragging = false;
-	private LinkedList<Segment> previousObstacles = null; // for highlighting
-															// obstacles
-	private int highlightCounter = 0; // for highlighting obstacles
+//	private LinkedList<Segment> previousObstacles = null; // for highlighting
+//															// obstacles
+//	private int highlightCounter = 0; // for highlighting obstacles
 	private Point savedMousPos = new Point();
 
 	public void Action(Point mousePos, Object o, MouseState mouseState) {
@@ -470,21 +470,13 @@ public class Game {
 	public void show(Canvas canvas) throws Exception {
 		// Show background
 		showBackground(canvas);
-		if (obstacleList[ObstacleIdx.Platform.getValue()] != null)
-			obstacleList[ObstacleIdx.Platform.getValue()].show(canvas,
-					background.getPosition());
-		if (obstacleList[ObstacleIdx.Candy.getValue()] != null)
-			obstacleList[ObstacleIdx.Candy.getValue()].show(canvas,
-					background.getPosition());
-		if (obstacleList[ObstacleIdx.Spike.getValue()] != null)
-			obstacleList[ObstacleIdx.Spike.getValue()].show(canvas,
-					background.getPosition());
-		if (obstacleList[ObstacleIdx.Bee.getValue()] != null)
-			obstacleList[ObstacleIdx.Bee.getValue()].show(canvas,
-					background.getPosition());
-		if (obstacleList[ObstacleIdx.Blackhole.getValue()] != null)
-			obstacleList[ObstacleIdx.Blackhole.getValue()].show(canvas,
-					background.getPosition());
+
+		// Show obstacles
+		for (Obstacles obstacle : obstacleList) {
+			if (obstacle != null)
+				obstacle.show(canvas,
+						background.getPosition());
+		}
 
 		if (--updateCounter <= -1)
 			updateCounter = Parameters.updatePeriod;
@@ -676,6 +668,13 @@ public class Game {
 			// ------------------
 			// Do an up on the mutex
 			Parameters.mutex.release();
+		}
+		
+		// invalidate if there is constantly moving objects
+		if (obstacleList[ObstacleIdx.Spike.getValue()] != null ||
+				obstacleList[ObstacleIdx.Blackhole.getValue()] != null ||
+				obstacleList[ObstacleIdx.Bee.getValue()] != null) {
+			GameManager.mainView.invalidate();
 		}
 	}
 
