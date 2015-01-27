@@ -1,22 +1,17 @@
 package fr.eurecom.data;
 
-import java.util.Calendar;
 import java.util.LinkedList;
-
-import android.graphics.Point;
 
 public class User {
 	private String name;
-	// private int currentLevel;
-	// private int currentScore;
-	// private Point currentPos = new Point(0, 0);
 	private int unlockedLevel;
-	private LinkedList<Integer> levelScore = new LinkedList<Integer>();
-	private int currentMoney;
+	private LinkedList<Integer> levelCandies = new LinkedList<Integer>();
+	private int currentCandies;
 	private int currentLives;
 	private int maxLives;
 	private int refillTime; // in seconds
 	private String lastTime; //TODO: change format
+	private LinkedList<Integer> gearAmount = new LinkedList<Integer>();
 	
 	public String getLastTime() {
 		return this.lastTime;
@@ -28,6 +23,8 @@ public class User {
 	
 	public void setCurrentLives(int lives) {
 		this.currentLives = lives;
+		if (this.gearAmount.size() != 0)
+			this.gearAmount.set(0, this.currentLives);
 	}
 
 	public int getCurrentLives() {
@@ -51,11 +48,11 @@ public class User {
 	}
 
 	public void setCurrentMoney(int currentMoney) {
-		this.currentMoney = currentMoney;
+		this.currentCandies = currentMoney;
 	}
 
 	public int getCurrentMoney() {
-		return currentMoney;
+		return currentCandies;
 	}
 	
 	public void setRefillTime(int refillTime) {
@@ -66,30 +63,6 @@ public class User {
 		return this.refillTime;
 	}
 
-	// public void setCurrentLevel(int currentLevel) {
-	// this.currentLevel = currentLevel;
-	// }
-	//
-	// public int getCurrentLevel() {
-	// return currentLevel;
-	// }
-
-	// public void setCurrentScore(int currentScore) {
-	// this.currentScore = currentScore;
-	// }
-	//
-	// public int getCurrentScore() {
-	// return currentScore;
-	// }
-
-	// public void setCurrentPos(Point currentPos) {
-	// this.currentPos = currentPos;
-	// }
-	//
-	// public Point getCurrentPos() {
-	// return currentPos;
-	// }
-
 	public void setUnlockedLevel(int unlockedLevel) {
 		this.unlockedLevel = unlockedLevel;
 	}
@@ -99,10 +72,20 @@ public class User {
 	}
 
 	public void setLevelScore(LinkedList<Integer> levelScore) {
-		this.levelScore = levelScore;
+		this.levelCandies = levelScore;
 	}
 
 	public LinkedList<Integer> getLevelScore() {
-		return levelScore;
+		return levelCandies;
+	}
+	
+	public void setGearAmount(LinkedList<Integer> gearAmount) {
+		this.gearAmount = gearAmount;
+		this.currentLives = this.gearAmount.getFirst();
+	}
+
+	public LinkedList<Integer> getGearAmount() {
+		gearAmount.set(0, this.currentLives);
+		return gearAmount;
 	}
 }

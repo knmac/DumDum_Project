@@ -3,7 +3,6 @@ package fr.eurecom.utility;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 
 import android.content.Context;
@@ -57,6 +56,15 @@ public class UserWriter {
 
 			// current money
 			fos.write(Integer.toString(user.getCurrentMoney()).getBytes());
+			fos.write(newLine.getBytes());
+			
+			// gear amount
+			intList = user.getGearAmount();
+			aLine = "";
+			for (int i = 0; i < intList.size(); i++) {
+				aLine = aLine + Integer.toString(intList.get(i)) + " ";
+			}
+			fos.write(aLine.getBytes());
 			fos.write(newLine.getBytes());
 		} catch (FileNotFoundException e) {
 			Log.e("Data Writer", e.getMessage());

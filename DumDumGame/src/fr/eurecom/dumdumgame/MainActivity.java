@@ -41,8 +41,6 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
-	
-
 	private boolean timerOn;
 	
 	//for facebook
@@ -105,17 +103,6 @@ public class MainActivity extends ActionBarActivity {
 		} catch (Exception e2) {
 			e2.printStackTrace();
 		}
-
-		// If internally stored file exists, read that file
-//		try { // try if the file exists
-//			FileInputStream fin = openFileInput(Parameters.pthUserData);
-//			fin.close();
-//			GameManager.user = UserReader.readUserData(Parameters.pthUserData);
-//		} catch (FileNotFoundException e2) {
-//			GameManager.user = UserReader.readUserData(Parameters.dUserData);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
 		
 		// If internally stored file exists, read that file
 		try { // try if the file exists

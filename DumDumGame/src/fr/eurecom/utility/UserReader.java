@@ -6,11 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.LinkedList;
 
-import android.widget.CalendarView;
 import fr.eurecom.data.User;
 import fr.eurecom.dumdumgame.App;
 
@@ -94,6 +91,14 @@ public class UserReader {
 		// current money
 		aLine = reader.readLine();
 		user.setCurrentMoney(Integer.parseInt(aLine));
+		
+		// gear amount
+		tokens = reader.readLine().split(" ");
+		intList = new LinkedList<Integer>();
+		for (int i = 0; i < tokens.length; i++) {
+			intList.add(Integer.parseInt(tokens[i]));
+		}
+		user.setGearAmount(intList);
 
 		return user;
 	}

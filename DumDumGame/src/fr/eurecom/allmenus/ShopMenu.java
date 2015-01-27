@@ -1,5 +1,7 @@
 package fr.eurecom.allmenus;
 
+import java.util.LinkedList;
+
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.Button;
 import fr.eurecom.dumdumgame.DynamicBitmap;
@@ -8,6 +10,7 @@ import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
+import fr.eurecom.utility.UserWriter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -39,8 +42,8 @@ public class ShopMenu extends BaseMenu {
 	private int[] gearPrices = new int[] { 100, 1000, 2000, 3000, 4000, 5000,
 			6000, 7000 };
 	private double[] pkgPrices = new double[] { 0.99, 4.99, 9.99 };
-	// TODO: get values from user data
-	private int[] gearAvail = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+	private int[] gearAmount = new int[8];
+	private int currCandies;
 
 	private String[] gearDes = new String[] { "Give you another life",
 			"Invulnerable against spikes", "Destroy walls",
@@ -59,6 +62,7 @@ public class ShopMenu extends BaseMenu {
 
 	public ShopMenu(DynamicBitmap bmpBackground) {
 		super(bmpBackground);
+		refreshUserInfo();
 
 		/*****************************************************************/
 		// load resource
@@ -92,7 +96,6 @@ public class ShopMenu extends BaseMenu {
 
 		/*****************************************************************/
 		// load resource
-		// TODO: change resources
 		bmpArr = new Bitmap[] {
 				BitmapFactory.decodeResource(res, R.drawable.jar1),
 				BitmapFactory.decodeResource(res, R.drawable.jar2),
@@ -165,6 +168,7 @@ public class ShopMenu extends BaseMenu {
 
 	@Override
 	public void Show(Canvas canvas) {
+		refreshUserInfo();
 		bmpBackground.show(canvas);
 
 		/*****************************************************************/
@@ -246,7 +250,7 @@ public class ShopMenu extends BaseMenu {
 
 		// draw availability
 		String avail = "x "
-				+ Integer.toString(gearAvail[allDumDumGears.getCurrentIndex()]);
+				+ Integer.toString(gearAmount[allDumDumGears.getCurrentIndex()]);
 		p = new Point(gearPos.x + gearSize.x, allDumDumGears.getPosition().y
 				+ gearSize.y - Parameters.dZoomParam / 2);
 		Helper.drawTextWithMultipleLines(canvas, avail, p, paint);
@@ -292,6 +296,8 @@ public class ShopMenu extends BaseMenu {
 
 		if (ResultButtonID == null)
 			return false;
+		
+		refreshUserInfo(); // just to double check
 
 		switch (ResultButtonID) {
 		case PREV_GEAR:
@@ -318,6 +324,8 @@ public class ShopMenu extends BaseMenu {
 		default:
 			return false;
 		}
+		
+		saveUserInfo(); // record the transaction
 
 		return true;
 	}
@@ -334,15 +342,21 @@ public class ShopMenu extends BaseMenu {
 
 	private void CallBuyGear() {
 		int index = allDumDumGears.getCurrentIndex();
-		int currCandies = GameManager.user.getCurrentMoney();
+//		int currCandies = GameManager.user.getCurrentMoney();
 		int gearPrice = gearPrices[index];
 
 		if (currCandies - gearPrice >= 0) {
-			gearAvail[index]++;
-			currCandies -= gearPrice;
-			GameManager.user.setCurrentMoney(currCandies);
-
-			// TODO: write user data
+			if (index == 0 && gearAmount[index]+1 > GameManager.user.getMaxLives()) {
+				// lives are already full
+				Toast.makeText(App.getMyContext(),
+						"Sorry, you can't add more lives.", Toast.LENGTH_LONG)
+						.show();
+			}
+			else {
+				gearAmount[index]++;
+				currCandies -= gearPrice;
+				GameManager.user.setCurrentMoney(currCandies);
+			}
 
 			GameManager.mainView.invalidate();
 		} else {
@@ -364,14 +378,11 @@ public class ShopMenu extends BaseMenu {
 
 	private void CallBuyPkg() {
 		int index = allPackages.getCurrentIndex();
-		int currCandies = GameManager.user.getCurrentMoney();
+//		int currCandies = GameManager.user.getCurrentMoney();
 		int boughtCandies = pkgDes[index];
 
 		// TODO: online transaction
 		currCandies += boughtCandies;
-		GameManager.user.setCurrentMoney(currCandies);
-
-		// TODO: write user data
 
 		GameManager.mainView.invalidate();
 	}
@@ -381,4 +392,21 @@ public class ShopMenu extends BaseMenu {
 		GameManager.mainView.invalidate();
 	}
 
+	private void refreshUserInfo() {
+		LinkedList<Integer> list = GameManager.user.getGearAmount();
+		for (int i = 0; i < gearAmount.length; i++) {
+			gearAmount[i] = list.get(i);
+		}
+		currCandies = GameManager.user.getCurrentMoney();
+	}
+	
+	private void saveUserInfo() {
+		LinkedList<Integer> list = new LinkedList<Integer>();
+		for (int i = 0; i < gearAmount.length; i++) {
+			list.add(gearAmount[i]);
+		}
+		GameManager.user.setGearAmount(list);
+		GameManager.user.setCurrentMoney(currCandies);
+		UserWriter.writeUserData(GameManager.user, Parameters.pthUserData);
+	}
 }
