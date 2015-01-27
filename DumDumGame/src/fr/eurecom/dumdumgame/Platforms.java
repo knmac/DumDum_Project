@@ -1,16 +1,13 @@
 package fr.eurecom.dumdumgame;
 
-import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.LinkedList;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.Log;
-import fr.eurecom.engine.Game;
 import fr.eurecom.engine.Character;
+import fr.eurecom.engine.Character.gearState;
 import fr.eurecom.engine.Segment;
 import fr.eurecom.utility.Parameters;
 
@@ -171,8 +168,13 @@ public class Platforms extends SupportiveObstacles {
 			}
 		}
 
+		
 		if (returnedWall == null)		
 			return null;
+		else if (Character.gear == gearState.DRILL &&  // drill gear is on
+				(returnedWall.getFirstPoint().x == returnedWall.getSecondPoint().x || // go through vertical walls  
+				Math.abs(returnedWall.getFirstPoint().y - returnedWall.getSecondPoint().y) > 2*Parameters.dBallRadius)) // wall big enough
+			return null; // go through walls
 		else
 			return new Platforms(returnedWall);
 	}

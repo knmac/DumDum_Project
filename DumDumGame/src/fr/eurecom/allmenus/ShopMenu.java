@@ -37,7 +37,7 @@ public class ShopMenu extends BaseMenu {
 
 	// TODO: change values
 	private int[] gearPrices = new int[] { 100, 1000, 2000, 3000, 4000, 5000,
-			6000, 0 };
+			6000, 7000 };
 	private double[] pkgPrices = new double[] { 0.99, 4.99, 9.99 };
 	// TODO: get values from user data
 	private int[] gearAvail = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -46,7 +46,7 @@ public class ShopMenu extends BaseMenu {
 			"Invulnerable against spikes", "Destroy walls",
 			"Make the trajectory available", "Slow down enemies",
 			"Attack enemies", "Stick to walls",
-			"Make you feel less guilty :))" };
+			"Tap while moving to float" };
 	private int[] pkgDes = new int[] { 1000, 7000, 15000 };
 
 	private DynamicBitmap allDumDumGears;

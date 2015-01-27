@@ -228,6 +228,14 @@ public class Game {
 			GameManager.redrawScreen();
 			return;
 		}
+		
+		// tap anywhere while being the angel and moving
+		if (mouseState == MouseState.MOUSE_DOWN && ball.isRunning() && 
+				Character.gear == gearState.ANGEL) {
+			ball.exhaustTheBall();
+			updateView();
+			return;
+		}
 
 		// =========================================================================
 		if (ball.isRunning()) // no interaction with DumDum while running
