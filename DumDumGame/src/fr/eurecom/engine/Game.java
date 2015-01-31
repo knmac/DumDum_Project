@@ -3,6 +3,7 @@ package fr.eurecom.engine;
 import java.util.Calendar;
 import java.util.LinkedList;
 
+import fr.eurecom.connectivity.DeviceDetailFragment;
 import fr.eurecom.data.Map;
 import fr.eurecom.data.MapTexture;
 import fr.eurecom.dumdumgame.App;
@@ -32,25 +33,25 @@ import android.media.MediaPlayer;
 import android.util.Log;
 
 public class Game {
-	private MapTexture gameData;
-	private Map background;
-	private Character ball;
-	private double elapsedTime;
-//	private DynamicBitmap[] teleporters;
-	private Conveyor[] conveyors;
-	private DynamicBitmap rain;
-	private int turn;
-	private MediaPlayer[] bloibs;
-	private int bloibIndex;
-	private static Physics physics;
-	private DynamicBitmap[] heartRedArr;
-	private DynamicBitmap[] heartBlackArr;
-	private DynamicBitmap microwave;
-	private DynamicBitmap pauseButton;
-	private DynamicBitmap gearUpButton;
+	protected MapTexture gameData;
+	protected Map background;
+	protected Character ball;
+	protected double elapsedTime;
+	// private DynamicBitmap[] teleporters;
+	protected Conveyor[] conveyors;
+	protected DynamicBitmap rain;
+	protected int turn;
+	protected MediaPlayer[] bloibs;
+	protected int bloibIndex;
+	protected static Physics physics;
+	protected DynamicBitmap[] heartRedArr;
+	protected DynamicBitmap[] heartBlackArr;
+	protected DynamicBitmap microwave;
+	protected DynamicBitmap pauseButton;
+	protected DynamicBitmap gearUpButton;
 
 	public Obstacles[] obstacleList;
-	private Environment myEnvironment;
+	protected Environment myEnvironment;
 
 	public static Physics getPhysics() {
 		return physics;
@@ -192,23 +193,18 @@ public class Game {
 		this.physics = new Physics(myEnvironment, gameData.getMapBottomRight());
 	}
 
-	private boolean isBallClicked = false;
-	private boolean isDragging = false; // for ball (ruler)
-	private Point junction = new Point(0, 0); // for ruler
-//	private boolean amulet = false; // for teleporters
-//	private int numOfCollisions = 0;// for multi-reflection
-	private int updateCounter = 1; // for conveyors, rain
-	private Point clickedPoint = new Point(0, 0); // for dragging background
-	private boolean isBackgroundClicked = false;
-	private boolean isUpdateView = false; // 3 cases: ball out of view, ball
+	protected boolean isBallClicked = false;
+	protected boolean isDragging = false; // for ball (ruler)
+	protected Point junction = new Point(0, 0); // for ruler
+	protected int updateCounter = 1; // for conveyors, rain
+	protected Point clickedPoint = new Point(0, 0); // for dragging background
+	protected boolean isBackgroundClicked = false;
+	protected boolean isUpdateView = false; // 3 cases: ball out of view, ball
 											// stop, drag background
-	private boolean firstTimeShow = true;
-	private boolean isPreviouslyDragging = false; // dragging the ball
-	private boolean isPreviouslyBackgroundDragging = false;
-//	private LinkedList<Segment> previousObstacles = null; // for highlighting
-//															// obstacles
-//	private int highlightCounter = 0; // for highlighting obstacles
-	private Point savedMousPos = new Point();
+	protected boolean firstTimeShow = true;
+	protected boolean isPreviouslyDragging = false; // dragging the ball
+	protected boolean isPreviouslyBackgroundDragging = false;
+	protected Point savedMousPos = new Point();
 
 	public void Action(Point mousePos, Object o, MouseState mouseState) {
 		// click pause button
@@ -221,17 +217,18 @@ public class Game {
 		}
 
 		// click gear-up button
-		if (mouseState == MouseState.MOUSE_DOWN && gearUpButton.isClicked(mousePos)) {
+		if (mouseState == MouseState.MOUSE_DOWN
+				&& gearUpButton.isClicked(mousePos)) {
 			updateView();
 			GameManager.captureScreen();
 			GameManager.setCurrentState(GameManager.GameState.GEAR_UP_MENU);
 			GameManager.redrawScreen();
 			return;
 		}
-		
+
 		// tap anywhere while being the angel and moving
-		if (mouseState == MouseState.MOUSE_DOWN && ball.isRunning() && 
-				Character.gear == gearState.ANGEL) {
+		if (mouseState == MouseState.MOUSE_DOWN && ball.isRunning()
+				&& Character.gear == gearState.ANGEL) {
 			ball.exhaustTheBall();
 			updateView();
 			return;
@@ -254,15 +251,6 @@ public class Game {
 			}
 		} else if (mouseState == MouseState.MOUSE_UP) {
 			if (isBallClicked) {
-				// double acceleration = getAccelerationUnderTheBall();
-				// double initialVelocity = Helper.Point_GetDistanceFrom(
-				// ball.getPosition(), mousePos)
-				// * Parameters.forceCoefficient;
-				// Ray direction = new Ray(
-				// ball.getPosition(),
-				// Helper.Point_GetMirrorFrom(mousePos, ball.getPosition()));
-				// initBall(initialVelocity, acceleration, direction);
-
 				Point direction = new Point(ball.getPosition().x - mousePos.x,
 						ball.getPosition().y - mousePos.y);
 				initBall(direction);
@@ -295,18 +283,11 @@ public class Game {
 		}
 	}
 
-	private LinkedList<Obstacles> isNextPostAvailable() {
+	protected LinkedList<Obstacles> isNextPostAvailable() {
 		// TODO with great assumption that wall list is sorted according to the
 		// x position of first point
 		// and that first point of wall is always smaller than second point in
 		// term of x position
-
-		/*
-		 * int reflectorList_len = gameData.getReflectorList().size();
-		 * 
-		 * double minDistance = Double.MAX_VALUE; Segment returnedWall = null;
-		 */
-
 		Point current = ball.getCurrentPosition();
 		Point next = ball.getNextPosition();
 
@@ -316,17 +297,16 @@ public class Game {
 		// ball gets out of scence
 		// TODO
 		if (next == null) {
-			
+
 			if (ball.getState() != Character.motionState.DEATH)
 				ball.setState(Character.motionState.DEATH);
-			else
-			{
+			else {
 				decreaseLives();
 				this.restart();
 				updateView();
 				GameManager.mainView.invalidate();
 			}
-			//++endGame;
+			// ++endGame;
 			return null;
 		} else if (ball.getState() == Character.motionState.DEATH)
 			return null;
@@ -352,7 +332,7 @@ public class Game {
 			if (tmpObstacle != null)
 				resultObstacles.add(tmpObstacle);
 		}
-		
+
 		// check spikes
 		if (obstacleList[ObstacleIdx.Spike.getValue()] != null) {
 			tmpObstacle = obstacleList[ObstacleIdx.Spike.getValue()]
@@ -360,11 +340,11 @@ public class Game {
 			if (tmpObstacle != null)
 				resultObstacles.add(tmpObstacle);
 		}
-		
+
 		// check bees
 		if (obstacleList[ObstacleIdx.Bee.getValue()] != null) {
-			tmpObstacle = obstacleList[ObstacleIdx.Bee.getValue()]
-					.ballInRange(next, current, rangeStart, rangeEnd);
+			tmpObstacle = obstacleList[ObstacleIdx.Bee.getValue()].ballInRange(
+					next, current, rangeStart, rangeEnd);
 			if (tmpObstacle != null)
 				resultObstacles.add(tmpObstacle);
 		}
@@ -373,8 +353,9 @@ public class Game {
 		if (obstacleList[ObstacleIdx.Blackhole.getValue()] != null) {
 			tmpObstacle = obstacleList[ObstacleIdx.Blackhole.getValue()]
 					.ballInRange(next, current, rangeStart, rangeEnd);
-			if (tmpObstacle != null) { 
-//				resultObstacles = new LinkedList<Obstacles>(); // overwrite everything else
+			if (tmpObstacle != null) {
+				// resultObstacles = new LinkedList<Obstacles>(); // overwrite
+				// everything else
 				resultObstacles.add(tmpObstacle);
 			}
 		}
@@ -384,72 +365,14 @@ public class Game {
 			return null;
 
 		return resultObstacles;
-
-		/*
-		 * for (int i = 0; i < reflectorList_len; ++i) { Segment
-		 * currentReflector = gameData.getReflectorList().get(i);
-		 * 
-		 * if (ball.getTrajectoryList().getFirst().x < currentReflector
-		 * .getFirstPoint().x && ball.getTrajectoryList().getLast().x <
-		 * currentReflector .getFirstPoint().x) break;
-		 * 
-		 * Point wall1 = new Point(currentReflector.getFirstPoint()); Point
-		 * wall2 = new Point(currentReflector.getSecondPoint());
-		 * 
-		 * // equation of the wall double A = wall2.y - wall1.y; double B =
-		 * -(wall2.x - wall1.x); double C = -wall1.x * (wall2.y - wall1.y) +
-		 * wall1.y (wall2.x - wall1.x); double vAB = Math.sqrt(Math.pow(A, 2) +
-		 * Math.pow(B, 2));
-		 * 
-		 * double distanceNextWall = Math.abs(A * next.x + B * next.y + C) /
-		 * (vAB);
-		 * 
-		 * double cPoint = -current.x * (next.y - current.y) + current.y (next.x
-		 * - current.x); double cPoint1 = -wall1.x * (wall2.y - wall1.y) +
-		 * wall1.y (wall2.x - wall1.x);
-		 * 
-		 * double checkingInq1a = (next.y - current.y) * wall1.x - (next.x -
-		 * current.x) * wall1.y + cPoint; double checkingInq1b = (next.y -
-		 * current.y) * wall2.x - (next.x - current.x) * wall2.y + cPoint;
-		 * 
-		 * double checkingIng2a = (wall2.y - wall1.y) * current.x - (wall2.x -
-		 * wall1.x) * current.y + cPoint1; double checkingIng2b = (wall2.y -
-		 * wall1.y) * next.x - (wall2.x - wall1.x) * next.y + cPoint1;
-		 * 
-		 * if ((checkingInq1a * checkingInq1b <= 0 && checkingIng2a
-		 * checkingIng2b <= 0)) { double distancePointWall = Math.abs(A *
-		 * current.x + B current.y + C);
-		 * 
-		 * if (distancePointWall < minDistance) { minDistance =
-		 * distancePointWall; returnedWall = currentReflector; } } else if
-		 * (distanceNextWall < Parameters.dBallRadius) { double distNextWall1 =
-		 * Math.sqrt(Math.pow(next.x - wall1.x, 2) + Math.pow(next.y - wall1.y,
-		 * 2)); double distNextWall2 = Math.sqrt(Math.pow(next.x - wall2.x, 2) +
-		 * Math.pow(next.y - wall2.y, 2)); double distWall1Wall2 =
-		 * Math.sqrt(Math .pow(wall1.x - wall2.x, 2) + Math.pow(wall1.y -
-		 * wall2.y, 2));
-		 * 
-		 * double condition1 = Math.sqrt(Math.pow(distNextWall1, 2) -
-		 * Math.pow(distanceNextWall, 2)); double condition2 =
-		 * Math.sqrt(Math.pow(distNextWall2, 2) - Math.pow(distanceNextWall,
-		 * 2));
-		 * 
-		 * double epsilon = 1; if (condition1 + condition2 > distWall1Wall2 -
-		 * epsilon && condition1 + condition2 < distWall1Wall2 + epsilon) { if
-		 * (distanceNextWall < minDistance) { minDistance = distanceNextWall;
-		 * returnedWall = currentReflector; } } } }
-		 * 
-		 * return returnedWall;
-		 */
 	}
-	
-	private void decreaseLives() {
+
+	protected void decreaseLives() {
 		int lives = GameManager.user.getCurrentLives();
 		if (lives > 0) { // TODO: set lives
 			GameManager.user.setCurrentLives(lives - 1);
 		} else {
-			GameManager
-					.setCurrentState(GameManager.GameState.MAIN_MENU);
+			GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
 		}
 
 		Calendar currentTime = Calendar.getInstance();
@@ -462,16 +385,13 @@ public class Game {
 		int dd = currentTime.get(Calendar.DAY_OF_MONTH);
 
 		String strCurrentTime = String.format("%04d", yyyy) + "-"
-				+ String.format("%02d", MM) + "-"
-				+ String.format("%02d", dd) + " "
-				+ String.format("%02d", hh) + ":"
-				+ String.format("%02d", mm) + ":"
-				+ String.format("%02d", ss);
+				+ String.format("%02d", MM) + "-" + String.format("%02d", dd)
+				+ " " + String.format("%02d", hh) + ":"
+				+ String.format("%02d", mm) + ":" + String.format("%02d", ss);
 		Log.i("DATETIME", strCurrentTime);
 
 		GameManager.user.setLastTime(strCurrentTime);
-		UserWriter.writeUserData(GameManager.user,
-				Parameters.pthUserData);
+		UserWriter.writeUserData(GameManager.user, Parameters.pthUserData);
 
 	}
 
@@ -482,22 +402,21 @@ public class Game {
 		// Show obstacles
 		for (Obstacles obstacle : obstacleList) {
 			if (obstacle != null)
-				obstacle.show(canvas,
-						background.getPosition());
+				obstacle.show(canvas, background.getPosition());
 		}
 
 		if (--updateCounter <= -1)
 			updateCounter = Parameters.updatePeriod;
 
 		// Highlight previous obstacles
-//		if (highlightCounter < 3 && previousObstacles != null) {
-//			if (ball.isRunning()) {
-//				for (int i = 0; i < previousObstacles.size(); ++i)
-//					previousObstacles.get(i).show(canvas,
-//							background.getPosition());
-//				highlightCounter++;
-//			}
-//		}
+		// if (highlightCounter < 3 && previousObstacles != null) {
+		// if (ball.isRunning()) {
+		// for (int i = 0; i < previousObstacles.size(); ++i)
+		// previousObstacles.get(i).show(canvas,
+		// background.getPosition());
+		// highlightCounter++;
+		// }
+		// }
 
 		// Show rain, if any
 		if (rain != null) {
@@ -507,23 +426,23 @@ public class Game {
 		}
 
 		// Show conveyors, if any
-//		boolean conveyorInEffect = false;
-//		for (int i = 0; i < gameData.getConveyorList().size(); ++i) {
-//			conveyors[i].show(canvas, background.getPosition());
-//			if (updateCounter == 0)
-//				conveyors[i].updateToTheNextImage();
-//			if (conveyors[i].contains(ball.getPosition()) && !conveyorInEffect) {
-//				conveyorInEffect = true;
-//				Point increment = conveyors[i].getIncrement();
-//				if (!ball.isRunning()) {
-//					ball.projectOn(conveyors[i].getCenterLine());
-//					Point newPosition = new Point(ball.getPosition().x
-//							+ increment.x, ball.getPosition().y + increment.y);
-//					ball.setPosition(newPosition);
-//				} else
-//					ball.exhaustTheball();
-//			}
-//		}
+		// boolean conveyorInEffect = false;
+		// for (int i = 0; i < gameData.getConveyorList().size(); ++i) {
+		// conveyors[i].show(canvas, background.getPosition());
+		// if (updateCounter == 0)
+		// conveyors[i].updateToTheNextImage();
+		// if (conveyors[i].contains(ball.getPosition()) && !conveyorInEffect) {
+		// conveyorInEffect = true;
+		// Point increment = conveyors[i].getIncrement();
+		// if (!ball.isRunning()) {
+		// ball.projectOn(conveyors[i].getCenterLine());
+		// Point newPosition = new Point(ball.getPosition().x
+		// + increment.x, ball.getPosition().y + increment.y);
+		// ball.setPosition(newPosition);
+		// } else
+		// ball.exhaustTheball();
+		// }
+		// }
 
 		// Show pulling line, if any
 		if (isDragging) {
@@ -534,15 +453,18 @@ public class Game {
 			canvas.drawLine(ball.getPosition().x + background.getPosition().x,
 					ball.getPosition().y + background.getPosition().y,
 					junction.x, junction.y, paint);
-			
+
 			// draw tracjectory for scholar
 			if (ball.gear == gearState.SCHOLAR) {
 				Point iniVel = new Point(ball.getPosition().x - savedMousPos.x,
 						ball.getPosition().y - savedMousPos.y);
-				LinkedList<Point> traj = getPhysics().computeTrajectory(ball.getPosition(), iniVel);
-				
+				LinkedList<Point> traj = getPhysics().computeTrajectory(
+						ball.getPosition(), iniVel);
+
 				for (Point point : traj) {
-					Helper.drawBlurCircle(canvas, point, background.getPosition(), 125, Parameters.dZoomParam/10);
+					Helper.drawBlurCircle(canvas, point,
+							background.getPosition(), 125,
+							Parameters.dZoomParam / 10);
 				}
 			}
 		}
@@ -588,9 +510,11 @@ public class Game {
 			// Show ball's shadow
 			if (ball.getState() == Character.motionState.MOVING) {
 				Point temp = new Point(ball.getPosition());
-				Point shadowPos2 = Helper.Point_GetMirrorFrom(temp, shadowPos1);				
-				Helper.drawBlurCircle(canvas, shadowPos2, background.getPosition(), 50);
-				Helper.drawBlurCircle(canvas, shadowPos1, background.getPosition(), 100);
+				Point shadowPos2 = Helper.Point_GetMirrorFrom(temp, shadowPos1);
+				Helper.drawBlurCircle(canvas, shadowPos2,
+						background.getPosition(), 50);
+				Helper.drawBlurCircle(canvas, shadowPos1,
+						background.getPosition(), 100);
 			}
 
 			// Show ball
@@ -622,8 +546,7 @@ public class Game {
 			if (ball.getState() == Character.motionState.STANDING) {
 				elapsedTime = 0.0;
 				updateView();
-//				numOfCollisions = 0;
-				//
+
 				Paint paint = new Paint();
 				paint.setStyle(Style.FILL);
 				BitmapShader shader = new BitmapShader(
@@ -661,28 +584,46 @@ public class Game {
 		pauseButton.show(canvas);
 
 		// check level up
+		checkLevelUp();
+
+		// invalidate if there is constantly moving objects
+		if (obstacleList[ObstacleIdx.Spike.getValue()] != null
+				|| obstacleList[ObstacleIdx.Blackhole.getValue()] != null
+				|| obstacleList[ObstacleIdx.Bee.getValue()] != null) {
+			GameManager.mainView.invalidate();
+		}
+	}
+
+	protected void checkLevelUp() throws Exception {
 		if (Helper.Point_GetDistanceFrom(ball.getPosition(),
-				gameData.getHolePos()) < /*0.65 **/ Parameters.dBallRadius) {
+				gameData.getHolePos()) < 2 * Parameters.dBallRadius) {
 
 			// capture background screenshot
 			GameManager.captureScreen();
 			GameManager.setCurrentState(GameManager.GameState.FINISH_LVL_MENU);
 			GameManager.redrawScreen();
 
+			int candies = ((Candies) obstacleList[ObstacleIdx.Candy.getValue()])
+					.computeScore();
+
 			// Do a down on the mutex
 			Parameters.mutex.acquire();
 			// Critical region
-			GameManager.levelUp(turn);
+			if (DeviceDetailFragment.client == null && DeviceDetailFragment.server == null)
+				GameManager.levelUp(candies);
+			else {
+				int bet = 0;
+				if (DeviceDetailFragment.client!=null) {
+					bet = DeviceDetailFragment.client.getBet();
+				} else {
+					if (DeviceDetailFragment.server!=null)
+						bet = DeviceDetailFragment.server.getBet();
+				}
+				GameManager.winDuo(candies + bet);
+			}
 			// ------------------
 			// Do an up on the mutex
 			Parameters.mutex.release();
-		}
-		
-		// invalidate if there is constantly moving objects
-		if (obstacleList[ObstacleIdx.Spike.getValue()] != null ||
-				obstacleList[ObstacleIdx.Blackhole.getValue()] != null ||
-				obstacleList[ObstacleIdx.Bee.getValue()] != null) {
-			GameManager.mainView.invalidate();
 		}
 	}
 
@@ -721,7 +662,7 @@ public class Game {
 		background = null;
 		gameData = null;
 		ball = null;
-//		teleporters = null;
+		// teleporters = null;
 		conveyors = null;
 		rain = null;
 	}
@@ -741,7 +682,7 @@ public class Game {
 		return this.ball.getPosition();
 	}
 
-	private void updateView() {
+	protected void updateView() {
 		Point point = new Point(ball.getPosition().x
 				+ background.getPosition().x, ball.getPosition().y
 				+ background.getPosition().y);
@@ -749,7 +690,7 @@ public class Game {
 		isUpdateView = true;
 	}
 
-	private boolean isBallOutOfView() {
+	protected boolean isBallOutOfView() {
 		Point point = new Point(ball.getPosition().x
 				+ background.getPosition().x, ball.getPosition().y
 				+ background.getPosition().y);
@@ -759,38 +700,12 @@ public class Game {
 		return false;
 	}
 
-	private void initBall(Point direction) {
+	protected void initBall(Point direction) {
 		ball.init(direction);
 		elapsedTime = 0.0;
 	}
 
-	// private void teleportTheBall(int currentTeleporter) {
-	// Random generator = new Random();
-	// int index = 0;
-	// while ((index = generator.nextInt(gameData.getTeleporterList().size()))
-	// == currentTeleporter)
-	// ;
-	// Point newPosition = gameData.getTeleporterList().get(index);
-	//
-	// double acceleration = Parameters.grassFrictionAcceleration;
-	// double velocity = ball.getInstantVelocity(elapsedTime) + 12;
-	// ball.setPosition(newPosition);
-	//
-	// int incrementX = 0;
-	// int incrementY = 0;
-	// while ((incrementX = generator.nextInt(41)) == 20)
-	// ;
-	// while ((incrementY = generator.nextInt(41)) == 20)
-	// ;
-	// incrementX -= 20;
-	// incrementY -= 20;
-	//
-	// Ray direction = new Ray(ball.getPosition(), new Point(newPosition.x
-	// + incrementX, newPosition.y + incrementY));
-	// initBall(velocity, acceleration, direction);
-	// }
-
-	private void showBackground(Canvas canvas) {
+	protected void showBackground(Canvas canvas) {
 		// int rad = Parameters.dBallRadius;
 
 		if (isDragging || isPreviouslyDragging || isUpdateView || firstTimeShow
@@ -855,7 +770,7 @@ public class Game {
 	 * 
 	 * // Otherwise return Parameters.grassFrictionAcceleration; }
 	 */
-	private void showFullBackground(Canvas canvas) {
+	protected void showFullBackground(Canvas canvas) {
 		Paint paint = new Paint();
 		paint.setStyle(Style.FILL);
 		// BitmapShader shader = new

@@ -1,6 +1,8 @@
 package fr.eurecom.utility;
 
+import fr.eurecom.connectivity.DeviceDetailFragment;
 import fr.eurecom.dumdumgame.App;
+import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.engine.Line;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,6 +13,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Paint.Style;
 import android.media.MediaPlayer;
+import android.widget.Toast;
 
 public class Helper {
 	public static double Point_GetDistanceFrom(Point p, Point otherPoint) {
@@ -95,5 +98,16 @@ public class Helper {
 		paint.setColor(Color.WHITE);
 		paint.setAlpha(alpha);
 		canvas.drawCircle(tmp.x, tmp.y, radius, paint);
+	}
+	
+
+	static public void onConnectionError() {
+		if (DeviceDetailFragment.client !=null)
+			DeviceDetailFragment.client = null;
+		if (DeviceDetailFragment.server !=null)
+			DeviceDetailFragment.server = null;
+		GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
+		GameManager.mainView.invalidate();
+		Toast.makeText(App.getMyContext(), "Connection Lost. Please reset your Wifi setting.", Toast.LENGTH_LONG).show();
 	}
 }

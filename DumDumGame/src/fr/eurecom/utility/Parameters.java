@@ -215,4 +215,14 @@ public class Parameters {
 		dConveyorWidth = dZoomParam;
 		dTeleRadius = dBallRadius*3/2;
 	}
+	
+	public static class tagConnect {
+		public final static String STARTPOS = "1,";
+		public final static String CURPOS = "2,";
+		public final static String FINMOVE = "3,";
+		public final static String WINDUO = "4,";
+		public final static String LOSEDUO = "5,";
+	}
+	
+	public static final int sleepPeriod = 3000;
 }

@@ -3,11 +3,17 @@ package fr.eurecom.dumdumgame;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.media.MediaPlayer;
+import android.widget.Toast;
 import fr.eurecom.allmenus.*;
+import fr.eurecom.connectivity.DeviceDetailFragment;
 import fr.eurecom.data.User;
 import fr.eurecom.engine.Game;
+import fr.eurecom.engine.GameDuoClient;
+import fr.eurecom.engine.GameDuoHost;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
+import fr.eurecom.utility.UserWriter;
+import fr.eurecom.utility.Parameters.tagConnect;
 
 public class GameManager {
 
@@ -171,6 +177,14 @@ public class GameManager {
 		game = new Game();
 	}
 
+	public static void initGameDuoClient(int bet) {
+		game = new GameDuoClient(bet);
+	}
+
+	public static void initGameDuoHost(int bet) {
+		game = new GameDuoHost(bet);
+	}
+
 	public static void initSound() {
 		spMenu = MediaPlayer.create(App.getMyContext(),
 				Parameters.dMenuSoundtrack);
@@ -224,16 +238,20 @@ public class GameManager {
 
 	}
 
-	public static void levelUp(int score) throws Exception {
+	public static void levelUp(int candies) throws Exception {
 		User user = GameManager.user;
 
 		// save progress
 		int level = GameManager.chosenLevel;
-		if (user.getLevelScore().get(level - 1) == 0
-				|| (user.getLevelScore().get(level - 1) > score && user
-						.getLevelScore().get(level - 1) != 0)) // save the
-																// better result
-			user.getLevelScore().set(level - 1, score);
+		// save the better result
+		if (user.getLevelScore().get(level - 1) == 0 
+				|| (user.getLevelScore().get(level - 1) > candies && user
+						.getLevelScore().get(level - 1) != 0)) { 
+			user.getLevelScore().set(level - 1, candies);
+		}
+		
+		int curCandies = user.getCurrentMoney();
+		user.setCurrentMoney(curCandies + candies); 
 
 		/*
 		 * // go to next level if (GameManager.chosenLevel == 10) {
@@ -261,6 +279,10 @@ public class GameManager {
 		// DataWriter.WriteData(mainForm.getUserList(), Parameters.pthUserData,
 		// user.getName());
 		// TODO: what is this function for?
+		
+		// write data
+		UserWriter.writeUserData(user, Parameters.pthUserData);
+		
 		updateContent();
 
 		GameManager.game.flushData();
@@ -268,6 +290,80 @@ public class GameManager {
 		mainView.invalidate();
 	}
 
+	public static void loseDuo(int candies) {
+		
+		int curCandies = user.getCurrentMoney();
+		
+		if(curCandies - candies < 0)
+			user.setCurrentMoney(0);
+		else
+			user.setCurrentMoney(curCandies - candies);
+		
+		UserWriter.writeUserData(user, Parameters.pthUserData);
+		
+		if(DeviceDetailFragment.server!=null) {
+			
+			DeviceDetailFragment.server.sendMessage(tagConnect.LOSEDUO);
+			try {
+				Thread.sleep(Parameters.sleepPeriod);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if (DeviceDetailFragment.client!= null) {
+				DeviceDetailFragment.client.sendMessage(tagConnect.LOSEDUO);
+				try {
+					Thread.sleep(Parameters.sleepPeriod);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		DeviceDetailFragment.client = null;
+		DeviceDetailFragment.server = null;
+		GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
+		GameManager.mainView.invalidate();
+		Toast.makeText(App.getMyContext(), "You lost " + candies + " candies!!!", Toast.LENGTH_LONG).show();
+	}
+	
+	public static void winDuo(int candies) {
+		
+		int curCandies = user.getCurrentMoney();
+		
+		user.setCurrentMoney(curCandies+candies);
+		UserWriter.writeUserData(user, Parameters.pthUserData);
+		
+		if(DeviceDetailFragment.server!=null) {
+			
+			DeviceDetailFragment.server.sendMessage(tagConnect.WINDUO);
+			try {
+				Thread.sleep(Parameters.sleepPeriod);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if (DeviceDetailFragment.client!= null) {
+				DeviceDetailFragment.client.sendMessage(tagConnect.WINDUO);
+				try {
+					Thread.sleep(Parameters.sleepPeriod);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		DeviceDetailFragment.client = null;
+		DeviceDetailFragment.server = null;
+		GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
+		GameManager.mainView.invalidate();
+		Toast.makeText(App.getMyContext(), "You won " + candies + " candies!!!", Toast.LENGTH_LONG).show();
+	}
+	
 	public static void redrawScreen() {
 		mainView.invalidate();
 	}
@@ -295,12 +391,12 @@ public class GameManager {
 		GameManager.currentState = currentState;
 		checkSound();
 	}
-	
+
 	public static void soundOn() {
 		hasSound = true;
 		checkSound();
 	}
-	
+
 	public static void soundOff() {
 		hasSound = false;
 		checkSound();

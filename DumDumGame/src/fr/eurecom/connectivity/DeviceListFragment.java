@@ -78,6 +78,8 @@ public class DeviceListFragment implements PeerListListener {
 
     public void onInitiateDiscovery() {
     }
+    
+
 
     public interface DeviceActionListener {
 

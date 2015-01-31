@@ -100,18 +100,27 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                     manager.requestPeers(channel, dlf);
             }
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
-
-            if (manager == null) {
-                return;
-            }
-
-            NetworkInfo networkInfo = (NetworkInfo) intent
-                    .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
-
-            if (networkInfo.isConnected()) {
-                DeviceDetailFragment fragment = new DeviceDetailFragment(activity);
-                manager.requestConnectionInfo(channel, fragment);
-            }
+            
+                if (manager == null) {
+                    return;
+                }
+    
+                NetworkInfo networkInfo = (NetworkInfo) intent
+                        .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+    
+                if (networkInfo.isConnected()) {
+                	int level = 0;
+                	int bet = 0;
+                	if (bm instanceof ClientMenu) {
+                		level = ((ClientMenu) bm).returnLevel();
+                		bet = ((ClientMenu) bm).returnBet();
+                	} else {
+                		level = ((HostMenu) bm).returnLevel();
+                		bet = ((HostMenu) bm).returnBet();
+                	}
+                    DeviceDetailFragment fragment = new DeviceDetailFragment(activity,level, bet);
+                    manager.requestConnectionInfo(channel, fragment);
+                }
         }
     }
 }

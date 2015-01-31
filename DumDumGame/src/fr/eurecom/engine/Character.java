@@ -2,6 +2,7 @@ package fr.eurecom.engine;
 
 import java.util.LinkedList;
 
+import fr.eurecom.connectivity.DeviceDetailFragment;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.DynamicBitmap;
 import fr.eurecom.dumdumgame.Obstacles;
@@ -9,6 +10,7 @@ import fr.eurecom.dumdumgame.Platforms;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
+import fr.eurecom.utility.Parameters.tagConnect;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -229,8 +231,10 @@ public class Character {
 	}
 
 	public void show(Canvas canvas, Point offset) { // offset of the background
-	// showShadow(canvas, offset, 100);
-
+		showWithAlpha(canvas, offset, 255);
+	}
+	
+	public void showWithAlpha(Canvas canvas, Point offset, int alpha) {
 		Point pivot = Parameters.pivotDumDum;
 		Point nonRollPos = new Point(this.position.x - 2
 				* Parameters.dBallRadius + pivot.x, this.position.y - 2
@@ -241,17 +245,17 @@ public class Character {
 			this.allImg[motionState.MOVING.getValue()].setPosition(new Point(
 					this.position.x - Parameters.dBallRadius, this.position.y
 							- Parameters.dBallRadius));
-			this.allImg[motionState.MOVING.getValue()].show(canvas, offset);
+			this.allImg[motionState.MOVING.getValue()].showWithAlpha(canvas, offset, alpha);
 			this.allImg[motionState.MOVING.getValue()].updateToTheNextImage();
 			break;
 		case STANDING:
 			this.allImg[motionState.STANDING.getValue()]
 					.setPosition(nonRollPos);
-			this.allImg[motionState.STANDING.getValue()].show(canvas, offset);
+			this.allImg[motionState.STANDING.getValue()].showWithAlpha(canvas, offset, alpha);
 			break;
 		case DEATH:
 			this.allImg[motionState.DEATH.getValue()].setPosition(nonRollPos);
-			this.allImg[motionState.DEATH.getValue()].show(canvas, offset);
+			this.allImg[motionState.DEATH.getValue()].showWithAlpha(canvas, offset, alpha);
 			break;
 		}
 	}
@@ -447,6 +451,27 @@ public class Character {
 	protected void exhaustTheBall() {
 		setState(motionState.STANDING);
 		count = 0;
+		
+		//for duoMode
+		if(DeviceDetailFragment.server!=null) {
+			DeviceDetailFragment.server.sendMessage(tagConnect.FINMOVE);
+			try {
+				Thread.sleep(Parameters.sleepPeriod);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			if (DeviceDetailFragment.client!= null) {
+				DeviceDetailFragment.client.sendMessage(tagConnect.FINMOVE);
+				try {
+					Thread.sleep(Parameters.sleepPeriod);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	protected void killTheBall() {
