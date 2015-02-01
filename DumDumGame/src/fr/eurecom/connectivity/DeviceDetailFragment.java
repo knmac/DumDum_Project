@@ -95,16 +95,6 @@ public class DeviceDetailFragment implements ConnectionInfoListener {
 		this.info = info;
 
 		if (info.groupFormed && info.isGroupOwner) {
-			/*
-			 * Toast.makeText((App.getMyContext()), "Server",
-			 * Toast.LENGTH_SHORT) .show(); server = (ServerAsyncTask) new
-			 * ServerAsyncTask( App.getMyContext(), level).execute(); try {
-			 * Thread.sleep(2000); } catch (InterruptedException e) { // TODO
-			 * Auto-generated catch block e.printStackTrace(); }
-			 * createGame(level);
-			 */
-			//Toast.makeText((App.getMyContext()), "Client", Toast.LENGTH_SHORT)
-			//		.show();
 			server = (ServerAsyncTask) new ServerAsyncTask(App.getMyContext(),
 					bet).execute();
 			try {
@@ -114,17 +104,9 @@ public class DeviceDetailFragment implements ConnectionInfoListener {
 				e.printStackTrace();
 			}
 			createGame(level, bet);
-			
-		} else if (info.groupFormed) {
-			/*
-			 * Toast.makeText((App.getMyContext()), "Client",
-			 * Toast.LENGTH_SHORT) .show(); client = (ClientAsyncTask) new
-			 * ClientAsyncTask("", level) .execute(); try { Thread.sleep(2000);
-			 * } catch (InterruptedException e) { // TODO Auto-generated catch
-			 * block e.printStackTrace(); } if (level != -1) createGame(level);
-			 */
-			//Toast.makeText((App.getMyContext()), "Server", Toast.LENGTH_SHORT)
-			//		.show();
+		}
+		else if (info.groupFormed) {
+
 			client = (ClientAsyncTask) new ClientAsyncTask("", bet).execute();
 			try {
 				Thread.sleep(2000);
@@ -147,12 +129,12 @@ public class DeviceDetailFragment implements ConnectionInfoListener {
 		// Critical Region--------------------------------------------
 		GameManager.setCurrentState(GameManager.GameState.GAME);
 		GameManager.chosenLevel = level;
-		if (client != null) {
+		if (client != null && server == null) {
 			GameManager.initGameDuoClient(bet);
 			GameManager.mainView.invalidate();
 			Parameters.mutex.release();
 		} else {
-			if (server != null) {
+			if (server != null && client == null) {
 				GameManager.initGameDuoHost(bet);
 				GameManager.mainView.invalidate();
 				Parameters.mutex.release();

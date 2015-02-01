@@ -79,8 +79,8 @@ public class FinishLvlMenu extends BaseMenu {
 		canvas.drawRoundRect(rect, Parameters.dZoomParam / 2,
 				Parameters.dZoomParam / 2, rectPaint);
 		Helper.drawTextWithMultipleLines(canvas,
-				"Level Completed\n\nCandies: ", new Point(w / 2,
-						h * 2 / 5), textPaint);
+				"Congratulation \n Level Completed", new Point(w / 2,
+						h / 2), textPaint);
 
 		// draw buttons
 		for (Button btn : buttonList) {
@@ -128,7 +128,7 @@ public class FinishLvlMenu extends BaseMenu {
             FacebookDialog shareDialog = new FacebookDialog.ShareDialogBuilder((MainActivity)App.getMyContext())
             .setLink("http://www.eurecom.fr/")
             .setApplicationName("DumDum")
-            .setDescription("My DumDum has passed stage *** and collected yyy candies. My score is now zzz. Join me in DumDum's Great Adventure")
+            .setDescription("I've just completed level " + GameManager.chosenLevel + ". Can you beat me in DumDum's Great Adventure?!?")
             .setPicture("https://dl.dropboxusercontent.com/u/11067028/dumdumicon.png")
             .build();
             ((MainActivity)App.getMyContext()).getUiHelper().trackPendingDialogCall(shareDialog.present());

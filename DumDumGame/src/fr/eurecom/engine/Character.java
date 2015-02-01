@@ -452,26 +452,7 @@ public class Character {
 		setState(motionState.STANDING);
 		count = 0;
 		
-		//for duoMode
-		if(DeviceDetailFragment.server!=null) {
-			DeviceDetailFragment.server.sendMessage(tagConnect.FINMOVE);
-			try {
-				Thread.sleep(Parameters.sleepPeriod);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else {
-			if (DeviceDetailFragment.client!= null) {
-				DeviceDetailFragment.client.sendMessage(tagConnect.FINMOVE);
-				try {
-					Thread.sleep(Parameters.sleepPeriod);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
+		Helper.sendFinMoveDuoMode(this.position);
 	}
 
 	protected void killTheBall() {

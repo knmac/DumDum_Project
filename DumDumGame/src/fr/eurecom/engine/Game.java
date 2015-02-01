@@ -17,6 +17,7 @@ import fr.eurecom.engine.Character.gearState;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
+import fr.eurecom.utility.Parameters.tagConnect;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -44,11 +45,11 @@ public class Game {
 	protected MediaPlayer[] bloibs;
 	protected int bloibIndex;
 	protected static Physics physics;
-	protected DynamicBitmap[] heartRedArr;
-	protected DynamicBitmap[] heartBlackArr;
+	protected DynamicBitmap[] heartRedArr = null;
+	protected DynamicBitmap[] heartBlackArr = null;
 	protected DynamicBitmap microwave;
 	protected DynamicBitmap pauseButton;
-	protected DynamicBitmap gearUpButton;
+	protected DynamicBitmap gearUpButton = null;
 
 	public Obstacles[] obstacleList;
 	protected Environment myEnvironment;
@@ -151,26 +152,31 @@ public class Game {
 		}
 		bloibIndex = 0;
 
-		// Create hearts
-		int maxLives = GameManager.user.getMaxLives();
-		heartRedArr = new DynamicBitmap[maxLives];
-		heartBlackArr = new DynamicBitmap[maxLives];
-		for (int i = 0; i < maxLives; i++) {
-			int size = Parameters.dBallRadius;
-			Point position = new Point(size * (i + 2), size / 2);
-			heartRedArr[i] = new DynamicBitmap(Parameters.bmpHeartRed,
-					position, size, size);
-			heartBlackArr[i] = new DynamicBitmap(Parameters.bmpHeartBlack,
-					position, size, size);
-		}
+		int h, w;
+		Point pos;
+		if (!Helper.isInDuoMode()) { // not available in duo mode
+			// Create hearts
+			int maxLives = GameManager.user.getMaxLives();
+			heartRedArr = new DynamicBitmap[maxLives];
+			heartBlackArr = new DynamicBitmap[maxLives];
+			for (int i = 0; i < maxLives; i++) {
+				int size = Parameters.dBallRadius;
+				Point position = new Point(size * (i + 2), size / 2);
+				heartRedArr[i] = new DynamicBitmap(Parameters.bmpHeartRed,
+						position, size, size);
+				heartBlackArr[i] = new DynamicBitmap(Parameters.bmpHeartBlack,
+						position, size, size);
+			}
 
-		// create gear-up button
-		int h = Parameters.dBallRadius;
-		int w = h * Parameters.bmpDumDumNormal.getWidth()
-				/ Parameters.bmpDumDumNormal.getHeight();
-		Point pos = new Point(Parameters.dBallRadius * 2 - w,
-				Parameters.dBallRadius / 2);
-		gearUpButton = new DynamicBitmap(Parameters.bmpDumDumNormal, pos, w, h);
+			// create gear-up button
+			h = Parameters.dBallRadius;
+			w = h * Parameters.bmpDumDumNormal.getWidth()
+					/ Parameters.bmpDumDumNormal.getHeight();
+			pos = new Point(Parameters.dBallRadius * 2 - w,
+					Parameters.dBallRadius / 2);
+			gearUpButton = new DynamicBitmap(Parameters.bmpDumDumNormal, pos,
+					w, h);
+		}
 
 		// create microwave
 		w = 4 * Parameters.dBallRadius;
@@ -217,7 +223,7 @@ public class Game {
 		}
 
 		// click gear-up button
-		if (mouseState == MouseState.MOUSE_DOWN
+		if (mouseState == MouseState.MOUSE_DOWN && gearUpButton != null
 				&& gearUpButton.isClicked(mousePos)) {
 			updateView();
 			GameManager.captureScreen();
@@ -254,6 +260,8 @@ public class Game {
 				Point direction = new Point(ball.getPosition().x - mousePos.x,
 						ball.getPosition().y - mousePos.y);
 				initBall(direction);
+				Helper.sendDirectionDuoMode(ball.getPosition(), direction);
+
 				isBallClicked = false;
 				isDragging = false;
 				isPreviouslyDragging = true;
@@ -570,15 +578,20 @@ public class Game {
 
 		// draw hearts
 		int lives = GameManager.user.getCurrentLives();
-		for (int i = 0; i < lives; i++) {
-			heartRedArr[i].show(canvas);
+		if (heartRedArr != null) {
+			for (int i = 0; i < lives; i++) {
+				heartRedArr[i].show(canvas);
+			}
 		}
-		for (int i = lives; i < heartBlackArr.length; i++) {
-			heartBlackArr[i].show(canvas);
+		if (heartBlackArr != null) {
+			for (int i = lives; i < heartBlackArr.length; i++) {
+				heartBlackArr[i].show(canvas);
+			}
 		}
 
 		// draw gear-up button
-		gearUpButton.show(canvas);
+		if (gearUpButton != null)
+			gearUpButton.show(canvas);
 
 		// draw pause button
 		pauseButton.show(canvas);
@@ -589,7 +602,9 @@ public class Game {
 		// invalidate if there is constantly moving objects
 		if (obstacleList[ObstacleIdx.Spike.getValue()] != null
 				|| obstacleList[ObstacleIdx.Blackhole.getValue()] != null
-				|| obstacleList[ObstacleIdx.Bee.getValue()] != null) {
+				|| obstacleList[ObstacleIdx.Bee.getValue()] != null
+				|| DeviceDetailFragment.client != null
+				|| DeviceDetailFragment.server != null) {
 			GameManager.mainView.invalidate();
 		}
 	}
@@ -609,14 +624,16 @@ public class Game {
 			// Do a down on the mutex
 			Parameters.mutex.acquire();
 			// Critical region
-			if (DeviceDetailFragment.client == null && DeviceDetailFragment.server == null)
+			if (DeviceDetailFragment.client == null
+					&& DeviceDetailFragment.server == null) {
 				GameManager.levelUp(candies);
+			}
 			else {
 				int bet = 0;
-				if (DeviceDetailFragment.client!=null) {
+				if (DeviceDetailFragment.client != null) {
 					bet = DeviceDetailFragment.client.getBet();
 				} else {
-					if (DeviceDetailFragment.server!=null)
+					if (DeviceDetailFragment.server != null)
 						bet = DeviceDetailFragment.server.getBet();
 				}
 				GameManager.winDuo(candies + bet);
@@ -795,5 +812,6 @@ public class Game {
 
 	public void changeGear(Character.gearState gear) {
 		this.ball.resetGear(gear);
+		// Helper.sendChangeGearDuoMode(gear);
 	}
 }

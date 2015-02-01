@@ -92,7 +92,7 @@ public class HostMenu extends BaseMenu implements ChannelListener,
 	
 	public HostMenu(DynamicBitmap bmpBackground) {
 		super(bmpBackground);
-
+		try {
 		intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
 		intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
 		intentFilter
@@ -115,7 +115,7 @@ public class HostMenu extends BaseMenu implements ChannelListener,
 
 		setDeviceName(deviceName);
 
-		maxCandies = GameManager.user.getCurrentMoney();
+		maxCandies = GameManager.user.getCurrentCandies();
 
 		Button btn;
 		int w, h;
@@ -171,6 +171,9 @@ public class HostMenu extends BaseMenu implements ChannelListener,
 				Parameters.posBtnReturn, Parameters.bmpBtnReturn.getWidth(),
 				Parameters.bmpBtnReturn.getHeight());
 		AddButton(btnReturn);
+		} catch (Exception e) {
+			Helper.onConnectionError();
+		}
 	}
 
 	public BroadcastReceiver getReceiver() {

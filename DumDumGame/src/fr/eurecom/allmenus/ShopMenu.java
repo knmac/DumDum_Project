@@ -273,7 +273,7 @@ public class ShopMenu extends BaseMenu {
 		// draw total candies
 		paint.setTextSize(Parameters.dZoomParam);
 		String str = "Total candies: "
-				+ Integer.toString(GameManager.user.getCurrentMoney());
+				+ Integer.toString(GameManager.user.getCurrentCandies());
 		p = new Point(Parameters.dMaxWidth / 2, 2 * Parameters.dZoomParam);
 		Helper.drawTextWithMultipleLines(canvas, str, p, paint);
 
@@ -355,7 +355,7 @@ public class ShopMenu extends BaseMenu {
 			else {
 				gearAmount[index]++;
 				currCandies -= gearPrice;
-				GameManager.user.setCurrentMoney(currCandies);
+				GameManager.user.setCurrentCandies(currCandies);
 			}
 
 			GameManager.mainView.invalidate();
@@ -397,7 +397,7 @@ public class ShopMenu extends BaseMenu {
 		for (int i = 0; i < gearAmount.length; i++) {
 			gearAmount[i] = list.get(i);
 		}
-		currCandies = GameManager.user.getCurrentMoney();
+		currCandies = GameManager.user.getCurrentCandies();
 	}
 	
 	private void saveUserInfo() {
@@ -406,7 +406,7 @@ public class ShopMenu extends BaseMenu {
 			list.add(gearAmount[i]);
 		}
 		GameManager.user.setGearAmount(list);
-		GameManager.user.setCurrentMoney(currCandies);
+		GameManager.user.setCurrentCandies(currCandies);
 		UserWriter.writeUserData(GameManager.user, Parameters.pthUserData);
 	}
 }

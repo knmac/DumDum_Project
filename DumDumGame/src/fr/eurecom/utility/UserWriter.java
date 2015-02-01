@@ -55,7 +55,7 @@ public class UserWriter {
 			fos.write(newLine.getBytes());
 
 			// current money
-			fos.write(Integer.toString(user.getCurrentMoney()).getBytes());
+			fos.write(Integer.toString(user.getCurrentCandies()).getBytes());
 			fos.write(newLine.getBytes());
 			
 			// gear amount

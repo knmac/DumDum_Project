@@ -90,7 +90,7 @@ public class UserReader {
 
 		// current money
 		aLine = reader.readLine();
-		user.setCurrentMoney(Integer.parseInt(aLine));
+		user.setCurrentCandies(Integer.parseInt(aLine));
 		
 		// gear amount
 		tokens = reader.readLine().split(" ");

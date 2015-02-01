@@ -47,11 +47,11 @@ public class User {
 		return this.name;
 	}
 
-	public void setCurrentMoney(int currentMoney) {
-		this.currentCandies = currentMoney;
+	public void setCurrentCandies(int currentCandies) {
+		this.currentCandies = currentCandies;
 	}
 
-	public int getCurrentMoney() {
+	public int getCurrentCandies() {
 		return currentCandies;
 	}
 	

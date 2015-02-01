@@ -219,9 +219,11 @@ public class Parameters {
 	public static class tagConnect {
 		public final static String STARTPOS = "1,";
 		public final static String CURPOS = "2,";
-		public final static String FINMOVE = "3,";
-		public final static String WINDUO = "4,";
-		public final static String LOSEDUO = "5,";
+		public final static String STARTMOVE = "3,";
+		public final static String FINMOVE = "4,";
+		public final static String CHANGEGEAR = "5,";
+		public final static String WINDUO = "6,";
+		public final static String LOSEDUO = "7,";
 	}
 	
 	public static final int sleepPeriod = 3000;

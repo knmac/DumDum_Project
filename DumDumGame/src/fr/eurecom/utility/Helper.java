@@ -3,7 +3,9 @@ package fr.eurecom.utility;
 import fr.eurecom.connectivity.DeviceDetailFragment;
 import fr.eurecom.dumdumgame.App;
 import fr.eurecom.dumdumgame.GameManager;
+import fr.eurecom.engine.Character;
 import fr.eurecom.engine.Line;
+import fr.eurecom.utility.Parameters.tagConnect;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -101,6 +103,76 @@ public class Helper {
 	}
 	
 
+	
+	
+	
+	/********* Message Senders for Duo Mode ************/
+	static public void sendFinMoveDuoMode(Point position) {
+		//for duoMode
+		String msg = tagConnect.FINMOVE + position.x + "," + position.y;
+		if(DeviceDetailFragment.server!=null) {
+			DeviceDetailFragment.server.sendMessage(msg);
+			try {
+				Thread.sleep(Parameters.sleepPeriod);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		} else {
+			if (DeviceDetailFragment.client!= null) {
+				DeviceDetailFragment.client.sendMessage(msg);
+				try {
+					Thread.sleep(Parameters.sleepPeriod);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	static public void sendDirectionDuoMode(Point position, Point direction) {
+		String msg = position.x + "," + position.y + "," + direction.x + "," + direction.y;
+		if(DeviceDetailFragment.server!=null) {
+			
+			DeviceDetailFragment.server.sendMessage(tagConnect.STARTMOVE + msg);
+			try {
+				Thread.sleep(Parameters.sleepPeriod);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		} else {
+			if (DeviceDetailFragment.client!= null) {
+				DeviceDetailFragment.client.sendMessage(tagConnect.STARTMOVE + msg);
+				try {
+					Thread.sleep(Parameters.sleepPeriod);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+//	static public void sendChangeGearDuoMode(Character.gearState gear) {
+//		String msg = gear.toString();
+//		if(DeviceDetailFragment.server!=null) {
+//			
+//			DeviceDetailFragment.server.sendMessage(tagConnect.CHANGEGEAR + msg);
+//			try {
+//				Thread.sleep(Parameters.sleepPeriod);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		} else {
+//			if (DeviceDetailFragment.client!= null) {
+//				DeviceDetailFragment.client.sendMessage(tagConnect.CHANGEGEAR + msg);
+//				try {
+//					Thread.sleep(Parameters.sleepPeriod);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+//	}
+	
 	static public void onConnectionError() {
 		if (DeviceDetailFragment.client !=null)
 			DeviceDetailFragment.client = null;
@@ -109,5 +181,11 @@ public class Helper {
 		GameManager.setCurrentState(GameManager.GameState.MAIN_MENU);
 		GameManager.mainView.invalidate();
 		Toast.makeText(App.getMyContext(), "Connection Lost. Please reset your Wifi setting.", Toast.LENGTH_LONG).show();
+	}
+	
+	static public Boolean isInDuoMode() {
+		if (DeviceDetailFragment.client !=null || DeviceDetailFragment.server !=null)
+			return true;
+		return false;
 	}
 }

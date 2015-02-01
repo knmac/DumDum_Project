@@ -73,7 +73,7 @@ public class ClientMenu extends BaseMenu implements ChannelListener,
 
 	public ClientMenu(DynamicBitmap bmpBackground) {
 		super(bmpBackground);
-
+		try {
 		intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
 		intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
 		intentFilter
@@ -122,6 +122,9 @@ public class ClientMenu extends BaseMenu implements ChannelListener,
 				Parameters.posBtnReturn, Parameters.bmpBtnReturn.getWidth(),
 				Parameters.bmpBtnReturn.getHeight());
 		AddButton(btnReturn);
+		} catch (Exception e) {
+			Helper.onConnectionError();
+		}
 	}
 
 	/**
@@ -297,8 +300,9 @@ public class ClientMenu extends BaseMenu implements ChannelListener,
 	}
 
 	private void CallReturn() {
-		if (DeviceDetailFragment.client !=null)
-			DeviceDetailFragment.client = null;
+		if (DeviceDetailFragment.client !=null) {
+				DeviceDetailFragment.client = null;
+		}
 		GameManager.setCurrentState(GameManager.GameState.MULTIPLAYER_MENU);
 		// (App.getMyContext()).unregisterReceiver(receiver);
 		GameManager.mainView.invalidate();
@@ -315,69 +319,26 @@ public class ClientMenu extends BaseMenu implements ChannelListener,
 			public void onSuccess() {
 				Toast.makeText((App.getMyContext()), "Loading...",
 						Toast.LENGTH_LONG).show();
-				// DeviceDetailFragment fragment = new
-				// DeviceDetailFragment(App.getMyContext());
-				// manager.requestConnectionInfo(channel, fragment);
 			}
 
 			@Override
 			public void onFailure(int reason) {
-				Toast.makeText((App.getMyContext()), "Connect failed. Retry.",
+				Toast.makeText((App.getMyContext()), "Connection failed. Please retry.",
 						Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
-
+	
 	@Override
 	public void connect(WifiP2pConfig config) {
-		manager.connect(channel, config, new ActionListener() {
-
-			@Override
-			public void onSuccess() {
-				// WiFiDirectBroadcastReceiver will notify us. Ignore for now.
-			}
-
-			@Override
-			public void onFailure(int reason) {
-				Toast.makeText((App.getMyContext()), "Connect failed. Retry.",
-						Toast.LENGTH_SHORT).show();
-			}
-		});
 	}
 
 	@Override
 	public void disconnect() {
-		manager.removeGroup(channel, new ActionListener() {
-
-			@Override
-			public void onFailure(int reasonCode) {
-				Log.d(TAG, "Disconnect failed. Reason :" + reasonCode);
-			}
-
-			@Override
-			public void onSuccess() {
-
-			}
-
-		});
 	}
 
 	@Override
 	public void onChannelDisconnected() {
-		// we will try once more
-		if (manager != null && !retryChannel) {
-			Toast.makeText(App.getMyContext(), "Channel lost. Trying again",
-					Toast.LENGTH_LONG).show();
-			resetData();
-			retryChannel = true;
-			manager.initialize(App.getMyContext(), App.getMyContext()
-					.getMainLooper(), this);
-		} else {
-			Toast.makeText(
-					App.getMyContext(),
-					"Severe! Channel is probably lost premanently. Try Disable/Re-Enable P2P.",
-					Toast.LENGTH_LONG).show();
-		}
 	}
 
 	@Override
