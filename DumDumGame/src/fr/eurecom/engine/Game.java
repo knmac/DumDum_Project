@@ -14,6 +14,7 @@ import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.Obstacles;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.engine.Character.gearState;
+import fr.eurecom.engine.Character.motionState;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
 import fr.eurecom.utility.UserWriter;
@@ -32,6 +33,7 @@ import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.util.Log;
+import android.widget.Toast;
 
 public class Game {
 	protected MapTexture gameData;
@@ -508,13 +510,6 @@ public class Game {
 				ball.update(elapsedTime, quantum);
 			}
 
-			// if (ball.update(elapsedTime, quantum))
-			// {
-			// double acc = getAccelerationUnderTheBall();
-			// if (ball.getCurrentAcceleration() != acc)
-			// changeTheBallAcceleration(acc);
-			// }
-
 			// Show ball's shadow
 			if (ball.getState() == Character.motionState.MOVING) {
 				Point temp = new Point(ball.getPosition());
@@ -527,27 +522,6 @@ public class Game {
 
 			// Show ball
 			ball.show(canvas, background.getPosition());
-
-			// If the ball hits the teleporter, if any
-			// TODO: teleporter
-			// boolean isBallSucked = false;
-			// double min = (Parameters.dTeleRadius + Parameters.dBallRadius) /
-			// 2;
-			// for (int i = 0; i < gameData.getTeleporterList().size(); ++i) {
-			// double distance = Helper
-			// .Point_GetDistanceFrom(ball.getPosition(), gameData
-			// .getTeleporterList().get(i));
-			// if (distance <= min) {
-			// isBallSucked = true;
-			// if (!amulet) {
-			// teleportTheBall(i);
-			// amulet = true;
-			// }
-			// break;
-			// }
-			// }
-			// if (!isBallSucked)
-			// amulet = false;
 
 			// If the ball stops running
 			// TODO: polish: original is !ball.isRunning()
@@ -610,8 +584,11 @@ public class Game {
 	}
 
 	protected void checkLevelUp() throws Exception {
+		if (ball.getState() == motionState.DEATH)
+			return;
+		
 		if (Helper.Point_GetDistanceFrom(ball.getPosition(),
-				gameData.getHolePos()) < 2 * Parameters.dBallRadius) {
+				gameData.getHolePos()) < Parameters.dBallRadius*3/2) {
 
 			// capture background screenshot
 			GameManager.captureScreen();
@@ -686,9 +663,18 @@ public class Game {
 
 	public void restart() {
 		this.firstTimeShow = true;
-		ball = new Character(gameData.getStartPos());
+		
+		int lives = GameManager.user.getCurrentLives();
+		if (lives > 0) { // TODO: set lives
+			GameManager.user.setCurrentLives(lives - 1);
+			
+			turn = 0;
+			ball = new Character(gameData.getStartPos());
+		} else {
+			Toast.makeText(App.getMyContext(), "Not enough lives", Toast.LENGTH_SHORT).show();
+		}
+		
 		updateView();
-		turn = 0;
 	}
 
 	public int getScore() {
