@@ -39,7 +39,8 @@ public class GameDuoHost extends Game {
 			// Send its startPos
 			DeviceDetailFragment.server.sendMessage(startPos);
 
-			Thread.sleep(Parameters.sleepPeriod);
+			//Thread.sleep(Parameters.sleepPeriod);
+			Thread.sleep(3000);
 			// Receive opponent's startPos
 			String msg = DeviceDetailFragment.server.getMessage();
 			Log.i("CONNECTIVITY", msg);

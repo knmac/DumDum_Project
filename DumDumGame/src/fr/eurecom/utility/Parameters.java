@@ -226,5 +226,5 @@ public class Parameters {
 		public final static String LOSEDUO = "7,";
 	}
 	
-	public static final int sleepPeriod = 3000;
+	public static final int sleepPeriod = 1000;
 }
