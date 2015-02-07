@@ -663,17 +663,8 @@ public class Game {
 
 	public void restart() {
 		this.firstTimeShow = true;
-		
-		int lives = GameManager.user.getCurrentLives();
-		if (lives > 0) { // TODO: set lives
-			GameManager.user.setCurrentLives(lives - 1);
-			
-			turn = 0;
-			ball = new Character(gameData.getStartPos());
-		} else {
-			Toast.makeText(App.getMyContext(), "Not enough lives", Toast.LENGTH_SHORT).show();
-		}
-		
+		turn = 0;
+		ball = new Character(gameData.getStartPos());
 		updateView();
 	}
 
