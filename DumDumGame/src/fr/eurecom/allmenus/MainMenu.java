@@ -7,8 +7,10 @@ import fr.eurecom.dumdumgame.GameManager;
 import fr.eurecom.dumdumgame.MainActivity;
 import fr.eurecom.dumdumgame.R;
 import fr.eurecom.dumdumgame.YoutubeActivity;
+import fr.eurecom.dumdumgame.GameManager.GameState;
 import fr.eurecom.utility.Helper;
 import fr.eurecom.utility.Parameters;
+import fr.eurecom.utility.UserWriter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -25,7 +27,7 @@ import android.widget.Toast;
 public class MainMenu extends BaseMenu {
 	// variables
 	private enum ButtonID {
-		SINGLEPLAYER, MULTIPLAYER, SHOP, STORY, INFO, EXIT
+		SINGLEPLAYER, MULTIPLAYER, SHOP, STORY, INFO, EXIT, CHEAT
 	};
 
 	public MainMenu(DynamicBitmap bmpBackground) {
@@ -85,6 +87,12 @@ public class MainMenu extends BaseMenu {
 				Parameters.dMaxHeight - btnSize * 5 / 4);
 		btn = new Button(ButtonID.EXIT, bmp, pos, btnSize, btnSize);
 		AddButton(btn);
+		
+		// cheat button
+		bmp = Parameters.bmpTransparent;
+		pos = new Point(0, 0);
+		btn = new Button(ButtonID.CHEAT, bmp, pos, Parameters.dZoomParam, Parameters.dZoomParam);
+		AddButton(btn);
 	}
 
 	@Override
@@ -112,6 +120,9 @@ public class MainMenu extends BaseMenu {
 			break;
 		case EXIT:
 			CallExit();
+			break;
+		case CHEAT:
+			CallCheat();
 			break;
 		default:
 			return false;
@@ -154,5 +165,20 @@ public class MainMenu extends BaseMenu {
 			Log.i("EXIT ERROR", e.getMessage().toString());
 			Toast.makeText(App.getMyContext(), e.getMessage().toString(), Toast.LENGTH_LONG).show();
 		}
+	}
+	
+	private void CallCheat() {
+		GameManager.user.setUnlockedLevel(8);
+		UserWriter.writeUserData(GameManager.user, Parameters.pthUserData);
+		
+		try {
+			((LoadMenu) (GameManager.menuList[GameState.LOAD_MENU.getValue()]))
+			.SpawnLevel(GameManager.user.getUnlockedLevel());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Toast.makeText(App.getMyContext(), "Cheaters gonna cheat", Toast.LENGTH_SHORT).show();
 	}
 }

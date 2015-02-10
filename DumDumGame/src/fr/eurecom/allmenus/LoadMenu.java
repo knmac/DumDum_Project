@@ -165,9 +165,9 @@ public class LoadMenu extends BaseMenu {
 		}
 
 		if (ResultButtonID.intValue() >= unlockedLevel) {
-			GameManager.getMssgBox().showMessage(
-					"You haven't unlocked this\n\n level yet!",
-					GameManager.GameState.LOAD_MENU, (MainActivity) o);
+			Toast.makeText(App.getMyContext(),
+					"You haven't unlocked this level yet!", Toast.LENGTH_SHORT)
+					.show();
 			return true;
 		}
 
@@ -226,7 +226,7 @@ public class LoadMenu extends BaseMenu {
 				GameManager.user.setCurrentLives(maxLives);
 				UserWriter.writeUserData(GameManager.user,
 						Parameters.pthUserData);
-			}				
+			}
 		}
 
 		// Do a down on the mutex
