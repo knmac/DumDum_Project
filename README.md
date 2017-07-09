@@ -1,4 +1,4 @@
-This game is currently on hold, due to budget issue. You can still visit our [homepage](https://dumdumgreatadventure.wordpress.com) for more information.
+This game is currently on hold, due to budget issues. You can still visit our [homepage](https://dumdumgreatadventure.wordpress.com) for more information.
 
 The game (Android platform), is available for free via the following links:
  - Link 1: [click here](https://dumdumgreatadventure.wordpress.com/download/).
