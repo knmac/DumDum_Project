@@ -1,2 +1,1 @@
-# DumDum_Project
-DUMDUM DUMDUM
+[Homepage](https://dumdumgreatadventure.wordpress.com)
