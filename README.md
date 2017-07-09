@@ -6,4 +6,4 @@ The game (Android platform), is available for free via the following links:
 
 Thank you for your love and support for DumDum. We hope to see you soon in our future projects. DumDum out! *(drop mic)*
 
-[[https://github.com/knmac/DumDum_Project/blob/master/DumDumGame/res/drawable-hdpi/dumdumicon.png]]
+![DumDum](https://github.com/knmac/DumDum_Project/blob/master/DumDumGame/res/drawable-hdpi/dumdumicon.png?raw=true "DumDum")
